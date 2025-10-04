@@ -1,0 +1,12 @@
+package data;
+
+import java.util.Date;
+
+public abstract class Order {
+    private int orderId;
+    private int userId;
+    private float price;
+    private Date startTime;
+    private Date endTime;
+    private boolean active;
+}
