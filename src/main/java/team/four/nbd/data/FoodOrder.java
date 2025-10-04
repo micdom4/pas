@@ -1,4 +1,4 @@
-package data;
+package team.four.nbd.data;
 
 public class FoodOrder extends Order {
     private int restaurantId;

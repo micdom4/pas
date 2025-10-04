@@ -1,4 +1,4 @@
-package data;
+package team.four.nbd.data;
 
 public class Worker {
     private int id;
