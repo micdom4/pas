@@ -1,4 +1,8 @@
 package data;
 
-public class ScooterOrder {
+public class ScooterOrder extends Order {
+    private int scooterId;
+    private boolean working;
+    private String startLocation;
+    private String endLocation;
 }

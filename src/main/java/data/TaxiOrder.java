@@ -1,6 +1,6 @@
 package data;
 
-public class TaxiOrder {
+public class TaxiOrder extends Order {
     public enum Type {
         NORMAL,
         COMFORT,
@@ -12,4 +12,5 @@ public class TaxiOrder {
     private Type type;
     private String startLocation;
     private String endLocation;
+    private String licensePlate;
 }

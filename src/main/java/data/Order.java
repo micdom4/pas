@@ -4,7 +4,7 @@ import java.util.Date;
 
 public abstract class Order {
     private int orderId;
-    private int userId;
+    private int clientId;
     private float price;
     private Date startTime;
     private Date endTime;
