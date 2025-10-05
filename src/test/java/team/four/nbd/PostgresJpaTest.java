@@ -3,12 +3,15 @@ package team.four.nbd;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
+import jakarta.persistence.PersistenceContext;
+import org.junit.Test;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
+import team.four.nbd.data.Client;
 
 import java.text.MessageFormat;
 import java.util.HashMap;
@@ -23,7 +26,10 @@ public class PostgresJpaTest {
             .withUsername("nbd")
             .withPassword("nbdpassword")
             .withExposedPorts(5432);
+
     private static EntityManagerFactory emf;
+
+    @PersistenceContext
     private static EntityManager em;
 
     @BeforeAll
@@ -31,12 +37,19 @@ public class PostgresJpaTest {
         String port = postgres.getMappedPort(5432).toString();
         String dbname = postgres.getDatabaseName();
         Map<String, String> properties = new HashMap<>();
-        String url = MessageFormat.format("jdbc:postgresql:</localhost:{0}/{1}", port, dbname);
+        String url = MessageFormat.format("jdbc:postgresql://localhost:{0}/{1}", port, dbname);
         properties.put("jakarta.persistence.jdbc.url", url);
+
+        postgres.start();
+
         emf = Persistence.createEntityManagerFactory("POSTGRES_RENT_PU", properties);
         em = emf.createEntityManager();
 
-        postgres.start();
+    }
+
+    @Test
+    public void testGet() {
+        Client client = em.find(Client.class, 1L);
     }
 
     @AfterAll

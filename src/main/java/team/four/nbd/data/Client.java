@@ -9,7 +9,7 @@ import jakarta.persistence.Id;
 import java.util.List;
 
 @Entity
-@Table(name = "CLIENTS")
+@Table(name = "clients")
 public class Client {
 
     public Client() {
