@@ -18,12 +18,12 @@ public class Client {
     public Client(long id, String name, String surname) {
         this.id = id;
         this.name = name;
-        Surname = surname;
+        surname = surname;
     }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private String name;
-    private String Surname;
+    private String surname;
 }
