@@ -9,4 +9,5 @@ public abstract class Order {
     private Date startTime;
     private Date endTime;
     private boolean active;
+    private String destination;
 }

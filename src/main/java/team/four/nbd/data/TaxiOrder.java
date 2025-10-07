@@ -11,6 +11,5 @@ public class TaxiOrder extends Order {
     private int workerId;
     private Type type;
     private String startLocation;
-    private String endLocation;
     private String licensePlate;
 }
