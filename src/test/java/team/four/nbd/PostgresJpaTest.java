@@ -11,6 +11,7 @@ import org.testcontainers.utility.DockerImageName;
 import team.four.nbd.data.Client;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Testcontainers
@@ -35,7 +36,7 @@ public class PostgresJpaTest {
 
         em.getTransaction().begin();
 
-        var clients = em.createQuery("SELECT c FROM Client c", Client.class)
+        List<Client> clients = em.createQuery("SELECT c FROM Client c", Client.class)
                 .getResultList();
 
         clients.forEach(System.out::println);
