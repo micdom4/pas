@@ -6,6 +6,10 @@
     <persistence-unit name="clients" transaction-type="RESOURCE_LOCAL">
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
         <class>team.four.nbd.data.Client</class>
+        <class>team.four.nbd.data.Order</class>
+        <class>team.four.nbd.data.FoodOrder</class>
+        <class>team.four.nbd.data.ScooterOrder</class>
+        <class>team.four.nbd.data.TaxiOrder</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <shared-cache-mode>NONE</shared-cache-mode>
         <validation-mode>CALLBACK</validation-mode>

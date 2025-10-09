@@ -1,10 +1,10 @@
 package team.four.nbd.data;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Table;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "clients")
@@ -24,6 +24,9 @@ public class Client {
     private long id;
     private String name;
     private String surname;
+
+    @OneToMany(mappedBy = "client")
+    private Set<Order> orders;
 
     @Override
     public String toString() {
