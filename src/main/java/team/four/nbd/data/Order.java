@@ -22,4 +22,9 @@ public abstract class Order {
     private LocalDateTime endTime;
     private boolean active;
     private String destination;
+
+    @Override
+    public String toString() {
+        return "id: " + orderId + " price: " + price + " " + client.toString();
+    }
 }
