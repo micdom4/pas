@@ -10,6 +10,9 @@
         <class>team.four.nbd.data.FoodOrder</class>
         <class>team.four.nbd.data.ScooterOrder</class>
         <class>team.four.nbd.data.TaxiOrder</class>
+        <class>team.four.nbd.data.Restaurant</class>
+        <class>team.four.nbd.data.Scooter</class>
+        <class>team.four.nbd.data.Worker</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <shared-cache-mode>NONE</shared-cache-mode>
         <validation-mode>CALLBACK</validation-mode>

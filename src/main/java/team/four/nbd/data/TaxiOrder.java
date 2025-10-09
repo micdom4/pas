@@ -1,9 +1,7 @@
 package team.four.nbd.data;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "taxi_order")
@@ -15,7 +13,9 @@ public class TaxiOrder extends Order {
         WOMAN;
     }
 
-    private int workerId;
+    @ManyToOne
+    @NotNull
+    private Worker worker;
 
     @Enumerated(EnumType.STRING)
     private Type type;
