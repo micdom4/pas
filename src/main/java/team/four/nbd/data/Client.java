@@ -2,8 +2,6 @@ package team.four.nbd.data;
 
 import jakarta.persistence.*;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -15,8 +13,13 @@ public class Client {
     private long id;
     private String name;
     private String surname;
+
     @Version
     private long version;
+
+    public long getId() {
+        return id;
+    }
 
     @OneToMany(mappedBy = "client")
     private Set<Order> orders;

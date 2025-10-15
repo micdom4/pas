@@ -3,15 +3,13 @@
              xmlns="https://jakarta.ee/xml/ns/persistence"
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd">
-    <persistence-unit name="zolt" transaction-type="RESOURCE_LOCAL">
+    <persistence-unit name="zuber" transaction-type="RESOURCE_LOCAL">
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
         <class>team.four.nbd.data.Client</class>
         <class>team.four.nbd.data.Order</class>
         <class>team.four.nbd.data.FoodOrder</class>
-        <class>team.four.nbd.data.ScooterOrder</class>
         <class>team.four.nbd.data.TaxiOrder</class>
         <class>team.four.nbd.data.Restaurant</class>
-        <class>team.four.nbd.data.Scooter</class>
         <class>team.four.nbd.data.Worker</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <shared-cache-mode>NONE</shared-cache-mode>
@@ -24,7 +22,7 @@
             <property name="jakarta.persistence.schema-generation.database.action" value="drop-and-create"/>
             <property name="jakarta.persistence.sql-load-script-source"
                       value="META-INF/data.sql" />
-            <property name="hibernate.show_sql" value="true"/>
+            <property name="hibernate.show_sql" value="false"/>
             <property name="hibernate.format_sql" value="true"/>
         </properties>
     </persistence-unit>

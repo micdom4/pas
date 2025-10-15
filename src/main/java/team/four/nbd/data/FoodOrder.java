@@ -10,9 +10,24 @@ import jakarta.validation.constraints.NotNull;
 @Table(name = "food_order")
 public class FoodOrder extends Order {
 
+    public Restaurant getRestaurant() {
+        return restaurant;
+    }
+
+    public void setRestaurant(Restaurant restaurant) {
+        this.restaurant = restaurant;
+    }
+
+    public String getRestaurantAddress() {
+        return restaurantAddress;
+    }
+
+    public void setRestaurantAddress(String restaurantAddress) {
+        this.restaurantAddress = restaurantAddress;
+    }
+
     @ManyToOne(fetch = FetchType.LAZY)
     @NotNull
     private Restaurant restaurant;
-    private int workerId;
     private String restaurantAddress;
 }

@@ -10,7 +10,4 @@ public interface ClientRepository {
 
     Client getClient(long id);
     Set<Order> getClientOrders(long client_id);
-
-    boolean addClient(Client client);
-    boolean deleteClient(Client client);
 }

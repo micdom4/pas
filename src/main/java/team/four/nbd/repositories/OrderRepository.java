@@ -9,5 +9,4 @@ public interface OrderRepository {
 
     boolean createOrder(Order order);
     boolean updateOrder(Order order);
-    boolean deleteOrder(long id);
 }

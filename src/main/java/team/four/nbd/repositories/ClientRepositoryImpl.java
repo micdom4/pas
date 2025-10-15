@@ -47,13 +47,4 @@ public class ClientRepositoryImpl implements ClientRepository {
         return orders;
     }
 
-    @Override
-    public boolean addClient(Client client) {
-        return false;
-    }
-
-    @Override
-    public boolean deleteClient(Client client) {
-        return false;
-    }
 }
