@@ -3,7 +3,6 @@ package team.four.nbd;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -52,7 +51,7 @@ public class PostgresJpaTest {
     @Test
     public void testGetClient() {
         Client client = clientRepo.getClient(1L);
-        System.out.println(client);
+        assertNotNull(client);
     }
 
 
@@ -91,10 +90,8 @@ public class PostgresJpaTest {
         newOrder.setRestaurant(restaurant);
         newOrder.setStartTime(LocalDateTime.now());
 
-        // ACT & ASSERT: This should succeed because the check is specific to taxi orders.
         assertEquals(true, orderRepo.createOrder(newOrder));
 
-        // VERIFY
         assertNotNull(em.find(FoodOrder.class, newOrder.getOrderId()));
     }
 
@@ -129,11 +126,22 @@ public class PostgresJpaTest {
         newOrder.setActive(true);
         newOrder.setStartTime(LocalDateTime.now());
 
-        // ACT & ASSERT: Expect the specific exception for an active client taxi order.
         assertEquals(false, orderRepo.createOrder(newOrder));
 
-        // VERIFY: Ensure the order was not persisted after the rollback.
         assertNull(em.find(Order.class, newOrder.getOrderId()));
     }
+
+
+    @Test
+    void updateTaxiOrder_Success() {
+        Order newOrder = orderRepo.getOrder(1001L);
+
+        assertEquals(true, newOrder.isActive());
+
+        orderRepo.updateOrder(1001L);
+
+        assertEquals(false, newOrder.isActive());
+    }
+
 
 }

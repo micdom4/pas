@@ -24,6 +24,9 @@ public abstract class Order {
     @NotNull
     private Worker worker;
 
+    @Version
+    private long version;
+
     private float price;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
@@ -38,4 +41,8 @@ public abstract class Order {
         return client.getId();
     }
 
+    public void finishOrder() {
+        active = false;
+        endTime = LocalDateTime.now();
+    }
 }

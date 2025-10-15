@@ -13,19 +13,9 @@ public class OrderRepositoryImpl implements OrderRepository {
         this.em = em;
     }
 
+    @Override
     public Order getOrder(long id) {
-        EntityTransaction tx = em.getTransaction();
-
-        Order order = null;
-        try {
-            tx.begin();
-            order = em.find(Order.class, id);
-            tx.commit();
-        } catch (Exception e) {
-            tx.rollback();
-        }
-
-        return order;
+        return em.find(Order.class, id);
     }
 
 
@@ -82,33 +72,20 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
 
     @Override
-    public boolean updateOrder(Order order) {
+    public boolean updateOrder(long id) {
 
         EntityTransaction tx = em.getTransaction();
 
         try {
             tx.begin();
 
-            Worker worker = em.find(Worker.class, order.getWorkerId(), LockModeType.PESSIMISTIC_WRITE);
+            Order order = em.find(Order.class, id, LockModeType.PESSIMISTIC_WRITE);
 
-            if (worker == null) {
-                throw new IllegalArgumentException("Worker with ID " + order.getWorkerId() + " not found.");
+            if (order == null) {
+                throw new IllegalArgumentException("order with ID " + id + " not found.");
             }
 
-
-            if (order instanceof TaxiOrder) {
-                TaxiOrder taxiOrder = (TaxiOrder) order;
-
-                Client client = em.find(Client.class, taxiOrder.getClientId(), LockModeType.PESSIMISTIC_WRITE);
-
-                if (client == null) {
-                    throw new IllegalArgumentException("Client with ID " + taxiOrder.getClientId() + " not found.");
-                }
-            }
-
-            order.setActive(false);
-
-            em.persist(order);
+            order.finishOrder();
 
             tx.commit();
         } catch (Exception e) {
