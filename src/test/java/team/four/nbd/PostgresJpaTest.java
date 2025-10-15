@@ -4,15 +4,13 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
-import team.four.nbd.data.Client;
-import team.four.nbd.data.FoodOrder;
-import team.four.nbd.data.Restaurant;
-import team.four.nbd.data.Worker;
+import team.four.nbd.data.*;
 import team.four.nbd.repositories.ClientRepository;
 import team.four.nbd.repositories.ClientRepositoryImpl;
 import team.four.nbd.repositories.OrderRepository;
@@ -24,21 +22,22 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 @Testcontainers
 public class PostgresJpaTest {
     private static ClientRepository clientRepo;
     private static OrderRepository orderRepo;
     private static EntityManager em;
+
     @Container
     private static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(DockerImageName.parse("postgres:17"))
             .withDatabaseName("nbddb")
             .withUsername("nbd")
             .withPassword("nbdpassword");
 
-    @BeforeAll
-    static void init() {
+    @BeforeEach
+    void init() {
         Map<String, String> properties = new HashMap<>();
         properties.put("jakarta.persistence.jdbc.url", postgres.getJdbcUrl());
         properties.put("jakarta.persistence.jdbc.user", postgres.getUsername());
@@ -46,19 +45,19 @@ public class PostgresJpaTest {
         properties.put("jakarta.persistence.jdbc.driver", "org.postgresql.Driver");
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("zuber", properties);
         em = emf.createEntityManager();
-
         clientRepo = new ClientRepositoryImpl(em);
         orderRepo = new OrderRepositoryImpl(em);
     }
+
     @Test
     public void testGetClient() {
         Client client = clientRepo.getClient(1L);
         System.out.println(client);
     }
 
+
     @Test
     void createFoodOrder_Success_WhenWorkerAndClientAreFree() {
-        // ARRANGE: Worker 203 (Charlie) and Client 4 (Emily) are both free.
         Client client = em.find(Client.class, 4L);
         Worker worker = em.find(Worker.class, 203L);
         Restaurant restaurant = em.find(Restaurant.class, 501L);
@@ -71,12 +70,70 @@ public class PostgresJpaTest {
         newOrder.setActive(true);
         newOrder.setRestaurant(restaurant);
 
-        // ACT & ASSERT: The method should execute without throwing an exception.
         assertEquals(true, orderRepo.createOrder(newOrder));
 
-        // VERIFY: The new order should exist in the database.
         FoodOrder persistedOrder = em.find(FoodOrder.class, newOrder.getOrderId());
         assertNotNull(persistedOrder);
         assertEquals(25.00f, persistedOrder.getPrice(), 0.0005f);
     }
+
+    @Test
+    void createFoodOrder_Success_ForClientWithActiveTaxiOrder() {
+        Client client = em.find(Client.class, 3L);
+        Worker worker = em.find(Worker.class, 203L);
+        Restaurant restaurant = em.find(Restaurant.class, 502L);
+
+        FoodOrder newOrder = new FoodOrder();
+        newOrder.setClient(client);
+        newOrder.setWorker(worker);
+        newOrder.setPrice(15.50f);
+        newOrder.setActive(true);
+        newOrder.setRestaurant(restaurant);
+        newOrder.setStartTime(LocalDateTime.now());
+
+        // ACT & ASSERT: This should succeed because the check is specific to taxi orders.
+        assertEquals(true, orderRepo.createOrder(newOrder));
+
+        // VERIFY
+        assertNotNull(em.find(FoodOrder.class, newOrder.getOrderId()));
+    }
+
+    @Test
+    void createOrder_Failure_WhenWorkerHasActiveOrder() {
+        Client freeClient = em.find(Client.class, 4L);
+        Worker busyWorker = em.find(Worker.class, 201L);
+        Restaurant restaurant = em.find(Restaurant.class, 501L);
+
+        FoodOrder newOrder = new FoodOrder();
+        newOrder.setClient(freeClient);
+        newOrder.setWorker(busyWorker);
+        newOrder.setOrderId(9996L);
+        newOrder.setActive(true);
+        newOrder.setRestaurant(restaurant);
+        newOrder.setStartTime(LocalDateTime.now());
+
+        assertEquals(false, orderRepo.createOrder(newOrder));
+
+        assertNull(em.find(Order.class, newOrder.getOrderId()) );
+    }
+
+    @Test
+    void createTaxiOrder_Failure_WhenClientHasActiveTaxiOrder() {
+        Client busyClient = em.find(Client.class, 3L);
+        Worker freeWorker = em.find(Worker.class, 404L);
+
+        TaxiOrder newOrder = new TaxiOrder();
+        newOrder.setOrderId(9995L);
+        newOrder.setClient(busyClient);
+        newOrder.setWorker(freeWorker);
+        newOrder.setActive(true);
+        newOrder.setStartTime(LocalDateTime.now());
+
+        // ACT & ASSERT: Expect the specific exception for an active client taxi order.
+        assertEquals(false, orderRepo.createOrder(newOrder));
+
+        // VERIFY: Ensure the order was not persisted after the rollback.
+        assertNull(em.find(Order.class, newOrder.getOrderId()));
+    }
+
 }

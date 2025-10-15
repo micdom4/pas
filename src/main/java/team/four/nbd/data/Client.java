@@ -1,9 +1,11 @@
 package team.four.nbd.data;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.util.Set;
 
+@Data
 @Entity
 @Table(name = "clients")
 public class Client {
@@ -17,16 +19,9 @@ public class Client {
     @Version
     private long version;
 
-    public long getId() {
-        return id;
-    }
-
     @OneToMany(mappedBy = "client")
     private Set<Order> orders;
 
-    public Set<Order> getOrders() {
-        return orders;
-    }
     @Override
     public String toString() {
         return  id + " " + name + " " + surname;

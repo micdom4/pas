@@ -3,7 +3,9 @@ package team.four.nbd.data;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.Data;
 
+@Data
 @Entity
 @Table(name = "worker")
 public class Worker {
@@ -13,8 +15,4 @@ public class Worker {
     private String Name;
     private String Surname;
     private byte[] id_card;
-
-    public long getId() {
-        return id;
-    }
 }

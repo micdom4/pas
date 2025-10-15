@@ -81,7 +81,6 @@ public class OrderRepositoryImpl implements OrderRepository {
         return true;
     }
 
-    // active = false, finishTime = teraz
     @Override
     public boolean updateOrder(Order order) {
 

@@ -1,8 +1,9 @@
 package team.four.nbd.data;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
+import lombok.Data;
 
+@Data
 @Entity
 @Table(name = "taxi_order")
 public class TaxiOrder extends Order {

@@ -34,8 +34,12 @@
 
 	<dependencies>
 
-        <!-- JUnit 5 -->
-
+        <!-- lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.40</version>
+        </dependency>
         <!-- ###### -->
         <!-- JPA -->
         <!-- ###### -->
