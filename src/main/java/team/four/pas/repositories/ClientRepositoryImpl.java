@@ -1,7 +1,7 @@
-package team.four.nbd.repositories;
+package team.four.pas.repositories;
 
 import jakarta.persistence.EntityManager;
-import team.four.nbd.data.Client;
+import team.four.pas.data.Client;
 
 public class ClientRepositoryImpl implements ClientRepository {
     private final EntityManager em;

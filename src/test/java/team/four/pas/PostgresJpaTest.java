@@ -1,4 +1,4 @@
-package team.four.nbd;
+package team.four.pas;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -9,11 +9,11 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
-import team.four.nbd.data.*;
-import team.four.nbd.repositories.ClientRepository;
-import team.four.nbd.repositories.ClientRepositoryImpl;
-import team.four.nbd.repositories.OrderRepository;
-import team.four.nbd.repositories.OrderRepositoryImpl;
+import team.four.pas.data.*;
+import team.four.pas.repositories.ClientRepository;
+import team.four.pas.repositories.ClientRepositoryImpl;
+import team.four.pas.repositories.OrderRepository;
+import team.four.pas.repositories.OrderRepositoryImpl;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;

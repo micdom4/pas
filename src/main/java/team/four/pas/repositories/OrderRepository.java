@@ -1,6 +1,5 @@
-package team.four.nbd.repositories;
-import jakarta.persistence.EntityTransaction;
-import team.four.nbd.data.*;
+package team.four.pas.repositories;
+import team.four.pas.data.*;
 
 public interface OrderRepository {
 

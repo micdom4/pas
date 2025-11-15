@@ -1,9 +1,9 @@
-package team.four.nbd.repositories;
+package team.four.pas.repositories;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.LockModeType;
-import team.four.nbd.data.*;
+import team.four.pas.data.*;
 
 public class OrderRepositoryImpl implements OrderRepository {
 

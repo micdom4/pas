@@ -1,10 +1,10 @@
-package team.four.nbd;
+package team.four.pas;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class NbdApplicationTests {
+class PasApplicationTests {
 
 	@Test
 	void contextLoads() {

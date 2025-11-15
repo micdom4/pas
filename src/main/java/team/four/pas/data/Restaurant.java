@@ -1,4 +1,4 @@
-package team.four.nbd.data;
+package team.four.pas.data;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;

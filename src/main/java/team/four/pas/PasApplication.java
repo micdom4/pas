@@ -1,13 +1,13 @@
-package team.four.nbd;
+package team.four.pas;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class NbdApplication {
+public class PasApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(NbdApplication.class, args);
+		SpringApplication.run(PasApplication.class, args);
 	}
 
 }

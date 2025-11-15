@@ -1,7 +1,7 @@
-package team.four.nbd.repositories;
+package team.four.pas.repositories;
 
 
-import team.four.nbd.data.Client;
+import team.four.pas.data.Client;
 
 public interface ClientRepository {
 
