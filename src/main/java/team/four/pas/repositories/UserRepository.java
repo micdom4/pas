@@ -8,13 +8,15 @@ import java.util.UUID;
 public interface UserRepository  extends Repository<User> {
     User findByLogin(String login);
 
+    List<User> findByLogin(List<String> login);
+
     List<User> findByMatchingLogin(String loginStart);
 
-    public <T extends User> boolean add(String login, String name, String surname, Class<T> userClass);
+    <T extends User> boolean add(String login, String name, String surname, Class<T> userClass);
 
-    public boolean update(UUID id, String Surname);
+    boolean update(UUID id, String Surname);
 
-    public boolean update(String login, String Surname);
+    boolean update(String login, String Surname);
 
-    public boolean delete(String login);
+    boolean delete(String login);
 }

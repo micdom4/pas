@@ -14,9 +14,9 @@ MODEL
 
     [x] Klucz: Wartość klucza jest wymagana i unikatowa w obrębie hierarchii.
 
-    [ ] Klucz: Jest podstawą relacji równości (equals() i hashCode()).
+    [x] Klucz: Jest podstawą relacji równości (equals() i hashCode()).
 
-    [ ] Klucz: Nie ma znaczenia w domenie biznesowej.
+    [x] Klucz: Nie ma znaczenia w domenie biznesowej.
 
     [x] Użytkownicy: Istnieje hierarchia klas Użytkowników.
 

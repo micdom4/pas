@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 /*
 Make returns optional instead of Null, Add custom exceptions
  */
-
 public class LocalUserRepository implements UserRepository {
 
     private final UserMap idLoginMap = new UserMap();
@@ -20,18 +19,29 @@ public class LocalUserRepository implements UserRepository {
         return idLoginMap.get(login);
     }
 
+
+    @Override
+    public List<User> findByLogin(List<String> login) {
+        return idLoginMap.getByLogins(login);
+    }
+
     @Override
     public List<User> findByMatchingLogin(String loginStart) {
-        List<String> matchingLogins = idLoginMap.getLogins()
+        List<String> matching = idLoginMap.getLogins()
                                                 .stream()
                                                 .filter(log -> log.startsWith(loginStart))
                                                 .collect(Collectors.toList());
-        return idLoginMap.get(matchingLogins);
+        return idLoginMap.getByLogins(matching);
     }
 
     @Override
     public User findById(UUID id) {
         return idLoginMap.get(id);
+    }
+
+    @Override
+    public List<User> findById(List<UUID> ids) {
+        return idLoginMap.getByIDs(ids);
     }
 
     public <T extends User> boolean add(String login, String name, String surname, Class<T> userClass) {
@@ -107,10 +117,16 @@ public class LocalUserRepository implements UserRepository {
             return loginToUser.get(login);
         }
 
-        List<User> get(List<String> logins) {
+        List<User> getByLogins(List<String> logins) {
             return logins.stream()
                          .map(login -> loginToUser.get(login))
                          .collect(Collectors.toList());
+        }
+
+        List<User> getByIDs(List<UUID> logins) {
+            return logins.stream()
+                    .map(login -> loginToUser.get(login))
+                    .collect(Collectors.toList());
         }
 
         Set<String> getLogins() {

@@ -14,7 +14,6 @@ public abstract class User {
     @NonNull private String login;
     @NonNull private String name;
     @Setter @NonNull private String surname;
-    @Setter private boolean active;
 
     @Override
     public boolean equals(Object o) {
