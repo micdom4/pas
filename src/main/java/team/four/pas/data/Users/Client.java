@@ -1,4 +1,4 @@
-package team.four.pas.data;
+package team.four.pas.data.Users;
 
 import java.util.UUID;
 

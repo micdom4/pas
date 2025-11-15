@@ -1,6 +1,8 @@
 package team.four.pas.data;
 
 import lombok.Data;
+import team.four.pas.data.Users.Client;
+import team.four.pas.data.Users.Worker;
 
 import java.time.LocalDateTime;
 
