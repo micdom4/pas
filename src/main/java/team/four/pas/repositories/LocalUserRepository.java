@@ -16,6 +16,7 @@ public class LocalUserRepository implements UserRepository {
         return idLoginMap.get(login);
     }
 
+    @Override
     public List<User> findByMatchingLogin(String loginStart) {
         List<String> matchingLogins = idLoginMap.getLogins()
                                                 .stream()
