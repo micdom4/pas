@@ -1,161 +1,125 @@
 PLATFORMA
 
-    [x] Aplikacja jest realizowana w architekturze kontener-komponent.
+Aplikacja jest realizowana w architekturze kontener-komponent, w jednym z kontenerów (do wyboru):
 
-    [x] Wybrano jeden z kontenerów: Jakarta, Quarkus lub Spring IoC.
+    [ ] Jakarta
+
+    [ ] Quarkus
+
+    [x] Spring IoC
 
 MODEL
 
-    [x] Aplikacja odwzorowuje model biznesowy alokacji zasobów w czasie (np. wypożyczalnia, rezerwacje).
+Aplikacja ma odwzorowywać prosty model biznesowy, w którym użytkownicy końcowi aplikacji (dalej zwani Klientami) mogą dokonywać wyłącznej alokacji pewnych Zasobów definiowanych przez aplikację, w określonych przedziałach czasu. Do tej klasy modeli biznesowych należą wszelkiego rodzaju wypożyczalnie, hotele, umawianie spotkań etc.
 
-    [x] Model danych obejmuje co najmniej trzy klasy.
+Model danych aplikacji powinien obejmować co najmniej trzy klasy:
 
-    [x] Wszystkie klasy: Posiadają atrybut klucza (identyfikator, np. int lub UUID).
+    [x] w każdej z klas / hierarchii powinien wystąpić atrybut, którego wartość będzie wymagana i unikatowa dla całego zbioru obiektów danej hierarchii oraz będzie podstawą relacji równości tych obiektów, a jednocześnie jako atrybut nie będzie miał znaczenia w domenie (tzw. identyfikator/klucz); może to być wartość całkowita lub UUID
 
-    [x] Klucz: Wartość klucza jest wymagana i unikatowa w obrębie hierarchii.
+    [x] hierarchia klas reprezentująca Użytkowników aplikacji, uwzględniająca podział na co najmniej trzy poziomy dostępu do aplikacji (poziom administratora użytkowników, poziom zarządcy zasobów, poziom użytkownika zasobów - Klienta)
 
-    [x] Klucz: Jest podstawą relacji równości (equals() i hashCode()).
+    [x] w modelu Użytkowników musi występować atrybut, którego wartość określa, czy dany Użytkownik jest aktywny tj. może wykonywać akcje w aplikacji
 
-    [x] Klucz: Nie ma znaczenia w domenie biznesowej.
+    [x] w modelu Użytkowników musi występować atrybut typu tekstowego będący identyfikatorem (tzw. login), którego wartość będzie wymagana i unikatowa dla całego zbioru obiektów (niezależnie od istnienia klucza w tych obiektach)
 
-    [x] Użytkownicy: Istnieje hierarchia klas Użytkowników.
+    [x] Klasa reprezentująca Zasób aplikacji; nie jest wymagane reprezentowanie wielu typów zasobów
 
-    [x] Użytkownicy: Uwzględniono co najmniej 3 poziomy dostępu (administrator, zarządca, klient).
-
-    [x] Użytkownicy: Istnieje atrybut określający, czy Użytkownik jest aktywny.
-
-    [x] Użytkownicy: Istnieje atrybut tekstowy login.
-
-    [x] Użytkownicy: login jest wymagany i unikatowy dla całego zbioru.
-
-    [x] Zasób: Istnieje klasa reprezentująca Zasób (nie trzeba wielu typów).
-
-    [x] Alokacja: Istnieje klasa reprezentująca fakt alokacji.
-
-    [x] Alokacja: Minimalne atrybuty to: Klient, Zasób, czas rozpoczęcia, czas zakończenia.
+    [x] klasa reprezentująca fakt alokacji Zasobu przez Klienta, której minimalnym zbiorem atrybutów są: Klient, Zasób, czas rozpoczęcia alokacji, czas zakończenia alokacji;
 
 FUNKCJONALNOŚĆ
 
-    [ ] Wyszukiwanie wszystkich rodzajów obiektów według wartości klucza (zwraca jeden obiekt).
+Funkcjonalność aplikacji powinna obejmować:
 
-    [x] Wyszukiwanie Użytkowników według login (dopasowanie dokładne, zwraca jeden obiekt).
+    [x] wyszukiwanie wszystkich rodzajów obiektów według wartości klucza (wynikiem powinien być jeden obiekt)
 
-    [x] Wyszukiwanie Użytkowników według login (dopasowanie częściowe/wzorzec, zwraca listę).
+    [x] wyszukiwanie Użytkowników także według wartości identyfikatora tekstowego w dwóch wariantach: wyszukiwanie dokładnie podanej wartości (wynikiem powinien być jeden obiekt) oraz dopasowanie podanej wartości (wynikiem powinna być lista obiektów)
 
-    [ ] Zasoby: Zaimplementowano operacje CRUD (Create, Read lista, Update, Delete).
+    [ ] zestaw operacji CRUD (tworzenie, odczyt (lista), modyfikacja, usuwanie) dla hierarchii Zasobów, przy czym usunięcie Zasobu jest możliwe tylko wtedy, gdy nie jest z nim związana żadna alokacja
 
-    [ ] Zasoby: Usunięcie Zasobu jest możliwe tylko wtedy, gdy nie ma powiązanych alokacji.
+    [ ] zestaw operacji CRU (tworzenie, odczyt (lista), modyfikacja) dla hierarchii Użytkowników, dodatkowo jako odrębne operacje należy uwzględnić aktywowanie i deaktywowanie Użytkownika
 
-    [x] Użytkownicy: Zaimplementowano operacje CRU (Create, Read lista, Update).
+    [ ] utworzenie alokacji dla wskazanego Klienta oraz Zasobu (wskazanie poprzez wartość klucza), obwarowane co najmniej aktywnością Klienta oraz dostępnością (brakiem nie zakończonych alokacji) Zasobu
 
-    [ ] Użytkownicy: Istnieje oddzielna operacja aktywowania Użytkownika.
+    [x] pobranie (odrębnie) listy alokacji minionych oraz bieżących dla wskazanego Klienta lub Zasobu
 
-    [ ] Użytkownicy: Istnieje oddzielna operacja deaktywowania Użytkownika.
+    [ ] zakończenie alokacji i usuwanie alokacji
 
-    [ ] Alokacje: Można utworzyć alokację dla Klienta i Zasobu (wskazanych przez klucz).
+    [ ] czas rozpoczęcia tworzonej alokacji może być ustawiany jako przyszły
 
-    [ ] Alokacje: Warunkiem utworzenia jest aktywność Klienta.
+    [x] zakończenie alokacji polega na ustawieniu atrybutu czasu zakończenia alokacji
 
-    [ ] Alokacje: Warunkiem utworzenia jest dostępność Zasobu (brak innych nie zakończonych alokacji).
+    [ ] usuwanie alokacji dotyczy tylko alokacji nie zakończonych
 
-    [ ] Alokacje: Można pobrać listę alokacji minionych (oddzielnie dla Klienta lub Zasobu).
+    [ ] operacje na alokacjach są prowadzone z perspektywy osoby trzeciej (operatora aplikacji)
 
-    [ ] Alokacje: Można pobrać listę alokacji bieżących (oddzielnie dla Klienta lub Zasobu).
-
-    [ ] Alokacje: Istnieje funkcja zakończenia alokacji.
-
-    [ ] Alokacje: Istnieje funkcja usuwania alokacji.
-
-    [ ] Alokacje: Czas rozpoczęcia alokacji może być ustawiony jako przyszły.
-
-    [ ] Alokacje: Zakończenie alokacji polega na ustawieniu atrybutu czasu zakończenia.
-
-    [ ] Alokacje: Usuwanie dotyczy tylko alokacji nie zakończonych.
-
-    [ ] Alokacje: Operacje są prowadzone z perspektywy operatora (osoby trzeciej).
-
-UWAGI
-
-    [ ] Funkcjonalność nie jest rozbudowana ponad wymagania.
-
-    [ ] Model aplikacji nie powiela modelu "Wypożyczalnia pojazdów".
+    UWAGA: Nie ma potrzeby i nie jest zalecane rozbudowywanie funkcjonalności ponad wyżej wymienione wymagania WSKAZÓWKA: Dobrą bazą do budowy modelu aplikacji powinien być projekt realizowany w ramach przedmiotu Programowanie Obiektowe UWAGA: Model aplikacji nie może powielać modelu "Wypożyczalnia pojazdów" używanego jako referencyjny
 
 WARUNKI POPRAWNOŚCI
 
-    [ ] Implementacja uwzględnia sprawdzanie poprawności danych wejściowych.
+W implementacji aplikacji należy uwzględnić sprawdzanie poprawności danych wejściowych, a w szczególności:
 
-    [ ] Realizowana jest walidacja składniowa danych w żądaniu.
+    [ ] walidację składniową danych przesyłanych w żądaniu, przy czym niespełnianie warunków poprawności powinno powodować uznanie żądania za niepoprawne
 
-    [ ] Błąd walidacji składniowej powoduje uznanie żądania za niepoprawne (np. błąd 400).
-
-    [ ] Weryfikowana jest możliwość realizacji operacji ze względu na stan danych (logika biznesowa).
+    [ ] weryfikację możliwości realizacji operacji ze względu na stan danych aplikacji (zgodnie z opisem funkcjonalności)
 
 SZCZEGÓŁY ARCHITEKTONICZNE
 
-    [ ] Aplikacja jest zrealizowana w modelu warstwowym.
+Aplikacja powinna być zrealizowana w modelu warstwowym, a w szczególności powinny być wyodrębnione dwie warstwy:
 
-    [ ] Wyodrębniono warstwę "menedżerów" (logika biznesowa).
+    [ ] warstwa tzw. menedżerów - obiektów wykonawczych udostępniających realizację wszystkich funkcji warstwy logiki; funkcjonalność menedżerów jest dostępna jako Rest API
 
-    [ ] Funkcjonalność menedżerów jest dostępna jako Rest API.
+    [ ] warstwa tzw. źródeł danych (DAO, repozytoria) - obiektów wykonawczych realizujących funkcjonalność składowania danych (z uwzględnieniem unikatowości identyfikatorów biznesowych)
 
-    [ ] Wyodrębniono warstwę "źródeł danych" (DAO / Repozytoria).
+    [ ] składowanie danych powinno być realizowane w pamięci aplikacji, przy czym konstrukcja aplikacji powinna uwzględniać możliwość łatwej (nie wymagającej zmiany kodu klas menedżerów) zmiany implementacji źródeł danych
 
-    [ ] Źródła danych realizują składowanie danych (unikatowość ID biznesowych).
+    [ ] uruchamianie aplikacji powinno wiązać się z wczytaniem zestawu danych inicjujących
 
-    [ ] Składowanie danych jest realizowane w pamięci aplikacji.
+    [ ] źródło danych jest odpowiedzialne za spełnianie warunku unikalności i niepustości kluczy oraz identyfikatora tekstowego (optymalność wykonania nie podlega ocenie)
 
-    [ ] Konstrukcja pozwala na łatwą zmianę implementacji źródeł danych (bez zmiany menedżerów).
+    [ ] źródło danych jest odpowiedzialne za nadawanie wartości kluczy nowo tworzonym obiektom
 
-    [ ] Uruchomienie aplikacji wczytuje zestaw danych inicjujących.
+    [ ] poszczególne hierarchie obiektów aplikacji powinny być obsługiwane przez odrębne klasy menedżerów / źródeł danych (zasada pojedynczej odpowiedzialności)
 
-    [ ] Źródło danych odpowiada za unikalność i niepustość kluczy oraz login.
-
-    [ ] Źródło danych odpowiada za nadawanie wartości kluczy nowym obiektom.
-
-    [ ] Poszczególne hierarchie obiektów mają oddzielne klasy menedżerów / źródeł danych (SRP).
-
-    [ ] Operacje filtrowania i wyszukiwania są realizowane przez źródła danych (minimalizacja transferu).
+    [ ] operacje zawężania zbioru danych (filtrowanie, wyszukiwanie) powinny być realizowane przez źródła danych (zasada minimalizacji transferu danych)
 
 OBSŁUGA WIELOWĄTKOWOŚCI
 
-    [ ] Obiekty źródeł danych są współdzielone pomiędzy żądaniami (np. jako singletony).
+Należy pamiętać, że aplikacja będzie wykonywana wielowątkowo na poziomie obsługi żądań.
 
-    [ ] Unika się współdzielenia innych klas wykonawczych (menedżerów) między wątkami (np. poprzez odpowiedni scope w kontenerze).
+    [ ] obiekty źródeł danych muszą być współdzielone pomiędzy poszczególne żądania aplikacji Rest
+
+    [ ] w przypadku pozostałych klas wykonawczych należy unikać współdzielenia tych obiektów pomiędzy wątkami (stosować odpowiednie mechanizmy kontenera / frameworku aplikacyjnego)
 
 CECHY SPECYFICZNE APLIKACJI REST
 
-    [ ] Uwzględniono ryzyko hazardu (przeplot żądań modyfikujących dane).
+Należy uwzględnić cechy specyficzne dla aplikacji Rest, wynikające z komunikacji w modelu żądanie - odpowiedź, w szczególności:
 
-    [ ] Uwzględniono możliwość ponownego przesłania identycznego żądania.
+    [ ] ryzyko hazardu związanego z przeplotem żądań prowadzących do modyfikacji stanu źródeł danych
+
+    [ ] możliwość ponownego przesłania identycznego żądania
 
 TESTY INTEGRACYJNE
 
-    [ ] Zaimplementowano zestaw automatycznych testów usługi REST.
+    [ ] Zaimplementować zestaw automatycznych testów usługi REST. Wymagane jest użycie frameworku / narzędzia dedykowanego do tego celu. Narzędzie powinno integrować się z IDE i umożliwiać generowanie raportów z pokrycia kodu testami. Wymagania te spełnia na pewno użycie JUnit i użycie biblioteki klienta REST (JaxRS, RestAssured,...).
 
-    [ ] Użyto dedykowanego frameworku (np. JUnit + RestAssured).
+    [ ] Procedura uruchamiania testów zakłada, że usługa jest wdrożona i dostępna a jej URL jest znany.
 
-    [ ] Narzędzie integruje się z IDE i generuje raporty pokrycia.
+    [ ] Implementując testy można założyć, że usługa jest uruchomiona z zerowym stanem danych. Nie ma obowiązku "czyszczenia" danych będących wynikiem przeprowadzania testów.
 
-    [ ] Procedura testów zakłada, że usługa jest uruchomiona i dostępna.
+    [ ] Należy unikać uzależniania testów od siebie (np. wykonanie kolejnego testu wymaga wprowadzenia odpowiednich danych przez poprzedni test). Każdy test powinien sam przygotowywać dane potrzebne do jego przeprowadzenia.
 
-    [ ] Testy mogą zakładać zerowy stan danych przy starcie usługi.
+Następujące funkcjonalności powinny być pokryte testami:
 
-    [ ] Nie ma obowiązku czyszczenia danych po testach.
+Testy pozytywne - weryfikacja na podstawie oczekiwanego stanu danych usługi:
 
-    [ ] Unika się uzależniania testów od siebie.
+    [ ] CRU[D] na obiektach Użytkowników i Zasobów
 
-    [ ] Każdy test sam przygotowuje dane potrzebne do jego wykonania.
+    [ ] alokacja Zasobu na rzecz Klienta
 
-    [ ] Testy pozytywne: Pokryto CRU[D] na Użytkownikach.
+Testy negatywne - weryfikacja na podstawie zwróconego kodu statusu żądania HTTP
 
-    [ ] Testy pozytywne: Pokryto CRU[D] na Zasobach.
+    [ ] naruszenie ograniczeń składniowych dla tworzonych lub modyfikowanych obiektów - po jednym przykładzie dla obu hierarchii (Użytkowników i Zasobów)
 
-    [ ] Testy pozytywne: Pokryto alokację Zasobu na rzecz Klienta.
+    [ ] naruszenie ograniczenia unikalności identyfikatora Użytkownika
 
-    [ ] Testy negatywne: Pokryto naruszenie ograniczeń składniowych dla Użytkowników (1 przykład).
-
-    [ ] Testy negatywne: Pokryto naruszenie ograniczeń składniowych dla Zasobów (1 przykład).
-
-    [ ] Testy negatywne: Pokryto naruszenie unikalności identyfikatora (login) Użytkownika.
-
-    [ ] Testy negatywne: Pokryto niepowodzenie alokacji (Zasób już zaalokowany).
+    [ ] niepowodzenie alokacji Zasobu na rzecz Klienta ze względu na to, że Zasób został już zaalokowany
