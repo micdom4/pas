@@ -7,6 +7,10 @@ import team.four.pas.data.users.User;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/*
+Make returns optional instead of Null, Add custom exceptions
+ */
+
 public class LocalUserRepository implements UserRepository {
 
     private final UserMap idLoginMap = new UserMap();

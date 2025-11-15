@@ -10,7 +10,6 @@ public class PasApplication {
         var context = new AnnotationConfigApplicationContext(Config.class);
 
         UserRepository userRepository = context.getBean(UserRepository.class);
-
 	}
 
 }
