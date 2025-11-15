@@ -1,7 +1,9 @@
 package team.four.pas.repositories;
 
+import team.four.pas.data.users.Admin;
+import team.four.pas.data.users.Client;
+import team.four.pas.data.users.Manager;
 import team.four.pas.data.users.User;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -27,26 +29,64 @@ public class LocalUserRepository implements UserRepository {
         return idLoginMap.get(id);
     }
 
-    public boolean add(String login, String name, String surname) {
-        if(idLoginMap.contains(login)){
-
+    public <T extends User> boolean add(String login, String name, String surname, Class<T> userClass) {
+        if(idLoginMap.contains(login) || login.isEmpty()) {
+            return false;
         }
-        //Check if login is unique, Create a new unique UUID
+
+        User user;
+
+        do {
+            if (userClass == Admin.class) {
+                user = new Admin(UUID.randomUUID(), login, name, surname);
+            } else if (userClass == Manager.class) {
+                user = new Manager(UUID.randomUUID(), login, name, surname);
+            } else if (userClass == Client.class) {
+                user = new Client(UUID.randomUUID(), login, name, surname);
+            } else {
+                throw new RuntimeException("Tried adding object which doesn't subclass User");
+            }
+        } while(idLoginMap.contains(user.getId()));
+
         idLoginMap.put(user.getLogin(), user);
         return true;
     }
 
+    public boolean update(UUID id, String Surname) {
+        if(idLoginMap.contains(id)) {
+            idLoginMap.get(id).setSurname(Surname);
+            return true;
+        }
 
-    @Override
-    public boolean update(User user) {
+        return false;
+    }
+
+    public boolean update(String login, String Surname) {
+        if(idLoginMap.contains(login)) {
+            idLoginMap.get(login).setSurname(Surname);
+            return true;
+        }
+
         return false;
     }
 
     @Override
     public boolean delete(UUID id) {
-        // Check if he has active allocations, and exists
-        idLoginMap.remove(id);
-        return true;
+        if(idLoginMap.contains(id)) {
+            idLoginMap.remove(id);
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean delete(String login) {
+        if(idLoginMap.contains(login)) {
+            idLoginMap.remove(login);
+            return true;
+        }
+
+        return false;
     }
 
 
@@ -74,6 +114,10 @@ public class LocalUserRepository implements UserRepository {
 
         boolean contains(String login) {
             return loginToUser.containsKey(login);
+        }
+
+        boolean contains(UUID uuid) {
+            return idToUser.containsKey(uuid);
         }
 
         void put(String login, User user) {
