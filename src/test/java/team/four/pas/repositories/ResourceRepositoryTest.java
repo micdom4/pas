@@ -4,11 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import team.four.pas.Config;
-import team.four.pas.data.users.Admin;
-import team.four.pas.data.users.Client;
-import team.four.pas.data.users.User;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ResourceRepositoryTest {
 
@@ -29,15 +26,8 @@ class ResourceRepositoryTest {
      CCC  */
 
     @Test
-    void addPassWhenFreeLogin() {
-    }
-
-    @Test
-    void addFailWhenLoginExists() {
-    }
-
-    @Test
-    void addFailWhenLoginEmpty() {
+    void add() {
+        assertTrue(resourceRepository.addVM(5, 12, 10));
     }
 
     /* RRR
@@ -47,17 +37,13 @@ class ResourceRepositoryTest {
        R   R */
 
     @Test
-    void findByLogin() {
-    }
+    void findById() {
 
-    @Test
-    void findByMatchingLogin() {
     }
 
     @Test
     void shouldReturnCorrectType() {
     }
-
 
     /* U   U
        U   U
@@ -78,5 +64,4 @@ class ResourceRepositoryTest {
     @Test
     void delete() {
     }
-}
 }

@@ -2,13 +2,15 @@ package team.four.pas.data;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.util.UUID;
 
 @AllArgsConstructor
-public class IdentifiableEntity {
+public abstract class IdentifiableEntity {
     @Getter private UUID id;
 
     @Override

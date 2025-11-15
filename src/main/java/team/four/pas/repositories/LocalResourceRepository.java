@@ -27,11 +27,13 @@ public class LocalResourceRepository implements ResourceRepository {
 
     public boolean addVM(int cpuNumber, int ram, int memory) {
         VirtualMachine vm;
+
         do {
             vm = new VirtualMachine(UUID.randomUUID(), cpuNumber, ram, memory);
         } while(map.containsKey(vm.getId()));
 
-        return map.put(vm.getId(), vm) != null;
+        map.put(vm.getId(), vm);
+        return true;
     }
 
     @Override
