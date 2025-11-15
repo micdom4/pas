@@ -1,10 +1,7 @@
 package team.four.pas.repositories;
 
-import team.four.pas.data.Resource;
-import team.four.pas.data.VirtualMachine;
-import team.four.pas.data.users.Admin;
-import team.four.pas.data.users.Client;
-import team.four.pas.data.users.Manager;
+import team.four.pas.data.resources.Resource;
+import team.four.pas.data.resources.VirtualMachine;
 
 import java.util.HashMap;
 import java.util.List;
@@ -39,7 +36,7 @@ public class LocalResourceRepository implements ResourceRepository {
 
     @Override
     public boolean delete(UUID id) {
-        return false;
+        return map.remove(id) != null;
     }
 
 }

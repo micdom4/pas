@@ -1,5 +1,6 @@
-package team.four.pas.data;
+package team.four.pas.data.allocations;
 import lombok.NonNull;
+import team.four.pas.data.resources.VirtualMachine;
 import team.four.pas.data.users.Client;
 
 import java.time.LocalDateTime;

@@ -1,4 +1,6 @@
-package team.four.pas.data;
+package team.four.pas.data.resources;
+
+import team.four.pas.data.IdentifiableEntity;
 
 import java.util.UUID;
 
