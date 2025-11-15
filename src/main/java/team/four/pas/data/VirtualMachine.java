@@ -1,9 +1,8 @@
 package team.four.pas.data;
+import lombok.Getter;
 
-import java.util.UUID;
-
-public class VirtualMachine implements Resource {
-    private UUID id;
+@Getter
+public class VirtualMachine extends Resource {
     private int cpuNumber;
     private int ram;
     private int storage;

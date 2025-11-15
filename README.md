@@ -1,52 +1,52 @@
 PLATFORMA
 
-    [ ] Aplikacja jest realizowana w architekturze kontener-komponent.
+    [x] Aplikacja jest realizowana w architekturze kontener-komponent.
 
-    [ ] Wybrano jeden z kontenerów: Jakarta, Quarkus lub Spring IoC.
+    [x] Wybrano jeden z kontenerów: Jakarta, Quarkus lub Spring IoC.
 
 MODEL
 
-    [ ] Aplikacja odwzorowuje model biznesowy alokacji zasobów w czasie (np. wypożyczalnia, rezerwacje).
+    [x] Aplikacja odwzorowuje model biznesowy alokacji zasobów w czasie (np. wypożyczalnia, rezerwacje).
 
-    [ ] Model danych obejmuje co najmniej trzy klasy.
+    [x] Model danych obejmuje co najmniej trzy klasy.
 
-    [ ] Wszystkie klasy: Posiadają atrybut klucza (identyfikator, np. int lub UUID).
+    [x] Wszystkie klasy: Posiadają atrybut klucza (identyfikator, np. int lub UUID).
 
-    [ ] Klucz: Wartość klucza jest wymagana i unikatowa w obrębie hierarchii.
+    [x] Klucz: Wartość klucza jest wymagana i unikatowa w obrębie hierarchii.
 
     [ ] Klucz: Jest podstawą relacji równości (equals() i hashCode()).
 
     [ ] Klucz: Nie ma znaczenia w domenie biznesowej.
 
-    [ ] Użytkownicy: Istnieje hierarchia klas Użytkowników.
+    [x] Użytkownicy: Istnieje hierarchia klas Użytkowników.
 
-    [ ] Użytkownicy: Uwzględniono co najmniej 3 poziomy dostępu (administrator, zarządca, klient).
+    [x] Użytkownicy: Uwzględniono co najmniej 3 poziomy dostępu (administrator, zarządca, klient).
 
-    [ ] Użytkownicy: Istnieje atrybut określający, czy Użytkownik jest aktywny.
+    [x] Użytkownicy: Istnieje atrybut określający, czy Użytkownik jest aktywny.
 
-    [ ] Użytkownicy: Istnieje atrybut tekstowy login.
+    [x] Użytkownicy: Istnieje atrybut tekstowy login.
 
-    [ ] Użytkownicy: login jest wymagany i unikatowy dla całego zbioru.
+    [x] Użytkownicy: login jest wymagany i unikatowy dla całego zbioru.
 
-    [ ] Zasób: Istnieje klasa reprezentująca Zasób (nie trzeba wielu typów).
+    [x] Zasób: Istnieje klasa reprezentująca Zasób (nie trzeba wielu typów).
 
-    [ ] Alokacja: Istnieje klasa reprezentująca fakt alokacji.
+    [x] Alokacja: Istnieje klasa reprezentująca fakt alokacji.
 
-    [ ] Alokacja: Minimalne atrybuty to: Klient, Zasób, czas rozpoczęcia, czas zakończenia.
+    [x] Alokacja: Minimalne atrybuty to: Klient, Zasób, czas rozpoczęcia, czas zakończenia.
 
 FUNKCJONALNOŚĆ
 
     [ ] Wyszukiwanie wszystkich rodzajów obiektów według wartości klucza (zwraca jeden obiekt).
 
-    [ ] Wyszukiwanie Użytkowników według login (dopasowanie dokładne, zwraca jeden obiekt).
+    [x] Wyszukiwanie Użytkowników według login (dopasowanie dokładne, zwraca jeden obiekt).
 
-    [ ] Wyszukiwanie Użytkowników według login (dopasowanie częściowe/wzorzec, zwraca listę).
+    [x] Wyszukiwanie Użytkowników według login (dopasowanie częściowe/wzorzec, zwraca listę).
 
     [ ] Zasoby: Zaimplementowano operacje CRUD (Create, Read lista, Update, Delete).
 
     [ ] Zasoby: Usunięcie Zasobu jest możliwe tylko wtedy, gdy nie ma powiązanych alokacji.
 
-    [ ] Użytkownicy: Zaimplementowano operacje CRU (Create, Read lista, Update).
+    [x] Użytkownicy: Zaimplementowano operacje CRU (Create, Read lista, Update).
 
     [ ] Użytkownicy: Istnieje oddzielna operacja aktywowania Użytkownika.
 
