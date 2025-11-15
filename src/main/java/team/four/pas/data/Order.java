@@ -21,14 +21,6 @@ public abstract class Order {
     private boolean active;
     private String destination;
 
-    public long getWorkerId(){
-        return worker.getId();
-    }
-
-    public long getClientId(){
-        return client.getId();
-    }
-
     public void finishOrder() {
         active = false;
         endTime = LocalDateTime.now();
