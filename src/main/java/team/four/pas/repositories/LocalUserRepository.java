@@ -1,5 +1,6 @@
 package team.four.pas.repositories;
 
+import team.four.pas.data.allocations.Allocation;
 import team.four.pas.data.users.Admin;
 import team.four.pas.data.users.Client;
 import team.four.pas.data.users.Manager;
@@ -13,6 +14,11 @@ Make returns optional instead of Null, Add custom exceptions
 public class LocalUserRepository implements UserRepository {
 
     private final UserMap idLoginMap = new UserMap();
+
+    @Override
+    public List<User> getAll() {
+        return idLoginMap.valuesAsList();
+    }
 
     @Override
     public User findByLogin(String login) {
@@ -108,6 +114,10 @@ public class LocalUserRepository implements UserRepository {
     private class UserMap {
         Map<UUID, User> idToUser = new HashMap<>();
         Map<String, User> loginToUser  = new HashMap<>();
+
+        List<User> valuesAsList() {
+            return idToUser.values().stream().collect(Collectors.toList());
+        }
 
         User get(UUID id) {
             return idToUser.get(id);

@@ -3,6 +3,7 @@ package team.four.pas;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import team.four.pas.data.users.Admin;
+import team.four.pas.repositories.LocalAllocationRepository;
 import team.four.pas.repositories.LocalResourceRepository;
 import team.four.pas.repositories.LocalUserRepository;
 
@@ -16,6 +17,13 @@ public class Config {
         localUserRepository.add("BLis", "Bartosz", "Lis", Admin.class);
 
         return localUserRepository;
+    }
+
+    @Bean
+    public LocalAllocationRepository localAllocationRepository(){
+        var localAllocationRepository = new LocalAllocationRepository();
+
+        return localAllocationRepository;
     }
 
     @Bean

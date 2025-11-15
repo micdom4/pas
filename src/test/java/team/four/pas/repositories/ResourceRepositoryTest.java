@@ -4,8 +4,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import team.four.pas.Config;
+import team.four.pas.data.resources.Resource;
+import team.four.pas.data.resources.VirtualMachine;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class ResourceRepositoryTest {
 
@@ -38,11 +43,9 @@ class ResourceRepositoryTest {
 
     @Test
     void findById() {
-
-    }
-
-    @Test
-    void shouldReturnCorrectType() {
+        List<Resource> resources = resourceRepository.getAll();
+        Resource resource = resources.getFirst();
+        assertEquals(resource, resourceRepository.findById(resource.getId()));
     }
 
     /* U   U
@@ -53,6 +56,20 @@ class ResourceRepositoryTest {
 
     @Test
     void updatePass() {
+        VirtualMachine vm = (VirtualMachine) resourceRepository.getAll().stream().filter(r -> r instanceof VirtualMachine).collect(Collectors.toList()).getFirst();
+        int ramBefore = vm.getRamGiB();
+        int memory = vm.getStorageGiB();
+        int cpus = vm.getCpuNumber();
+
+        assertNotEquals(-1, ramBefore);
+        assertNotEquals(-1, memory);
+        assertNotEquals(-1, cpus);
+
+        assertTrue(resourceRepository.updateVM(vm.getId(), -1, -1 ,-1));
+
+        assertEquals(-1, vm.getRamGiB());
+        assertEquals(-1, vm.getStorageGiB());
+        assertEquals(-1, vm.getCpuNumber());
     }
 
     /* DDD
