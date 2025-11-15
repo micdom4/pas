@@ -5,3 +5,4 @@ import team.four.pas.data.Resource;
 
 interface ResourceRepository extends Repository<Resource> {
 }
+
