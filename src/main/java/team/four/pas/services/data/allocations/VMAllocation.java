@@ -1,6 +1,5 @@
 package team.four.pas.services.data.allocations;
 import lombok.Getter;
-import lombok.Setter;
 import team.four.pas.services.data.resources.Resource;
 import team.four.pas.services.data.resources.VirtualMachine;
 import team.four.pas.services.data.users.Client;

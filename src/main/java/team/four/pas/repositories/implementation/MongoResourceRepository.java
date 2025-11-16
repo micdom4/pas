@@ -25,6 +25,7 @@ public class MongoResourceRepository implements ResourceRepository {
     private final MongoCollection<VirtualMachineEntity> resourceCollection;
     private final VirtualMachineMapper mapper;
     private final StringToObjectId idMapper;
+
     public MongoResourceRepository(MongoCollection<VirtualMachineEntity> resourceCollection, VirtualMachineMapper mapper, StringToObjectId idMapper) {
         this.resourceCollection = resourceCollection;
         this.mapper = mapper;

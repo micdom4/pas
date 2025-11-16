@@ -71,7 +71,6 @@ class ResourceRepositoryTest {
     @Test
     void findById() {
         VirtualMachine resource = resourceRepository.getAll().getFirst();
-        System.out.println(resource.getId());
         assertEquals(resource, resourceRepository.findById(resource.getId()));
     }
 

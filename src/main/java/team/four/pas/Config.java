@@ -68,12 +68,9 @@ public class Config {
                 CodecRegistries.fromProviders(pojoCodecProvider)
         );
 
-        UuidRepresentation uuidRepresentation = UuidRepresentation.STANDARD;
 
-        System.out.println(connString);
         MongoClientSettings settings = MongoClientSettings.builder()
                 .applyConnectionString(new ConnectionString(connString))
-                .uuidRepresentation(uuidRepresentation)
                 .codecRegistry(pojoCodecRegistry)
                 .build();
 
