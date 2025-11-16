@@ -78,7 +78,7 @@ public class Config {
     }
 
     @Bean
-    public MongoUserRepository MongoUserRepository(MongoClient mongoClient, UserMapper mapper, StringToObjectId idMapper, @Value("${pas.data.entities-package:pas}") String dbName) {
+    public MongoUserRepository MongoUserRepository(MongoClient mongoClient, UserMapper mapper, StringToObjectId idMapper, @Value("${pas.data.mongodb.database:pas}") String dbName) {
         MongoCollection<UserEntity> userColl = mongoClient.getDatabase(dbName).getCollection("users", UserEntity.class);
 
         var mongoUserRepo = new MongoUserRepository(userColl, mapper, idMapper);
@@ -91,7 +91,7 @@ public class Config {
 
     @Bean
     public MongoAllocationRepository mongoAllocationRepository(MongoClient mongoClient, VMAllocationMapper mapper,
-                                                               @Value("${pas.data.entities-package:pas}") String dbName,
+                                                               @Value("${pas.data.mongodb.database:pas}") String dbName,
                                                                UserMapper userMapper, VirtualMachineMapper vmMapper,
                                                                StringToObjectId idMapper, MongoResourceRepository mgResource,
                                                                MongoUserRepository mgUser) {
@@ -107,7 +107,7 @@ public class Config {
     }
 
     @Bean
-    public MongoResourceRepository mongoResourceRepository(MongoClient mongoClient, VirtualMachineMapper mapper, StringToObjectId idMapper, @Value("${pas.data.entities-package:pas}") String dbName) {
+    public MongoResourceRepository mongoResourceRepository(MongoClient mongoClient, VirtualMachineMapper mapper, StringToObjectId idMapper, @Value("${pas.data.mongodb.database:pas}") String dbName) {
         MongoCollection<VirtualMachineEntity> vmColl = mongoClient.getDatabase(dbName).getCollection("virtualMachines", VirtualMachineEntity.class);
 
         var mongoResourceRepo = new MongoResourceRepository(vmColl, mapper, idMapper);
