@@ -4,8 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import team.four.pas.Config;
-import team.four.pas.data.resources.Resource;
-import team.four.pas.data.resources.VirtualMachine;
+import team.four.pas.services.data.resources.Resource;
+import team.four.pas.services.data.resources.VirtualMachine;
 
 import java.util.List;
 import java.util.stream.Collectors;

@@ -1,7 +1,7 @@
-package team.four.pas.data.users;
+package team.four.pas.services.data.users;
 
 import lombok.*;
-import team.four.pas.data.IdentifiableEntity;
+import team.four.pas.services.data.IdentifiableEntity;
 
 import java.util.UUID;
 

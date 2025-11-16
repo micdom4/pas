@@ -1,17 +1,18 @@
-package team.four.pas.repositories;
+package team.four.pas.repositories.implementation;
 
 import com.mongodb.client.MongoCollection;
-import team.four.pas.data.resources.VirtualMachine;
-import team.four.pas.data.users.User;
+import team.four.pas.repositories.ResourceRepository;
+import team.four.pas.repositories.entities.VirtualMachineEntity;
+import team.four.pas.services.data.resources.VirtualMachine;
 
 import java.util.List;
 import java.util.UUID;
 
 public class MongoResourceRepository implements ResourceRepository {
 
-    public final MongoCollection<VirtualMachine> resourceCollection;
+    public final MongoCollection<VirtualMachineEntity> resourceCollection;
 
-    public MongoResourceRepository(MongoCollection<VirtualMachine> resourceCollection) {
+    public MongoResourceRepository(MongoCollection<VirtualMachineEntity> resourceCollection) {
         this.resourceCollection = resourceCollection;
     }
 

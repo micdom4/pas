@@ -1,12 +1,9 @@
-package team.four.pas.data.allocations;
+package team.four.pas.services.data.allocations;
 
 import lombok.Getter;
-import lombok.NonNull;
-import lombok.Setter;
-import team.four.pas.data.IdentifiableEntity;
-import team.four.pas.data.resources.Resource;
-import team.four.pas.data.users.Client;
-import team.four.pas.data.users.User;
+import team.four.pas.services.data.IdentifiableEntity;
+import team.four.pas.services.data.resources.Resource;
+import team.four.pas.services.data.users.Client;
 
 import java.time.Instant;
 import java.util.UUID;

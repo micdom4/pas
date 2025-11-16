@@ -1,21 +1,22 @@
 package team.four.pas;
 
-import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import team.four.pas.data.allocations.VMAllocation;
-import team.four.pas.data.resources.VirtualMachine;
-import team.four.pas.data.users.Admin;
-import team.four.pas.data.users.Client;
-import team.four.pas.data.users.User;
-import team.four.pas.repositories.MongoAllocationRepository;
-import team.four.pas.repositories.MongoResourceRepository;
-import team.four.pas.repositories.MongoUserRepository;
+import team.four.pas.repositories.entities.UserEntity;
+import team.four.pas.repositories.entities.VMAllocationEntity;
+import team.four.pas.repositories.entities.VirtualMachineEntity;
+import team.four.pas.services.data.allocations.VMAllocation;
+import team.four.pas.services.data.resources.VirtualMachine;
+import team.four.pas.services.data.users.Admin;
+import team.four.pas.services.data.users.Client;
+import team.four.pas.services.data.users.User;
+import team.four.pas.repositories.implementation.MongoAllocationRepository;
+import team.four.pas.repositories.implementation.MongoResourceRepository;
+import team.four.pas.repositories.implementation.MongoUserRepository;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -42,7 +43,7 @@ public class Config {
 
     @Bean
     public MongoUserRepository MongoUserRepository(MongoClient mongoClient) {
-        MongoCollection<User> userColl = mongoClient.getDatabase(dbName).getCollection("users", User.class);
+        MongoCollection<UserEntity> userColl = mongoClient.getDatabase(dbName).getCollection("users", UserEntity.class);
 
         var mongoUserRepo = new MongoUserRepository(userColl);
 
@@ -53,18 +54,18 @@ public class Config {
 
     @Bean
     public MongoAllocationRepository mongoAllocationRepository(MongoClient mongoClient) {
-        MongoCollection<VMAllocation> vmAllocationsColl = mongoClient.getDatabase(dbName).getCollection("vmAllocations", VMAllocation.class);
+        MongoCollection<VMAllocationEntity> vmAllocationsColl = mongoClient.getDatabase(dbName).getCollection("vmAllocations", VMAllocationEntity.class);
 
         var mongoAllocationRepo = new MongoAllocationRepository(vmAllocationsColl);
 
-        mongoAllocationRepo.addAllocation(, , Instant.now());
+        //mongoAllocationRepo.addAllocation( Instant.now());
 
         return mongoAllocationRepo;
     }
 
     @Bean
     public MongoResourceRepository mongoResourceRepository(MongoClient mongoClient) {
-        MongoCollection<VirtualMachine> vmColl = mongoClient.getDatabase(dbName).getCollection("virtualMachines", VirtualMachine.class);
+        MongoCollection<VirtualMachineEntity> vmColl = mongoClient.getDatabase(dbName).getCollection("virtualMachines", VirtualMachineEntity.class);
 
         var mongoResourceRepo = new MongoResourceRepository(vmColl);
 

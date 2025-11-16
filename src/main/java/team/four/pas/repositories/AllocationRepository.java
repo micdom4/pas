@@ -1,6 +1,6 @@
 package team.four.pas.repositories;
 
-import team.four.pas.data.allocations.VMAllocation;
+import team.four.pas.services.data.allocations.VMAllocation;
 
-interface AllocationRepository extends Repository<VMAllocation> {
+public interface AllocationRepository extends Repository<VMAllocation> {
 }

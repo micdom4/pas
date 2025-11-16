@@ -1,6 +1,6 @@
 package team.four.pas.repositories;
 
-import team.four.pas.data.users.User;
+import team.four.pas.services.data.users.User;
 
 import java.util.List;
 import java.util.UUID;

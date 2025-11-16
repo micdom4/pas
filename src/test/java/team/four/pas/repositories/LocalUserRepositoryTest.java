@@ -4,9 +4,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import team.four.pas.Config;
-import team.four.pas.data.users.Admin;
-import team.four.pas.data.users.Client;
-import team.four.pas.data.users.User;
+import team.four.pas.services.data.users.Admin;
+import team.four.pas.services.data.users.Client;
+import team.four.pas.services.data.users.User;
 
 import static org.junit.jupiter.api.Assertions.*;
 

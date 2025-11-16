@@ -1,15 +1,17 @@
-package team.four.pas.repositories;
+package team.four.pas.repositories.implementation;
 
 import com.mongodb.client.MongoCollection;
-import team.four.pas.data.users.User;
+import team.four.pas.repositories.UserRepository;
+import team.four.pas.repositories.entities.UserEntity;
+import team.four.pas.services.data.users.User;
 
 import java.util.List;
 import java.util.UUID;
 
 public class MongoUserRepository implements UserRepository {
-    public final MongoCollection<User> userCollection;
+    public final MongoCollection<UserEntity> userCollection;
 
-    public MongoUserRepository(MongoCollection<User> userCollection) {
+    public MongoUserRepository(MongoCollection<UserEntity> userCollection) {
         this.userCollection = userCollection;
     }
 

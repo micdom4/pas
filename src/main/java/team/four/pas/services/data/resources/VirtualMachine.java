@@ -1,4 +1,4 @@
-package team.four.pas.data.resources;
+package team.four.pas.services.data.resources;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
