@@ -1,20 +1,35 @@
 package team.four.pas.repositories.entities;
-
-
-import lombok.Getter;
-import lombok.Setter;
+import org.bson.codecs.pojo.annotations.BsonId;
 import org.bson.codecs.pojo.annotations.BsonProperty;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import java.util.UUID;
 
+public record UserEntity(
+        @BsonId UUID id,
+        @BsonProperty("login") String login,
+        @BsonProperty("name") String name,
+        @BsonProperty("surname") String surname,
+        @BsonProperty("type") Type type
+)  {
 
-@Getter @Setter
-public class UserEntity extends IdentifiableEntity {
+    public enum Type {
+        CLIENT,
+        MANAGER,
+        ADMIN
+    }
 
-    @BsonProperty
-    private String login;
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37).append(id).toHashCode();
+    }
 
-    @BsonProperty
-    private String name;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserEntity that = (UserEntity) o;
+        return new EqualsBuilder().append(id, that.id).isEquals();
+    }
 
-    @BsonProperty
-    private String surname;
 }

@@ -1,18 +1,27 @@
 package team.four.pas.repositories.entities;
-
-import lombok.Getter;
-import lombok.Setter;
+import org.bson.codecs.pojo.annotations.BsonId;
 import org.bson.codecs.pojo.annotations.BsonProperty;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import java.util.UUID;
 
-@Getter @Setter
-public class VirtualMachineEntity extends IdentifiableEntity {
+public record VirtualMachineEntity(
+        @BsonId UUID id,
+        @BsonProperty("cpuNumber") int cpuNumber,
+        @BsonProperty("ramGiB") int ramGiB,
+        @BsonProperty("storageGiB") int storageGiB
+) {
 
-    @BsonProperty
-    private int cpuNumber;
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37).append(id).toHashCode();
+    }
 
-    @BsonProperty
-    private int ramGiB;
-
-    @BsonProperty
-    private int storageGiB;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        VirtualMachineEntity that = (VirtualMachineEntity) o;
+        return new EqualsBuilder().append(id, that.id).isEquals();
+    }
 }
