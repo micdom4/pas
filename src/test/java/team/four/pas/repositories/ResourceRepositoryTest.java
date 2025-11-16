@@ -119,6 +119,6 @@ class ResourceRepositoryTest {
         VirtualMachine resource = resourceRepository.getAll().getFirst();
 
         assertTrue(resourceRepository.delete(resource.getId()));
-        assertEquals(Collections.emptyList(), resourceRepository.getAll());
+        assertNull(resourceRepository.findById(resource.getId()));
     }
 }

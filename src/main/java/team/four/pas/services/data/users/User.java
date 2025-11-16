@@ -16,6 +16,7 @@ public abstract class User extends IdentifiableObject {
         this.login = login;
         this.name = name;
         this.surname = surname;
+        this.active = true;
     }
 
 }

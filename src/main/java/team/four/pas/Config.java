@@ -26,6 +26,8 @@ import team.four.pas.repositories.implementation.MongoAllocationRepository;
 import team.four.pas.repositories.implementation.MongoResourceRepository;
 import team.four.pas.repositories.implementation.MongoUserRepository;
 
+import java.time.Instant;
+
 @Configuration
 public class Config {
 
@@ -83,17 +85,21 @@ public class Config {
         var mongoUserRepo = new MongoUserRepository(userColl, mapper);
 
         mongoUserRepo.add(theOneAndOnly.getLogin(), theOneAndOnly.getName(), theOneAndOnly.getSurname(), Admin.class);
+        mongoUserRepo.add(wdiStudent.getLogin(), wdiStudent.getName(), wdiStudent.getSurname(), Client.class);
 
         return mongoUserRepo;
     }
 
     @Bean
-    public MongoAllocationRepository mongoAllocationRepository(MongoClient mongoClient, VMAllocationMapper mapper, @Value("${pas.data.entities-package:pas}") String dbName) {
+    public MongoAllocationRepository mongoAllocationRepository(MongoClient mongoClient, VMAllocationMapper mapper,
+                                                               @Value("${pas.data.entities-package:pas}") String dbName,
+                                                               UserMapper userMapper, VirtualMachineMapper vmMapper,
+                                                               MongoResourceRepository mgResource, MongoUserRepository mgUser) {
         MongoCollection<VMAllocationEntity> vmAllocationsColl = mongoClient.getDatabase(dbName).getCollection("vmAllocations", VMAllocationEntity.class);
 
-        var mongoAllocationRepo = new MongoAllocationRepository(vmAllocationsColl, mapper);
+        var mongoAllocationRepo = new MongoAllocationRepository(vmAllocationsColl, mapper, userMapper, vmMapper);
 
-        //mongoAllocationRepo.addAllocation( Instant.now());
+        mongoAllocationRepo.addAllocation((Client) mgUser.findByLogin(wdiStudent.getLogin()), mgResource.getAll().getFirst(), Instant.now());
 
         return mongoAllocationRepo;
     }
