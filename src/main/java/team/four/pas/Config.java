@@ -6,12 +6,19 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import org.bson.UuidRepresentation;
+import org.bson.codecs.configuration.CodecRegistries;
+import org.bson.codecs.configuration.CodecRegistry;
+import org.bson.codecs.pojo.PojoCodecProvider;
+import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import team.four.pas.repositories.entities.UserEntity;
 import team.four.pas.repositories.entities.VMAllocationEntity;
 import team.four.pas.repositories.entities.VirtualMachineEntity;
+import team.four.pas.repositories.mappers.UserMapper;
+import team.four.pas.repositories.mappers.VMAllocationMapper;
+import team.four.pas.repositories.mappers.VirtualMachineMapper;
 import team.four.pas.services.data.resources.VirtualMachine;
 import team.four.pas.services.data.users.Admin;
 import team.four.pas.services.data.users.Client;
@@ -30,17 +37,45 @@ public class Config {
     @Value("${pas.data.mongodb.database}")
     public String dbName;
 
-    private Admin theOneAndOnly = new Admin(UUID.randomUUID(), "BLis", "Bartosz", "Lis");
-    private Client wdiStudent = new Client(UUID.randomUUID(), "JKernel", "Janek", "Kernel");
-    private VirtualMachine strongestWdiVM = new VirtualMachine(UUID.randomUUID(), 1, 1, 10);
+    private Admin theOneAndOnly = new Admin(null, "BLis", "Bartosz", "Lis");
+    private Client wdiStudent = new Client(null, "JKernel", "Janek", "Kernel");
+    private VirtualMachine strongestWdiVM = new VirtualMachine(null , 1, 1, 10);
+
+    @Bean
+    public VirtualMachineMapper vmMapper() {
+        return Mappers.getMapper(VirtualMachineMapper.class);
+    }
+
+    @Bean
+    public VMAllocationMapper vmAllocationMapper () {
+        return Mappers.getMapper(VMAllocationMapper.class);
+    }
+
+    @Bean
+    public UserMapper userMapper () {
+        return Mappers.getMapper(UserMapper.class);
+    }
 
     @Bean
     public MongoClient mongoClient() {
+        PojoCodecProvider pojoCodecProvider = PojoCodecProvider.builder()
+                .automatic(true)
+                .register("team.four.pas.repositories.entities")
+                .build();
+
+        CodecRegistry defaultCodecRegistry = MongoClientSettings.getDefaultCodecRegistry();
+
+        CodecRegistry pojoCodecRegistry = CodecRegistries.fromRegistries(
+                defaultCodecRegistry,
+                CodecRegistries.fromProviders(pojoCodecProvider)
+        );
+
         UuidRepresentation uuidRepresentation = UuidRepresentation.STANDARD;
 
         MongoClientSettings settings = MongoClientSettings.builder()
                 .applyConnectionString(new ConnectionString(connString))
                 .uuidRepresentation(uuidRepresentation)
+                .codecRegistry(pojoCodecRegistry)
                 .build();
 
         return MongoClients.create(settings);

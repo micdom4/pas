@@ -36,6 +36,7 @@
         <maven-failsafe.version>3.5.4</maven-failsafe.version>
         <commons-lang3.version>3.18.0</commons-lang3.version>
         <mongodb.version>5.5.0</mongodb.version>
+        <mapstruct.version>1.6.3</mapstruct.version>
 	</properties>
 
 
@@ -92,6 +93,11 @@
             <version>${commons-lang3.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${mapstruct.version}</version>
+        </dependency>
     </dependencies>
 
 

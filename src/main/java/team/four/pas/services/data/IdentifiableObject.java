@@ -5,11 +5,9 @@ import lombok.Getter;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import java.util.UUID;
-
 @AllArgsConstructor
 public abstract class IdentifiableObject {
-    @Getter private UUID id;
+    @Getter private String id;
 
     @Override
     public boolean equals(Object o) {

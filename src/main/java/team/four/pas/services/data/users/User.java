@@ -3,8 +3,6 @@ package team.four.pas.services.data.users;
 import lombok.*;
 import team.four.pas.services.data.IdentifiableObject;
 
-import java.util.UUID;
-
 @Getter
 @ToString
 public abstract class User extends IdentifiableObject {
@@ -13,7 +11,7 @@ public abstract class User extends IdentifiableObject {
     @Setter private String surname;
     @Setter private boolean active;
 
-    public User(UUID id, String login, String name, String surname) {
+    public User(String id, String login, String name, String surname) {
         super(id);
         this.login = login;
         this.name = name;

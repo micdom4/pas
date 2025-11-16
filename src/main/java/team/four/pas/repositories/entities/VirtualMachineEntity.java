@@ -3,10 +3,10 @@ import org.bson.codecs.pojo.annotations.BsonId;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import java.util.UUID;
+import org.bson.types.ObjectId;
 
 public record VirtualMachineEntity(
-        @BsonId UUID id,
+        @BsonId ObjectId id,
         @BsonProperty("cpuNumber") int cpuNumber,
         @BsonProperty("ramGiB") int ramGiB,
         @BsonProperty("storageGiB") int storageGiB

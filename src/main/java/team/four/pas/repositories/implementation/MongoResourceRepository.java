@@ -1,6 +1,8 @@
 package team.four.pas.repositories.implementation;
 
+import com.mongodb.MongoException;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.result.InsertOneResult;
 import team.four.pas.repositories.ResourceRepository;
 import team.four.pas.repositories.entities.VirtualMachineEntity;
 import team.four.pas.services.data.resources.VirtualMachine;
@@ -18,7 +20,17 @@ public class MongoResourceRepository implements ResourceRepository {
 
     @Override
     public boolean addVM(int cpuNumber, int ram, int memory) {
-        return false;
+        try {
+            VirtualMachineEntity newVM = new VirtualMachineEntity(null, cpuNumber,
+                                                                     ram, memory);
+
+            InsertOneResult result = resourceCollection.insertOne(newVM);
+
+            return result.wasAcknowledged();
+        } catch (MongoException e) {
+            System.out.println("Failed to add VM " + e.getMessage());
+            return false;
+        }
     }
 
     @Override
@@ -28,7 +40,7 @@ public class MongoResourceRepository implements ResourceRepository {
 
     @Override
     public List<VirtualMachine> getAll() {
-        return List.of();
+        return resourceCollection.find();
     }
 
     @Override
