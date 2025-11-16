@@ -12,9 +12,7 @@ import org.bson.codecs.pojo.PojoCodecProvider;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import team.four.pas.repositories.entities.UserEntity;
 import team.four.pas.repositories.entities.VMAllocationEntity;
 import team.four.pas.repositories.entities.VirtualMachineEntity;
@@ -98,8 +96,10 @@ public class Config {
         MongoCollection<VMAllocationEntity> vmAllocationsColl = mongoClient.getDatabase(dbName).getCollection("vmAllocations", VMAllocationEntity.class);
 
         var mongoAllocationRepo = new MongoAllocationRepository(vmAllocationsColl, mapper, userMapper, vmMapper);
-
-        mongoAllocationRepo.addAllocation((Client) mgUser.findByLogin(wdiStudent.getLogin()), mgResource.getAll().getFirst(), Instant.now());
+        System.out.println(wdiStudent);
+        System.out.println(mgUser.findByLogin(wdiStudent.getLogin()));
+        System.out.println(mgResource.getAll().getFirst());
+        mongoAllocationRepo.add((Client) mgUser.findByLogin(wdiStudent.getLogin()), mgResource.getAll().getFirst(), Instant.now());
 
         return mongoAllocationRepo;
     }

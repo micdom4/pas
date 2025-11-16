@@ -3,6 +3,7 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -11,8 +12,15 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import team.four.pas.Config;
 import team.four.pas.repositories.implementation.MongoAllocationRepository;
+import team.four.pas.services.data.allocations.VMAllocation;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 
 @Testcontainers
 class AllocationRepositoryTest {
@@ -39,12 +47,47 @@ class AllocationRepositoryTest {
     @AfterEach
     void afterEach(){
         MongoDatabase database = context.getBean(MongoClient.class).getDatabase("pas");
+        database.getCollection("users").deleteMany(new Document());
+        database.getCollection("virtualMachines").deleteMany(new Document());
         database.getCollection("vmAllocations").deleteMany(new Document());
     }
 
     @Test
     void getAll() {
-        System.out.println(allocationRepository.getAll().getFirst());
+        assertEquals(1, allocationRepository.getAll().size());
+        System.out.println(allocationRepository.getAll());
     }
+
+    /*
+    @Test
+    void findById() {
+        VMAllocation vmAllocation = allocationRepository.getAll().getFirst();
+        assertNotNull(vmAllocation);
+
+        assertEquals(vmAllocation, allocationRepository.findById(vmAllocation.getId()));
+    }
+
+    @Test
+    void findByIds() {
+        VMAllocation vmAllocation = allocationRepository.getAll().getFirst();
+        VMAllocation vmAllocation2 = allocationRepository.getAll().getFirst();
+
+        System.out.println(vmAllocation);
+        System.out.println(vmAllocation2);
+        assertNotNull(vmAllocation);
+        assertNotNull(vmAllocation2);
+
+        List<VMAllocation> allocations = new ArrayList<VMAllocation>();
+        allocations.add(vmAllocation);
+        allocations.add(vmAllocation2);
+
+        List<String> ids = new ArrayList<>();
+        ids.add(vmAllocation.getId());
+        ids.add(vmAllocation2.getId());
+
+        assertEquals(allocations, allocationRepository.findById(ids));
+    }
+
+     */
 
 }

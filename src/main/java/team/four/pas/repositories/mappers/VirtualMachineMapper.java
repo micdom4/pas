@@ -16,7 +16,6 @@ public interface VirtualMachineMapper {
 
     VirtualMachineEntity toEntity(VirtualMachine data);
 
-
     default String objectIdToString(ObjectId objectId) {
         if (objectId == null) {
             return null;
@@ -29,4 +28,5 @@ public interface VirtualMachineMapper {
             return null;
         }
         return new ObjectId(id);
-    }}
+    }
+}

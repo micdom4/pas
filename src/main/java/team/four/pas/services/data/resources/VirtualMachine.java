@@ -7,7 +7,6 @@ import java.util.UUID;
 
 @Getter
 @Setter
-@ToString
 public class VirtualMachine extends Resource {
     private int cpuNumber;
     private int ramGiB;
@@ -20,4 +19,12 @@ public class VirtualMachine extends Resource {
         this.storageGiB = storageGiB;
     }
 
+    @Override
+    public String toString() {
+        return super.toString() + "VirtualMachine{" +
+                "cpuNumber=" + cpuNumber +
+                ", ramGiB=" + ramGiB +
+                ", storageGiB=" + storageGiB +
+                '}';
+    }
 }

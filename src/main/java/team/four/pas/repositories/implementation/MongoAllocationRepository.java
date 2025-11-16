@@ -93,7 +93,7 @@ public class MongoAllocationRepository implements AllocationRepository {
         }
     }
 
-    public List<VMAllocation> getActive(User user) {
+    public List<VMAllocation> getActive(Client user) {
         Bson filter = Filters.and(
                 Filters.eq("client._id", VMAllocationMapper.stringToObjectId(user.getId())),
                 Filters.eq("endTime", null)
@@ -123,7 +123,7 @@ public class MongoAllocationRepository implements AllocationRepository {
         }
     }
 
-    public List<VMAllocation> getPast(User user) {
+    public List<VMAllocation> getPast(Client user) {
         Bson filter = Filters.and(
                 Filters.eq("client._id", VMAllocationMapper.stringToObjectId(user.getId())),
                 Filters.ne("endTime", null)
@@ -153,9 +153,9 @@ public class MongoAllocationRepository implements AllocationRepository {
         }
     }
 
-    public boolean addAllocation(Client client, VirtualMachine resource, Instant startTime) {
+    public boolean add(Client client, VirtualMachine resource, Instant startTime) {
         try {
-            UserEntity clientEntity = userMapper.entityFromClient(client);
+            UserEntity clientEntity = userMapper.toEntity(client);
             VirtualMachineEntity vmEntity = vmMapper.toEntity(resource);
 
             VMAllocationEntity entity = new VMAllocationEntity(
