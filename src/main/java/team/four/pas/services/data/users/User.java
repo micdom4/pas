@@ -1,13 +1,13 @@
 package team.four.pas.services.data.users;
 
 import lombok.*;
-import team.four.pas.services.data.IdentifiableEntity;
+import team.four.pas.services.data.IdentifiableObject;
 
 import java.util.UUID;
 
 @Getter
 @ToString
-public abstract class User extends IdentifiableEntity {
+public abstract class User extends IdentifiableObject {
     private final String login;
     private final String name;
     @Setter private String surname;

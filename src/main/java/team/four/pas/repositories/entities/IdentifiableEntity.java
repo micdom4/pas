@@ -1,15 +1,18 @@
-package team.four.pas.services.data;
+package team.four.pas.repositories.entities;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.bson.codecs.pojo.annotations.BsonId;
 
 import java.util.UUID;
 
-@AllArgsConstructor
+@Getter @Setter
 public abstract class IdentifiableEntity {
-    @Getter private UUID id;
+
+    @BsonId
+    private UUID id;
 
     @Override
     public boolean equals(Object o) {

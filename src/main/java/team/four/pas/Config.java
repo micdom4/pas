@@ -1,24 +1,24 @@
 package team.four.pas;
 
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
+import org.bson.UuidRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import team.four.pas.repositories.entities.UserEntity;
 import team.four.pas.repositories.entities.VMAllocationEntity;
 import team.four.pas.repositories.entities.VirtualMachineEntity;
-import team.four.pas.services.data.allocations.VMAllocation;
 import team.four.pas.services.data.resources.VirtualMachine;
 import team.four.pas.services.data.users.Admin;
 import team.four.pas.services.data.users.Client;
-import team.four.pas.services.data.users.User;
 import team.four.pas.repositories.implementation.MongoAllocationRepository;
 import team.four.pas.repositories.implementation.MongoResourceRepository;
 import team.four.pas.repositories.implementation.MongoUserRepository;
 
-import java.time.Instant;
 import java.util.UUID;
 
 @Configuration
@@ -36,9 +36,14 @@ public class Config {
 
     @Bean
     public MongoClient mongoClient() {
-        MongoClient mongoClient = MongoClients.create(connString);
+        UuidRepresentation uuidRepresentation = UuidRepresentation.STANDARD;
 
-        return mongoClient;
+        MongoClientSettings settings = MongoClientSettings.builder()
+                .applyConnectionString(new ConnectionString(connString))
+                .uuidRepresentation(uuidRepresentation)
+                .build();
+
+        return MongoClients.create(settings);
     }
 
     @Bean
@@ -69,7 +74,7 @@ public class Config {
 
         var mongoResourceRepo = new MongoResourceRepository(vmColl);
 
-        mongoResourceRepo.addVM(strongestWdiVM.getCpuNumber(), strongestWdiVM.getRamGiB(), strongestWdiVM.getStorageGiB();
+        mongoResourceRepo.addVM(strongestWdiVM.getCpuNumber(), strongestWdiVM.getRamGiB(), strongestWdiVM.getStorageGiB());
 
         return mongoResourceRepo;
     }

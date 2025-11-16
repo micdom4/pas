@@ -6,6 +6,7 @@ import team.four.pas.repositories.entities.VMAllocationEntity;
 import team.four.pas.services.data.resources.VirtualMachine;
 import team.four.pas.services.data.users.Client;
 import team.four.pas.services.data.users.User;
+import team.four.pas.services.data.allocations.VMAllocation;
 
 import java.time.Instant;
 import java.util.List;
