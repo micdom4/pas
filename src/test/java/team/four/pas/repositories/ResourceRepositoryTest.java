@@ -14,7 +14,6 @@ import team.four.pas.Config;
 import team.four.pas.services.data.resources.VirtualMachine;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -38,7 +37,6 @@ class ResourceRepositoryTest {
         String dynamicUri = "mongodb://" + host + ":" + port + "/pas";
 
         System.setProperty("pas.data.mongodb.uri", dynamicUri);
-
 
         context = new AnnotationConfigApplicationContext(Config.class);
         resourceRepository = context.getBean(ResourceRepository.class);

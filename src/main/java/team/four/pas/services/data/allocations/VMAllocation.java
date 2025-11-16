@@ -1,29 +1,34 @@
 package team.four.pas.services.data.allocations;
-import lombok.Getter;
-import team.four.pas.services.data.resources.Resource;
+import lombok.*;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import team.four.pas.services.data.resources.VirtualMachine;
 import team.four.pas.services.data.users.Client;
 
 import java.time.Instant;
 
-@Getter
-public class VMAllocation extends Allocation {
-    private final VirtualMachine vm;
+@Getter @Setter @NoArgsConstructor
+@AllArgsConstructor
+@ToString
+public class VMAllocation {
+    private String id;
+    private Client client;
+    private Instant startTime;
+    private Instant endTime;
+    private VirtualMachine vm;
 
-    public VMAllocation(String id, Client client, VirtualMachine vm, Instant startTime, Instant endTime) {
-        super(id, client, startTime, endTime);
-        this.vm = vm;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        VMAllocation that = (VMAllocation) o;
+
+        return new EqualsBuilder().append(id, that.id).isEquals();
     }
 
     @Override
-    public Resource getResource() {
-        return vm;
-    }
-
-    @Override
-    public String toString() {
-        return super.toString() + "VMAllocation{" +
-                "vm=" + vm +
-                '}';
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37).append(id).toHashCode();
     }
 }

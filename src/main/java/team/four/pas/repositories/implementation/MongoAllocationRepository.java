@@ -160,6 +160,8 @@ public class MongoAllocationRepository implements AllocationRepository {
             UserEntity clientEntity = userMapper.toEntity(client);
             VirtualMachineEntity vmEntity = vmMapper.toEntity(resource);
 
+            System.out.println(clientEntity);
+            System.out.println(vmEntity);
             VMAllocationEntity entity = new VMAllocationEntity(
                     null, clientEntity, vmEntity, startTime, null
             );
