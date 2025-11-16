@@ -128,7 +128,6 @@ public class MongoResourceRepository implements ResourceRepository {
             return Collections.emptyList();
         }    }
 
-    @Override
     public boolean delete(String id) {
         ObjectId objectId;
         try {

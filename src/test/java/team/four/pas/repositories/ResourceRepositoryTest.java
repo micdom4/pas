@@ -42,7 +42,6 @@ class ResourceRepositoryTest {
 
         context = new AnnotationConfigApplicationContext(Config.class);
         resourceRepository = context.getBean(ResourceRepository.class);
-
     }
 
     @AfterEach
@@ -74,6 +73,11 @@ class ResourceRepositoryTest {
         VirtualMachine resource = resourceRepository.getAll().getFirst();
         System.out.println(resource.getId());
         assertEquals(resource, resourceRepository.findById(resource.getId()));
+    }
+
+    @Test
+    void findAll() {
+        assertEquals(2, resourceRepository.getAll().size());
     }
 
     /* U   U

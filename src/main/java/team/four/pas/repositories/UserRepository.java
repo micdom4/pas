@@ -17,5 +17,4 @@ public interface UserRepository  extends Repository<User> {
 
     boolean updateByLogin(String login, String Surname);
 
-    boolean delete(String login);
 }

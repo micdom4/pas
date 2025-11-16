@@ -34,7 +34,7 @@ Funkcjonalność aplikacji powinna obejmować:
 
     [x] wyszukiwanie Użytkowników także według wartości identyfikatora tekstowego w dwóch wariantach: wyszukiwanie dokładnie podanej wartości (wynikiem powinien być jeden obiekt) oraz dopasowanie podanej wartości (wynikiem powinna być lista obiektów)
 
-    [ ] zestaw operacji CRUD (tworzenie, odczyt (lista), modyfikacja, usuwanie) dla hierarchii Zasobów, przy czym usunięcie Zasobu jest możliwe tylko wtedy, gdy nie jest z nim związana żadna alokacja
+    [x] zestaw operacji CRUD (tworzenie, odczyt (lista), modyfikacja, usuwanie) dla hierarchii Zasobów, przy czym usunięcie Zasobu jest możliwe tylko wtedy, gdy nie jest z nim związana żadna alokacja
 
     [ ] zestaw operacji CRU (tworzenie, odczyt (lista), modyfikacja) dla hierarchii Użytkowników, dodatkowo jako odrębne operacje należy uwzględnić aktywowanie i deaktywowanie Użytkownika
 

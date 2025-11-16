@@ -8,5 +8,4 @@ interface Repository<T> {
 
    List<T> findById(List<String> id);
 
-    boolean delete(String id);
 }

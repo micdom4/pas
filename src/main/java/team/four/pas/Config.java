@@ -105,6 +105,7 @@ public class Config {
         var mongoResourceRepo = new MongoResourceRepository(vmColl, mapper);
 
         mongoResourceRepo.addVM(strongestWdiVM.getCpuNumber(), strongestWdiVM.getRamGiB(), strongestWdiVM.getStorageGiB());
+        mongoResourceRepo.addVM(strongestWdiVM.getCpuNumber() + 1, strongestWdiVM.getRamGiB() + 1, strongestWdiVM.getStorageGiB() + 1);
 
         return mongoResourceRepo;
     }
