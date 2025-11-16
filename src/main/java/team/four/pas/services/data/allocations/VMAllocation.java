@@ -9,8 +9,8 @@ import java.util.UUID;
 public class VMAllocation extends Allocation {
     private final VirtualMachine vm;
 
-    public VMAllocation(UUID uuid, Client client, VirtualMachine vm, Instant startTime) {
-        super(uuid, client, startTime);
+    public VMAllocation(String id, Client client, VirtualMachine vm, Instant startTime) {
+        super(id, client, startTime);
         this.vm = vm;
     }
 

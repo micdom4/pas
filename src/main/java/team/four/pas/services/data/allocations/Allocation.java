@@ -6,7 +6,6 @@ import team.four.pas.services.data.resources.Resource;
 import team.four.pas.services.data.users.Client;
 
 import java.time.Instant;
-import java.util.UUID;
 
 @Getter
 public abstract class Allocation extends IdentifiableObject {
@@ -16,13 +15,13 @@ public abstract class Allocation extends IdentifiableObject {
 
     public abstract Resource getResource();
 
-    public Allocation(UUID uuid, Client client, Instant startTime) {
-        super(uuid);
+    public Allocation(String id, Client client, Instant startTime) {
+        super(id);
         this.client = client;
         this.startTime = startTime;
     }
 
-    public UUID getId() {
+    public String getId() {
         return super.getId();
     }
 

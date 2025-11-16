@@ -3,6 +3,7 @@ package team.four.pas.repositories.implementation;
 import com.mongodb.client.MongoCollection;
 import team.four.pas.repositories.AllocationRepository;
 import team.four.pas.repositories.entities.VMAllocationEntity;
+import team.four.pas.repositories.mappers.VMAllocationMapper;
 import team.four.pas.services.data.resources.VirtualMachine;
 import team.four.pas.services.data.users.Client;
 import team.four.pas.services.data.users.User;
@@ -10,13 +11,14 @@ import team.four.pas.services.data.allocations.VMAllocation;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.UUID;
 
 public class MongoAllocationRepository implements AllocationRepository {
-    public final MongoCollection<VMAllocationEntity> allocationCollection;
+    private final MongoCollection<VMAllocationEntity> allocationCollection;
+    private final VMAllocationMapper mapper;
 
-    public MongoAllocationRepository(MongoCollection<VMAllocationEntity> allocationCollection) {
+    public MongoAllocationRepository(MongoCollection<VMAllocationEntity> allocationCollection, VMAllocationMapper mapper) {
         this.allocationCollection = allocationCollection;
+        this.mapper = mapper;
     }
 
     @Override
@@ -25,20 +27,20 @@ public class MongoAllocationRepository implements AllocationRepository {
     }
 
     @Override
-    public VMAllocation findById(UUID id) {
+    public VMAllocation findById(String id) {
         return null;
     }
 
     @Override
-    public List<VMAllocation> findById(List<UUID> id) {
+    public List<VMAllocation> findById(List<String> id) {
         return List.of();
     }
 
     @Override
-    public boolean delete(UUID id) {
+    public boolean delete(String id) {
         return false;
     }
-
+    /*
     public List<VMAllocation> getActive(User user) {
     }
 
@@ -56,9 +58,9 @@ public class MongoAllocationRepository implements AllocationRepository {
         return true;
     }
 
-    public boolean finishAllocation(UUID id) {
+    public boolean finishAllocation(String id) {
 
         return true;
     }
-
+    */
 }

@@ -3,7 +3,6 @@ package team.four.pas.repositories;
 import team.four.pas.services.data.users.User;
 
 import java.util.List;
-import java.util.UUID;
 
 public interface UserRepository  extends Repository<User> {
     User findByLogin(String login);
@@ -14,9 +13,9 @@ public interface UserRepository  extends Repository<User> {
 
     <T extends User> boolean add(String login, String name, String surname, Class<T> userClass);
 
-    boolean update(UUID id, String Surname);
+    boolean update(String id, String Surname);
 
-    boolean update(String login, String Surname);
+    boolean updateByLogin(String login, String Surname);
 
     boolean delete(String login);
 }

@@ -13,7 +13,7 @@ public class VirtualMachine extends Resource {
     private int ramGiB;
     private int storageGiB;
 
-    public VirtualMachine(UUID id, int cpuNumber, int ramGiB, int storageGiB) {
+    public VirtualMachine(String id, int cpuNumber, int ramGiB, int storageGiB) {
         super(id);
         this.cpuNumber = cpuNumber;
         this.ramGiB = ramGiB;

@@ -3,3 +3,4 @@ pas:
     mongodb:
       uri: mongodb://localhost:27017/pas
       database: pas
+    entities-package: team.four.pas.repositories.entities

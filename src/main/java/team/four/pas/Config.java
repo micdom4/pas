@@ -12,13 +12,13 @@ import org.bson.codecs.pojo.PojoCodecProvider;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import team.four.pas.repositories.entities.UserEntity;
 import team.four.pas.repositories.entities.VMAllocationEntity;
 import team.four.pas.repositories.entities.VirtualMachineEntity;
-import team.four.pas.repositories.mappers.UserMapper;
-import team.four.pas.repositories.mappers.VMAllocationMapper;
-import team.four.pas.repositories.mappers.VirtualMachineMapper;
+import team.four.pas.repositories.mappers.*;
 import team.four.pas.services.data.resources.VirtualMachine;
 import team.four.pas.services.data.users.Admin;
 import team.four.pas.services.data.users.Client;
@@ -26,41 +26,39 @@ import team.four.pas.repositories.implementation.MongoAllocationRepository;
 import team.four.pas.repositories.implementation.MongoResourceRepository;
 import team.four.pas.repositories.implementation.MongoUserRepository;
 
-import java.util.UUID;
-
 @Configuration
 public class Config {
-
-    @Value("${pas.data.mongodb.uri}")
-    public String connString;
-
-    @Value("${pas.data.mongodb.database}")
-    public String dbName;
 
     private Admin theOneAndOnly = new Admin(null, "BLis", "Bartosz", "Lis");
     private Client wdiStudent = new Client(null, "JKernel", "Janek", "Kernel");
     private VirtualMachine strongestWdiVM = new VirtualMachine(null , 1, 1, 10);
 
     @Bean
-    public VirtualMachineMapper vmMapper() {
-        return Mappers.getMapper(VirtualMachineMapper.class);
+    public ObjectIdStringMapper objectIdStringMapper() {
+        return Mappers.getMapper(ObjectIdStringMapper.class);
     }
 
     @Bean
-    public VMAllocationMapper vmAllocationMapper () {
-        return Mappers.getMapper(VMAllocationMapper.class);
+    public UserMapper userMapper(ObjectIdStringMapper objectIdStringMapper) {
+        return new UserMapperImpl();
     }
 
     @Bean
-    public UserMapper userMapper () {
-        return Mappers.getMapper(UserMapper.class);
+    public VMAllocationMapper vmAllocationMapper(ObjectIdStringMapper objectIdStringMapper) {
+        return new VMAllocationMapperImpl();
     }
 
     @Bean
-    public MongoClient mongoClient() {
+    public VirtualMachineMapper virtualMachineMapper(ObjectIdStringMapper objectIdStringMapper) {
+        return new VirtualMachineMapperImpl();
+    }
+
+    @Bean
+    public MongoClient mongoClient(@Value("${pas.data.mongodb.uri:mongodb://localhost:27017/pas}") String connString,
+                                   @Value("${pas.data.entities-package:team.four.pas.repositories.entities}") String entitiesPackage) {
         PojoCodecProvider pojoCodecProvider = PojoCodecProvider.builder()
                 .automatic(true)
-                .register("team.four.pas.repositories.entities")
+                .register(entitiesPackage)
                 .build();
 
         CodecRegistry defaultCodecRegistry = MongoClientSettings.getDefaultCodecRegistry();
@@ -72,6 +70,7 @@ public class Config {
 
         UuidRepresentation uuidRepresentation = UuidRepresentation.STANDARD;
 
+        System.out.println(connString);
         MongoClientSettings settings = MongoClientSettings.builder()
                 .applyConnectionString(new ConnectionString(connString))
                 .uuidRepresentation(uuidRepresentation)
@@ -82,10 +81,10 @@ public class Config {
     }
 
     @Bean
-    public MongoUserRepository MongoUserRepository(MongoClient mongoClient) {
+    public MongoUserRepository MongoUserRepository(MongoClient mongoClient, UserMapper mapper, @Value("${pas.data.mongodb.uri:pas}") String dbName) {
         MongoCollection<UserEntity> userColl = mongoClient.getDatabase(dbName).getCollection("users", UserEntity.class);
 
-        var mongoUserRepo = new MongoUserRepository(userColl);
+        var mongoUserRepo = new MongoUserRepository(userColl, mapper);
 
         mongoUserRepo.add(theOneAndOnly.getLogin(), theOneAndOnly.getName(), theOneAndOnly.getSurname(), Admin.class);
 
@@ -93,10 +92,10 @@ public class Config {
     }
 
     @Bean
-    public MongoAllocationRepository mongoAllocationRepository(MongoClient mongoClient) {
+    public MongoAllocationRepository mongoAllocationRepository(MongoClient mongoClient, VMAllocationMapper mapper, @Value("${pas.data.mongodb.uri:pas}") String dbName) {
         MongoCollection<VMAllocationEntity> vmAllocationsColl = mongoClient.getDatabase(dbName).getCollection("vmAllocations", VMAllocationEntity.class);
 
-        var mongoAllocationRepo = new MongoAllocationRepository(vmAllocationsColl);
+        var mongoAllocationRepo = new MongoAllocationRepository(vmAllocationsColl, mapper);
 
         //mongoAllocationRepo.addAllocation( Instant.now());
 
@@ -104,10 +103,10 @@ public class Config {
     }
 
     @Bean
-    public MongoResourceRepository mongoResourceRepository(MongoClient mongoClient) {
+    public MongoResourceRepository mongoResourceRepository(MongoClient mongoClient, VirtualMachineMapper mapper, @Value("${pas.data.mongodb.uri:pas}") String dbName) {
         MongoCollection<VirtualMachineEntity> vmColl = mongoClient.getDatabase(dbName).getCollection("virtualMachines", VirtualMachineEntity.class);
 
-        var mongoResourceRepo = new MongoResourceRepository(vmColl);
+        var mongoResourceRepo = new MongoResourceRepository(vmColl, mapper);
 
         mongoResourceRepo.addVM(strongestWdiVM.getCpuNumber(), strongestWdiVM.getRamGiB(), strongestWdiVM.getStorageGiB());
 

@@ -7,7 +7,7 @@ import java.util.UUID;
 
 @ToString
 public abstract class Resource extends IdentifiableObject {
-    public Resource(UUID uuid) {
-        super(uuid);
+    public Resource(String id) {
+        super(id);
     }
 }

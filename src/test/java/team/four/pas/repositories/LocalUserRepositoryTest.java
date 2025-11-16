@@ -76,7 +76,7 @@ class LocalUserRepositoryTest {
     @Test
     void updatePass() {
         assertEquals("Lis", userRepository.findByLogin("BLis").getSurname());
-        assertTrue(userRepository.update("BLis", "Lis-Nowak"));
+        assertTrue(userRepository.updateByLogin("BLis", "Lis-Nowak"));
         assertEquals("Lis-Nowak", userRepository.findByLogin("BLis").getSurname());
     }
 

@@ -2,10 +2,12 @@ package team.four.pas.services.data;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @AllArgsConstructor
+@NoArgsConstructor
 public abstract class IdentifiableObject {
     @Getter private String id;
 
