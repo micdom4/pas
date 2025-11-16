@@ -33,24 +33,20 @@ public class Config {
     private Client wdiStudent = new Client(null, "JKernel", "Janek", "Kernel");
     private VirtualMachine strongestWdiVM = new VirtualMachine(null , 1, 1, 10);
 
+
     @Bean
-    public ObjectIdStringMapper objectIdStringMapper() {
-        return Mappers.getMapper(ObjectIdStringMapper.class);
+    public UserMapper userMapper() {
+        return Mappers.getMapper(UserMapper.class);
     }
 
     @Bean
-    public UserMapper userMapper(ObjectIdStringMapper objectIdStringMapper) {
-        return new UserMapperImpl();
+    public VMAllocationMapper vmAllocationMapper() {
+        return Mappers.getMapper(VMAllocationMapper.class);
     }
 
     @Bean
-    public VMAllocationMapper vmAllocationMapper(ObjectIdStringMapper objectIdStringMapper) {
-        return new VMAllocationMapperImpl();
-    }
-
-    @Bean
-    public VirtualMachineMapper virtualMachineMapper(ObjectIdStringMapper objectIdStringMapper) {
-        return new VirtualMachineMapperImpl();
+    public VirtualMachineMapper virtualMachineMapper() {
+        return Mappers.getMapper(VirtualMachineMapper.class);
     }
 
     @Bean
@@ -81,7 +77,7 @@ public class Config {
     }
 
     @Bean
-    public MongoUserRepository MongoUserRepository(MongoClient mongoClient, UserMapper mapper, @Value("${pas.data.mongodb.uri:pas}") String dbName) {
+    public MongoUserRepository MongoUserRepository(MongoClient mongoClient, UserMapper mapper, @Value("${pas.data.entities-package:pas}") String dbName) {
         MongoCollection<UserEntity> userColl = mongoClient.getDatabase(dbName).getCollection("users", UserEntity.class);
 
         var mongoUserRepo = new MongoUserRepository(userColl, mapper);
@@ -92,7 +88,7 @@ public class Config {
     }
 
     @Bean
-    public MongoAllocationRepository mongoAllocationRepository(MongoClient mongoClient, VMAllocationMapper mapper, @Value("${pas.data.mongodb.uri:pas}") String dbName) {
+    public MongoAllocationRepository mongoAllocationRepository(MongoClient mongoClient, VMAllocationMapper mapper, @Value("${pas.data.entities-package:pas}") String dbName) {
         MongoCollection<VMAllocationEntity> vmAllocationsColl = mongoClient.getDatabase(dbName).getCollection("vmAllocations", VMAllocationEntity.class);
 
         var mongoAllocationRepo = new MongoAllocationRepository(vmAllocationsColl, mapper);
@@ -103,7 +99,7 @@ public class Config {
     }
 
     @Bean
-    public MongoResourceRepository mongoResourceRepository(MongoClient mongoClient, VirtualMachineMapper mapper, @Value("${pas.data.mongodb.uri:pas}") String dbName) {
+    public MongoResourceRepository mongoResourceRepository(MongoClient mongoClient, VirtualMachineMapper mapper, @Value("${pas.data.entities-package:pas}") String dbName) {
         MongoCollection<VirtualMachineEntity> vmColl = mongoClient.getDatabase(dbName).getCollection("virtualMachines", VirtualMachineEntity.class);
 
         var mongoResourceRepo = new MongoResourceRepository(vmColl, mapper);

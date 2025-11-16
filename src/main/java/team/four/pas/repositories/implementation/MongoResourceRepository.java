@@ -4,6 +4,7 @@ import com.mongodb.MongoException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
+import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.InsertOneResult;
 import com.mongodb.client.result.UpdateResult;
 import org.bson.conversions.Bson;
@@ -16,6 +17,7 @@ import team.four.pas.services.data.resources.VirtualMachine;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MongoResourceRepository implements ResourceRepository {
 
@@ -75,22 +77,77 @@ public class MongoResourceRepository implements ResourceRepository {
                                      .map(mapper::toData)
                                      .into(new ArrayList<>());
         } catch (MongoException e) {
-            return Collections.emptyList(); // Return an empty list on failure
+            return Collections.emptyList();
         }
     }
 
     @Override
     public VirtualMachine findById(String id) {
-        return null;
+        ObjectId objectId;
+
+        try {
+            objectId = mapper.stringToObjectId(id);
+            if (objectId == null) {
+                return null;
+            }
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+
+        Bson filter = Filters.eq("_id", objectId);
+
+        try {
+            VirtualMachineEntity entity = resourceCollection.find(filter).first();
+
+            return (entity != null) ? mapper.toData(entity) : null;
+        } catch (MongoException e) {
+            System.err.println("Error finding VM by ID: " + e.getMessage());
+            return null;
+        }
     }
 
     @Override
-    public List<VirtualMachine> findById(List<String> id) {
-        return List.of();
-    }
+    public List<VirtualMachine> findById(List<String> ids) {
+        List<ObjectId> objectIds = ids.stream()
+                                      .map(mapper::stringToObjectId)
+                                      .filter(java.util.Objects::nonNull)
+                                      .collect(Collectors.toList());
+
+        if (objectIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        Bson filter = Filters.in("_id", objectIds);
+
+        try {
+            return resourceCollection.find(filter)
+                                     .map(mapper::toData)
+                                     .into(new ArrayList<>());
+        } catch (MongoException e) {
+            System.err.println("Error finding VMs by ID list: " + e.getMessage());
+            return Collections.emptyList();
+        }    }
 
     @Override
     public boolean delete(String id) {
-        return false;
+        ObjectId objectId;
+        try {
+            objectId = mapper.stringToObjectId(id);
+            if (objectId == null) {
+                return false;
+            }
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+
+        Bson filter = Filters.eq("_id", objectId);
+
+        try {
+            DeleteResult result = resourceCollection.deleteOne(filter);
+            return result.getDeletedCount() == 1;
+        } catch (MongoException e) {
+            System.err.println("Error deleting VM by ID: " + e.getMessage());
+            return false;
+        }
     }
 }
