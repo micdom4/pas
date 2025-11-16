@@ -29,8 +29,8 @@ import java.time.Instant;
 @Configuration
 public class Config {
 
-    private Admin theOneAndOnly = new Admin(null, "BLis", "Bartosz", "Lis");
-    private Client wdiStudent = new Client(null, "JKernel", "Janek", "Kernel");
+    private Admin theOneAndOnly = new Admin(null, "BLis", "Bartosz", "Lis", false);
+    private Client wdiStudent = new Client(null, "JKernel", "Janek", "Kernel", false);
     private VirtualMachine strongestWdiVM = new VirtualMachine(null , 1, 1, 10);
 
     @Bean

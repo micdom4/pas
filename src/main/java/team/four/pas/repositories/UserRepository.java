@@ -17,4 +17,7 @@ public interface UserRepository  extends Repository<User> {
 
     boolean updateByLogin(String login, String Surname);
 
+    boolean activate(String id);
+
+    boolean deactivate(String id);
 }

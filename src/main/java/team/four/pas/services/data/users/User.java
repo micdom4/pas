@@ -11,12 +11,12 @@ public abstract class User extends IdentifiableObject {
     private String surname;
     private boolean active;
 
-    public User(String id, String login, String name, String surname) {
+    public User(String id, String login, String name, String surname, boolean active) {
         super(id);
         this.login = login;
         this.name = name;
         this.surname = surname;
-        this.active = true;
+        this.active = active;
     }
 
 }

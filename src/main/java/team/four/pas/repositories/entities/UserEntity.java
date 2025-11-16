@@ -11,7 +11,8 @@ public record UserEntity(
         @BsonProperty("login") String login,
         @BsonProperty("name") String name,
         @BsonProperty("surname") String surname,
-        @BsonProperty("type") Type type
+        @BsonProperty("type") Type type,
+        @BsonProperty("active") boolean active
 )  {
 
     public enum Type {

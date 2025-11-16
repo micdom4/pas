@@ -103,7 +103,7 @@ public class MongoUserRepository implements UserRepository {
 
 
         try {
-            InsertOneResult result = userCollection.insertOne( new UserEntity(null, login, name, surname, type));
+            InsertOneResult result = userCollection.insertOne( new UserEntity(null, login, name, surname, type, false));
             return result.wasAcknowledged();
         } catch (MongoException e) {
             System.err.println("Error adding user: " + e.getMessage());
@@ -136,6 +136,38 @@ public class MongoUserRepository implements UserRepository {
             return result.getModifiedCount() == 1;
         } catch (MongoException e) {
             System.err.println("Error updating user by login: " + e.getMessage());
+            return false;
+        }
+    }
+
+    @Override
+    public boolean activate(String id) {
+        ObjectId objectId = idMapper.stringToObjectId(id);
+        if (objectId == null) return false;
+
+        Bson filter = Filters.eq("_id", objectId);
+        Bson update = Updates.set("active", true);
+        try {
+            UpdateResult result = userCollection.updateOne(filter, update);
+            return result.getModifiedCount() == 1;
+        } catch (MongoException e) {
+            System.err.println("Error activating user by ID: " + e.getMessage());
+            return false;
+        }
+    }
+
+    @Override
+    public boolean deactivate(String id) {
+        ObjectId objectId = idMapper.stringToObjectId(id);
+        if (objectId == null) return false;
+
+        Bson filter = Filters.eq("_id", objectId);
+        Bson update = Updates.set("active", false);
+        try {
+            UpdateResult result = userCollection.updateOne(filter, update);
+            return result.getModifiedCount() == 1;
+        } catch (MongoException e) {
+            System.err.println("Error deactivating user by ID: " + e.getMessage());
             return false;
         }
     }
