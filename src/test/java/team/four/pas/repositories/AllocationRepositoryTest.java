@@ -18,8 +18,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 @Testcontainers
@@ -54,11 +53,10 @@ class AllocationRepositoryTest {
 
     @Test
     void getAll() {
-        assertEquals(1, allocationRepository.getAll().size());
+        assertEquals(2, allocationRepository.getAll().size());
         System.out.println(allocationRepository.getAll());
     }
 
-    /*
     @Test
     void findById() {
         VMAllocation vmAllocation = allocationRepository.getAll().getFirst();
@@ -70,7 +68,9 @@ class AllocationRepositoryTest {
     @Test
     void findByIds() {
         VMAllocation vmAllocation = allocationRepository.getAll().getFirst();
-        VMAllocation vmAllocation2 = allocationRepository.getAll().getFirst();
+        VMAllocation vmAllocation2 = allocationRepository.getAll().getLast();
+
+        assertNotEquals(vmAllocation, vmAllocation2);
 
         System.out.println(vmAllocation);
         System.out.println(vmAllocation2);
@@ -87,7 +87,5 @@ class AllocationRepositoryTest {
 
         assertEquals(allocations, allocationRepository.findById(ids));
     }
-
-     */
 
 }

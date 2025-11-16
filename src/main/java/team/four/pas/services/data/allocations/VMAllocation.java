@@ -1,19 +1,18 @@
 package team.four.pas.services.data.allocations;
 import lombok.Getter;
-import lombok.ToString;
+import lombok.Setter;
 import team.four.pas.services.data.resources.Resource;
 import team.four.pas.services.data.resources.VirtualMachine;
 import team.four.pas.services.data.users.Client;
 
 import java.time.Instant;
-import java.util.UUID;
 
 @Getter
 public class VMAllocation extends Allocation {
     private final VirtualMachine vm;
 
-    public VMAllocation(String id, Client client, VirtualMachine vm, Instant startTime) {
-        super(id, client, startTime);
+    public VMAllocation(String id, Client client, VirtualMachine vm, Instant startTime, Instant endTime) {
+        super(id, client, startTime, endTime);
         this.vm = vm;
     }
 

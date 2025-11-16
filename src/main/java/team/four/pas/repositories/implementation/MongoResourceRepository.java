@@ -11,6 +11,7 @@ import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import team.four.pas.repositories.ResourceRepository;
 import team.four.pas.repositories.entities.VirtualMachineEntity;
+import team.four.pas.repositories.mappers.StringToObjectId;
 import team.four.pas.repositories.mappers.VirtualMachineMapper;
 import team.four.pas.services.data.resources.VirtualMachine;
 
@@ -23,10 +24,11 @@ public class MongoResourceRepository implements ResourceRepository {
 
     private final MongoCollection<VirtualMachineEntity> resourceCollection;
     private final VirtualMachineMapper mapper;
-
-    public MongoResourceRepository(MongoCollection<VirtualMachineEntity> resourceCollection, VirtualMachineMapper mapper) {
+    private final StringToObjectId idMapper;
+    public MongoResourceRepository(MongoCollection<VirtualMachineEntity> resourceCollection, VirtualMachineMapper mapper, StringToObjectId idMapper) {
         this.resourceCollection = resourceCollection;
         this.mapper = mapper;
+        this.idMapper = idMapper;
     }
 
     @Override
@@ -86,7 +88,7 @@ public class MongoResourceRepository implements ResourceRepository {
         ObjectId objectId;
 
         try {
-            objectId = mapper.stringToObjectId(id);
+            objectId = idMapper.stringToObjectId(id);
             if (objectId == null) {
                 return null;
             }
@@ -109,7 +111,7 @@ public class MongoResourceRepository implements ResourceRepository {
     @Override
     public List<VirtualMachine> findById(List<String> ids) {
         List<ObjectId> objectIds = ids.stream()
-                                      .map(mapper::stringToObjectId)
+                                      .map(idMapper::stringToObjectId)
                                       .filter(java.util.Objects::nonNull)
                                       .collect(Collectors.toList());
 
@@ -131,7 +133,7 @@ public class MongoResourceRepository implements ResourceRepository {
     public boolean delete(String id) {
         ObjectId objectId;
         try {
-            objectId = mapper.stringToObjectId(id);
+            objectId = idMapper.stringToObjectId(id);
             if (objectId == null) {
                 return false;
             }

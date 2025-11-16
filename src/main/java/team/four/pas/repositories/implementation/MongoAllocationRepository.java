@@ -12,13 +12,13 @@ import team.four.pas.repositories.AllocationRepository;
 import team.four.pas.repositories.entities.UserEntity;
 import team.four.pas.repositories.entities.VMAllocationEntity;
 import team.four.pas.repositories.entities.VirtualMachineEntity;
+import team.four.pas.repositories.mappers.StringToObjectId;
 import team.four.pas.repositories.mappers.UserMapper;
 import team.four.pas.repositories.mappers.VMAllocationMapper;
 import team.four.pas.repositories.mappers.VirtualMachineMapper;
 import team.four.pas.services.data.allocations.VMAllocation;
 import team.four.pas.services.data.resources.VirtualMachine;
 import team.four.pas.services.data.users.Client;
-import team.four.pas.services.data.users.User;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -32,12 +32,14 @@ public class MongoAllocationRepository implements AllocationRepository {
     private final VMAllocationMapper VMAllocationMapper;
     private final UserMapper userMapper;
     private final VirtualMachineMapper vmMapper;
+    private final StringToObjectId idMapper;
 
-    public MongoAllocationRepository(MongoCollection<VMAllocationEntity> allocationCollection, VMAllocationMapper mapper, UserMapper userMapper, VirtualMachineMapper virtualMachineMapper) {
+    public MongoAllocationRepository(MongoCollection<VMAllocationEntity> allocationCollection, VMAllocationMapper mapper, UserMapper userMapper, StringToObjectId idMapper, VirtualMachineMapper virtualMachineMapper) {
         this.allocationCollection = allocationCollection;
         this.VMAllocationMapper = mapper;
         this.userMapper = userMapper;
         this.vmMapper = virtualMachineMapper;
+        this.idMapper = idMapper;
     }
 
     @Override
@@ -54,7 +56,7 @@ public class MongoAllocationRepository implements AllocationRepository {
 
     @Override
     public VMAllocation findById(String id) {
-        ObjectId objectId = VMAllocationMapper.stringToObjectId(id);
+        ObjectId objectId = idMapper.stringToObjectId(id);
         if (objectId == null) return null;
 
         Bson filter = Filters.eq("_id", objectId);
@@ -74,7 +76,7 @@ public class MongoAllocationRepository implements AllocationRepository {
         }
 
         List<ObjectId> objectIds = ids.stream()
-                                      .map(VMAllocationMapper::stringToObjectId)
+                                      .map(idMapper::stringToObjectId)
                                       .filter(Objects::nonNull)
                                       .collect(Collectors.toList());
 
@@ -95,7 +97,7 @@ public class MongoAllocationRepository implements AllocationRepository {
 
     public List<VMAllocation> getActive(Client user) {
         Bson filter = Filters.and(
-                Filters.eq("client._id", VMAllocationMapper.stringToObjectId(user.getId())),
+                Filters.eq("client._id", idMapper.stringToObjectId(user.getId())),
                 Filters.eq("endTime", null)
         );
         try {
@@ -110,7 +112,7 @@ public class MongoAllocationRepository implements AllocationRepository {
 
     public List<VMAllocation> getActive(VirtualMachine resource) {
         Bson filter = Filters.and(
-                Filters.eq("vm._id", VMAllocationMapper.stringToObjectId(resource.getId())),
+                Filters.eq("vm._id", idMapper.stringToObjectId(resource.getId())),
                 Filters.eq("endTime", null)
         );
         try {
@@ -125,7 +127,7 @@ public class MongoAllocationRepository implements AllocationRepository {
 
     public List<VMAllocation> getPast(Client user) {
         Bson filter = Filters.and(
-                Filters.eq("client._id", VMAllocationMapper.stringToObjectId(user.getId())),
+                Filters.eq("client._id", idMapper.stringToObjectId(user.getId())),
                 Filters.ne("endTime", null)
         );
         try {
@@ -140,7 +142,7 @@ public class MongoAllocationRepository implements AllocationRepository {
 
     public List<VMAllocation> getPast(VirtualMachine resource) {
         Bson filter = Filters.and(
-                Filters.eq("vm._id", VMAllocationMapper.stringToObjectId(resource.getId())),
+                Filters.eq("vm._id", idMapper.stringToObjectId(resource.getId())),
                 Filters.ne("endTime", null)
         );
         try {
@@ -171,7 +173,7 @@ public class MongoAllocationRepository implements AllocationRepository {
     }
 
     public boolean finishAllocation(String id) {
-        ObjectId objectId = VMAllocationMapper.stringToObjectId(id);
+        ObjectId objectId = idMapper.stringToObjectId(id);
         if (objectId == null) return false;
 
         Bson filter = Filters.eq("_id", objectId);

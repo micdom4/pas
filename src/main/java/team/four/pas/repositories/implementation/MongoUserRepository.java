@@ -11,6 +11,7 @@ import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import team.four.pas.repositories.UserRepository;
 import team.four.pas.repositories.entities.UserEntity;
+import team.four.pas.repositories.mappers.StringToObjectId;
 import team.four.pas.repositories.mappers.UserMapper;
 import team.four.pas.services.data.users.Admin;
 import team.four.pas.services.data.users.Client;
@@ -27,10 +28,12 @@ import java.util.stream.Collectors;
 public class MongoUserRepository implements UserRepository {
     private final MongoCollection<UserEntity> userCollection;
     private final UserMapper mapper;
+    private final StringToObjectId idMapper;
 
-    public MongoUserRepository(MongoCollection<UserEntity> userCollection, UserMapper mapper) {
+    public MongoUserRepository(MongoCollection<UserEntity> userCollection, UserMapper mapper, StringToObjectId idMapper) {
         this.userCollection = userCollection;
         this.mapper = mapper;
+        this.idMapper = idMapper;
     }
 
     @Override
@@ -110,7 +113,7 @@ public class MongoUserRepository implements UserRepository {
 
     @Override
     public boolean update(String id, String surname) {
-        ObjectId objectId = mapper.stringToObjectId(id);
+        ObjectId objectId = idMapper.stringToObjectId(id);
         if (objectId == null) return false;
 
         Bson filter = Filters.eq("_id", objectId);
@@ -150,7 +153,7 @@ public class MongoUserRepository implements UserRepository {
 
     @Override
     public User findById(String id) {
-        ObjectId objectId = mapper.stringToObjectId(id);
+        ObjectId objectId = idMapper.stringToObjectId(id);
         if (objectId == null) return null;
 
         Bson filter = Filters.eq("_id", objectId);
@@ -170,7 +173,7 @@ public class MongoUserRepository implements UserRepository {
         }
 
         List<ObjectId> objectIds = ids.stream()
-                .map(mapper::stringToObjectId)
+                .map(idMapper::stringToObjectId)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
