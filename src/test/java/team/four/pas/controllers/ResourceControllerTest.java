@@ -78,9 +78,9 @@ public class ResourceControllerTest {
         resourceRepository = context.getBean(ResourceRepository.class);
         allocationRepository = context.getBean(AllocationRepository.class);
         userRepository = context.getBean(UserRepository.class);
-        allocationService = new AllocationServiceImpl(allocationRepository, context.getBean(UserToDTO.class));
         userService = new UserServiceImpl(userRepository, context.getBean(UserToDTO.class));
         resourceService = new ResourceServiceImpl(resourceRepository, allocationRepository);
+        allocationService = new AllocationServiceImpl(allocationRepository, userService, resourceService, context.getBean(UserToDTO.class));
         ResourceController resourceController = new ResourceControllerImpl(resourceService);
         database = context.getBean(MongoClient.class).getDatabase("pas");
     }
@@ -236,6 +236,8 @@ public class ResourceControllerTest {
     void deleteNegativeVM() throws AddVMException, ServerException, KeyManagementException, BadAttributeValueExpException {
         resourceService.addVM(2, 4, 50);
         UserDTO client = userService.add(new UserAddDTO("BLis", "Bartosz", "Lis", UserType.CLIENT));
+        userService.activate(client.id());
+        client = userService.findByLogin("BLis");
         VirtualMachine vm = resourceService.getAll().getLast();
         allocationService.add(client, vm, Instant.now());
 
