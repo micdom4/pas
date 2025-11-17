@@ -11,6 +11,7 @@ import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import team.four.pas.Config;
+import team.four.pas.controllers.exceptions.service.AddVMException;
 import team.four.pas.repositories.implementation.MongoAllocationRepository;
 import team.four.pas.services.data.allocations.VMAllocation;
 import team.four.pas.services.data.users.Client;
@@ -62,7 +63,7 @@ class AllocationRepositoryTest {
     }
 
     @BeforeEach
-    void initTwo() throws ServerException, KeyManagementException, BadAttributeValueExpException {
+    void initTwo() throws ServerException, KeyManagementException, BadAttributeValueExpException, AddVMException {
         resourceRepository.addVM(5, 12, 10);
         userRepository.add("BLis", "Bartosz", "Lis", Client.class);
     }

@@ -61,7 +61,11 @@ class ResourceRepositoryTest {
 
     @Test
     void add() {
-        assertTrue(resourceRepository.addVM(5, 12, 10));
+        try {
+            assertNotNull(resourceRepository.addVM(5, 12, 10));
+        } catch (Exception e) {
+            fail(e.getMessage());
+        }
     }
 
     /* RRR
@@ -72,16 +76,24 @@ class ResourceRepositoryTest {
 
     @Test
     void findById() {
-        resourceRepository.addVM(5, 12, 10);
-        VirtualMachine resource = resourceRepository.getAll().getFirst();
-        assertEquals(resource, resourceRepository.findById(resource.getId()));
+        try {
+            resourceRepository.addVM(5, 12, 10);
+            VirtualMachine resource = resourceRepository.getAll().getFirst();
+            assertEquals(resource, resourceRepository.findById(resource.getId()));
+        } catch (Exception e) {
+            fail(e.getMessage());
+        }
     }
 
     @Test
     void findAll() {
-        resourceRepository.addVM(5, 12, 10);
-        resourceRepository.addVM(6, 12, 10);
-        assertEquals(2, resourceRepository.getAll().size());
+        try {
+            resourceRepository.addVM(5, 12, 10);
+            resourceRepository.addVM(6, 12, 10);
+            assertEquals(2, resourceRepository.getAll().size());
+        } catch (Exception e) {
+            fail(e.getMessage());
+        }
     }
 
     /* U   U
@@ -92,22 +104,26 @@ class ResourceRepositoryTest {
 
     @Test
     void updatePass() {
-        resourceRepository.addVM(5, 12, 10);
-        VirtualMachine vm = resourceRepository.getAll().getFirst();
-        int ramBefore = vm.getRamGiB();
-        int memory = vm.getStorageGiB();
-        int cpus = vm.getCpuNumber();
+        try {
+            resourceRepository.addVM(5, 12, 10);
+            VirtualMachine vm = resourceRepository.getAll().getFirst();
+            int ramBefore = vm.getRamGiB();
+            int memory = vm.getStorageGiB();
+            int cpus = vm.getCpuNumber();
 
-        assertNotEquals(2, ramBefore);
-        assertNotEquals(2, memory);
-        assertNotEquals(2, cpus);
+            assertNotEquals(2, ramBefore);
+            assertNotEquals(2, memory);
+            assertNotEquals(2, cpus);
 
-        assertTrue(resourceRepository.updateVM(vm.getId(), 2, 2 ,2));
+            assertNotNull(resourceRepository.updateVM(vm.getId(), 2, 2, 2));
 
-        VirtualMachine updatedVM = resourceRepository.getAll().getFirst();
-        assertEquals(2, updatedVM.getRamGiB());
-        assertEquals(2, updatedVM.getStorageGiB());
-        assertEquals(2, updatedVM.getCpuNumber());
+            VirtualMachine updatedVM = resourceRepository.getAll().getFirst();
+            assertEquals(2, updatedVM.getRamGiB());
+            assertEquals(2, updatedVM.getStorageGiB());
+            assertEquals(2, updatedVM.getCpuNumber());
+        } catch (Exception e) {
+            fail(e.getMessage());
+        }
     }
 
     /* DDD
@@ -118,15 +134,19 @@ class ResourceRepositoryTest {
 
     @Test
     void delete() {
-        resourceRepository.addVM(5, 12, 10);
-        resourceRepository.addVM(6, 12, 10);
+        try {
+            resourceRepository.addVM(5, 12, 10);
+            resourceRepository.addVM(6, 12, 10);
 
-        List<VirtualMachine> resources = resourceRepository.getAll();
-        assertNotEquals(Collections.emptyList(), resources);
+            List<VirtualMachine> resources = resourceRepository.getAll();
+            assertNotEquals(Collections.emptyList(), resources);
 
-        VirtualMachine resource = resourceRepository.getAll().getFirst();
+            VirtualMachine resource = resourceRepository.getAll().getFirst();
 
-        assertTrue(resourceRepository.delete(resource.getId()));
-        assertNull(resourceRepository.findById(resource.getId()));
+            resourceRepository.delete(resource.getId());
+            assertNull(resourceRepository.findById(resource.getId()));
+        } catch (Exception e) {
+            fail(e.getMessage());
+        }
     }
 }

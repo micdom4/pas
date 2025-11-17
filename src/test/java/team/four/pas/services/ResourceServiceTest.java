@@ -14,6 +14,9 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import team.four.pas.Config;
 import team.four.pas.controllers.DTOs.UserAddDTO;
 import team.four.pas.controllers.DTOs.UserType;
+import team.four.pas.controllers.exceptions.service.AddVMException;
+import team.four.pas.controllers.exceptions.service.DeleteVMException;
+import team.four.pas.controllers.exceptions.service.UpdateVMException;
 import team.four.pas.repositories.AllocationRepository;
 import team.four.pas.repositories.ResourceRepository;
 import team.four.pas.repositories.UserRepository;
@@ -22,7 +25,6 @@ import team.four.pas.services.data.users.Client;
 import team.four.pas.services.implementation.AllocationServiceImpl;
 import team.four.pas.services.implementation.ResourceServiceImpl;
 import team.four.pas.services.implementation.UserServiceImpl;
-import team.four.pas.services.mappers.UserToDTO;
 import team.four.pas.services.mappers.UserToDTOImpl;
 
 import javax.management.BadAttributeValueExpException;
@@ -50,7 +52,7 @@ public class ResourceServiceTest {
     private static MongoDatabase database;
 
     @BeforeAll
-    static void before(){
+    static void before() {
         String host = compose.getServiceHost("mongo", 27017);
         Integer port = compose.getServicePort("mongo", 27017);
         String dynamicUri = "mongodb://" + host + ":" + port + "/pas";
@@ -63,13 +65,13 @@ public class ResourceServiceTest {
 
         resourceService = new ResourceServiceImpl(resourceRepository, allocationRepository);
         allocationService = new AllocationServiceImpl(allocationRepository);
-        userService = new UserServiceImpl(context.getBean(UserRepository.class), context.getBean(UserToDTO.class));
+        userService = new UserServiceImpl(context.getBean(UserRepository.class), context.getBean(UserToDTOImpl.class));
 
         database = context.getBean(MongoClient.class).getDatabase("pas");
     }
 
     @AfterEach
-    void after(){
+    void after() {
         database.getCollection("users").deleteMany(new Document());
         database.getCollection("virtualMachines").deleteMany(new Document());
         database.getCollection("vmAllocations").deleteMany(new Document());
@@ -84,32 +86,40 @@ public class ResourceServiceTest {
 
     @Test
     void addPositive() {
-        resourceService.addVM(5, 12, 10);
-        resourceService.addVM(5, 11, 10);
+        try {
+            resourceService.addVM(5, 12, 10);
+            resourceService.addVM(5, 11, 10);
 
-        assertEquals(2, resourceService.getAll().size());
+            assertEquals(2, resourceService.getAll().size());
 
-        assertTrue(resourceService.addVM(5, 12, 10));
+            assertNotNull(resourceService.addVM(5, 12, 10));
 
-        assertEquals(3, resourceService.getAll().size());
+            assertEquals(3, resourceService.getAll().size());
+        } catch (Exception e) {
+            fail(e.getMessage());
+        }
     }
 
     @Test
     void addNegative() {
-        resourceService.addVM(5, 12, 10);
-        resourceService.addVM(5, 11, 10);
+        try {
+            resourceService.addVM(5, 12, 10);
+            resourceService.addVM(5, 11, 10);
 
-        assertEquals(2, resourceService.getAll().size());
+            assertEquals(2, resourceService.getAll().size());
 
-        assertFalse(resourceService.addVM(-5, 12, 10));
-        assertFalse(resourceService.addVM(5, -12, 10));
-        assertFalse(resourceService.addVM(5, 12, -10));
-        assertFalse(resourceService.addVM(500, 12, 10));
-        assertFalse(resourceService.addVM(5, 2048, 10));
-        assertFalse(resourceService.addVM(5, 12, 10000000));
-        assertFalse(resourceService.addVM(0, 0, 0));
+            assertThrows(AddVMException.class, () -> resourceService.addVM(-5, 12, 10));
+            assertThrows(AddVMException.class, () -> resourceService.addVM(5, -12, 10));
+            assertThrows(AddVMException.class, () -> resourceService.addVM(5, 12, -10));
+            assertThrows(AddVMException.class, () -> resourceService.addVM(500, 12, 10));
+            assertThrows(AddVMException.class, () -> resourceService.addVM(5, 2048, 10));
+            assertThrows(AddVMException.class, () -> resourceService.addVM(5, 12, 10000000));
+            assertThrows(AddVMException.class, () -> resourceService.addVM(0, 0, 0));
 
-        assertEquals(2, resourceService.getAll().size());
+            assertEquals(2, resourceService.getAll().size());
+        } catch (Exception e) {
+            fail(e.getMessage());
+        }
     }
 
     /* RRR
@@ -120,16 +130,24 @@ public class ResourceServiceTest {
 
     @Test
     void findById() {
-        resourceService.addVM(5, 12, 10);
-        VirtualMachine resource = resourceService.getAll().getFirst();
-        assertEquals(resource, resourceService.findById(resource.getId()));
+        try {
+            resourceService.addVM(5, 12, 10);
+            VirtualMachine resource = resourceService.getAll().getFirst();
+            assertEquals(resource, resourceService.findById(resource.getId()));
+        } catch (Exception e) {
+            fail(e.getMessage());
+        }
     }
 
     @Test
     void findAll() {
-        resourceService.addVM(5, 12, 10);
-        resourceService.addVM(5, 12, 10);
-        assertEquals(2, resourceService.getAll().size());
+        try {
+            resourceService.addVM(5, 12, 10);
+            resourceService.addVM(5, 12, 10);
+            assertEquals(2, resourceService.getAll().size());
+        } catch (Exception e) {
+            fail(e.getMessage());
+        }
     }
 
     /* U   U
@@ -140,42 +158,50 @@ public class ResourceServiceTest {
 
     @Test
     void updatePositive() {
-        resourceService.addVM(5, 12, 10);
-        VirtualMachine vm = resourceService.getAll().getFirst();
-        int ramBefore = vm.getRamGiB();
-        int memoryBefore = vm.getStorageGiB();
-        int cpuBefore = vm.getCpuNumber();
+        try {
+            resourceService.addVM(5, 12, 10);
+            VirtualMachine vm = resourceService.getAll().getFirst();
+            int ramBefore = vm.getRamGiB();
+            int memoryBefore = vm.getStorageGiB();
+            int cpuBefore = vm.getCpuNumber();
 
-        assertNotEquals(10, cpuBefore);
-        assertNotEquals(16, ramBefore);
-        assertNotEquals(50, memoryBefore);
+            assertNotEquals(10, cpuBefore);
+            assertNotEquals(16, ramBefore);
+            assertNotEquals(50, memoryBefore);
 
-        assertTrue(resourceService.updateVM(vm.getId(), 10, 16 ,50));
+            assertNotNull(resourceService.updateVM(vm.getId(), 10, 16, 50));
 
-        VirtualMachine updatedVM = resourceService.getAll().getFirst();
-        assertEquals(10, updatedVM.getCpuNumber());
-        assertEquals(16, updatedVM.getRamGiB());
-        assertEquals(50, updatedVM.getStorageGiB());
+            VirtualMachine updatedVM = resourceService.getAll().getFirst();
+            assertEquals(10, updatedVM.getCpuNumber());
+            assertEquals(16, updatedVM.getRamGiB());
+            assertEquals(50, updatedVM.getStorageGiB());
+        } catch (Exception e) {
+            fail(e.getMessage());
+        }
     }
 
     @Test
     void updateNegative() {
-        resourceService.addVM(5, 12, 10);
-        VirtualMachine vm = resourceService.getAll().getFirst();
-        int ramBefore = vm.getRamGiB();
-        int memoryBefore = vm.getStorageGiB();
-        int cpuBefore = vm.getCpuNumber();
+        try {
+            resourceService.addVM(5, 12, 10);
+            VirtualMachine vm = resourceService.getAll().getFirst();
+            int ramBefore = vm.getRamGiB();
+            int memoryBefore = vm.getStorageGiB();
+            int cpuBefore = vm.getCpuNumber();
 
-        assertNotEquals(-1, ramBefore);
-        assertNotEquals(-1, memoryBefore);
-        assertNotEquals(-1, cpuBefore);
+            assertNotEquals(-1, ramBefore);
+            assertNotEquals(-1, memoryBefore);
+            assertNotEquals(-1, cpuBefore);
 
-        assertFalse(resourceService.updateVM(vm.getId(), -1, -1 ,-1));
+            assertThrows(UpdateVMException.class, () -> resourceService.updateVM(vm.getId(), -1, -1, -1));
 
-        VirtualMachine updatedVM = resourceService.getAll().getFirst();
-        assertEquals(ramBefore, updatedVM.getRamGiB());
-        assertEquals(memoryBefore, updatedVM.getStorageGiB());
-        assertEquals(cpuBefore, updatedVM.getCpuNumber());
+            VirtualMachine updatedVM = resourceService.getAll().getFirst();
+            assertEquals(ramBefore, updatedVM.getRamGiB());
+            assertEquals(memoryBefore, updatedVM.getStorageGiB());
+            assertEquals(cpuBefore, updatedVM.getCpuNumber());
+        } catch (Exception e) {
+            fail(e.getMessage());
+        }
     }
 
     /* DDD
@@ -186,32 +212,40 @@ public class ResourceServiceTest {
 
     @Test
     void deletePositive() {
-        resourceService.addVM(5, 12, 10);
-        List<VirtualMachine> resources = resourceService.getAll();
-        assertNotEquals(Collections.emptyList(), resources);
+        try {
+            resourceService.addVM(5, 12, 10);
+            List<VirtualMachine> resources = resourceService.getAll();
+            assertNotEquals(Collections.emptyList(), resources);
 
-        VirtualMachine resource = resourceService.getAll().getLast();
+            VirtualMachine resource = resourceService.getAll().getLast();
 
-        assertTrue(resourceService.deleteVM(resource.getId()));
-        assertNull(resourceService.findById(resource.getId()));
+            resourceService.deleteVM(resource.getId());
+            assertNull(resourceService.findById(resource.getId()));
+        } catch (Exception e) {
+            fail(e.getMessage());
+        }
     }
 
-//    @Test
-//    void deleteNegative() throws ServerException, KeyManagementException, BadAttributeValueExpException {
-//        String login = "HKwinto";
-//
-//        assertNotNull(userService.add(new UserAddDTO(login, "Henryk", "Kwinto", UserType.CLIENT)));
-//        assertTrue(resourceService.addVM(12, 16, 256));
-//
-//        userService.activate(userService.findByLogin(login).id());
-//        assertTrue(allocationService.add((Client) userService.findByLogin(login), resourceService.getAll().getFirst(), Instant.now()));
-//
-//        List<VirtualMachine> resources = resourceService.getAll();
-//        assertNotEquals(Collections.emptyList(), resources);
-//
-//        VirtualMachine resource = resourceService.getAll().getFirst();
-//
-//        assertFalse(resourceService.deleteVM(resource.getId()));
-//        assertNotNull(resourceService.findById(resource.getId()));
-//    }
+    @Test
+    void deleteNegative() throws ServerException, KeyManagementException, BadAttributeValueExpException {
+        try {
+            String login = "HKwinto";
+
+            assertNotNull(userService.add(new UserAddDTO(login, "Henryk", "Kwinto", UserType.CLIENT)));
+            resourceService.addVM(12, 16, 256);
+
+            userService.activate(userService.findByLogin(login).getId());
+            assertTrue(allocationService.add((Client) userService.findByLogin(login), resourceService.getAll().getFirst(), Instant.now()));
+
+            List<VirtualMachine> resources = resourceService.getAll();
+            assertNotEquals(Collections.emptyList(), resources);
+
+            VirtualMachine resource = resourceService.getAll().getFirst();
+
+            assertThrows(DeleteVMException.class, () -> resourceService.deleteVM(resource.getId()));
+            assertNotNull(resourceService.findById(resource.getId()));
+        } catch (Exception e) {
+            fail(e.getMessage());
+        }
+    }
 }
