@@ -38,7 +38,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public <T extends User> boolean add(String login, String name, String surname, Class<T> userClass) {
-        if (validateLogin(login) && validateName(name) && validateName(surname)) {
+        if (validateLogin(login) && validateName(name) && validateSurname(surname)) {
             return userRepository.add(login, name, surname, userClass);
         } else {
             return false;
@@ -47,7 +47,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean update(String id, String surname) {
-        if (validateName(surname)) {
+        if (validateSurname(surname)) {
             return userRepository.update(id, surname);
         } else {
             return false;
@@ -56,7 +56,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean updateByLogin(String login, String surname) {
-        if (validateLogin(login) && validateName(surname)) {
+        if (validateLogin(login) && validateSurname(surname)) {
             return userRepository.updateByLogin(login, surname);
         } else {
             return false;
@@ -75,12 +75,17 @@ public class UserServiceImpl implements UserService {
     }
 
     private boolean validateLogin(String login) {
-        final Pattern pattern = Pattern.compile("^[A-Z][A-Z][a-z]{1,48}$");
+        final Pattern pattern = Pattern.compile("^[A-Z][A-Z][a-z]{1,18}[0-9]{0,5}$");
         return pattern.matcher(login).matches();
     }
 
     private boolean validateName(String name) {
-        final Pattern pattern = Pattern.compile("^[A-Z][a-z]{1,49}$");
+        final Pattern pattern = Pattern.compile("^[A-Z][a-z]{1,19}$");
         return pattern.matcher(name).matches();
+    }
+
+    private boolean validateSurname(String surname) {
+        final Pattern pattern = Pattern.compile("^[A-Z][a-z]{1,19}(-[A-Z][a-z]{1,19})?$");
+        return pattern.matcher(surname).matches();
     }
 }
