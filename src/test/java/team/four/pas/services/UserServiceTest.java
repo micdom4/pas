@@ -137,4 +137,13 @@ public class UserServiceTest {
 
         assertEquals("Lis", userService.findByLogin("BLis").getSurname());
     }
+
+    @Test
+    void activateDeactivate() {
+        assertTrue(userService.findByLogin("BLis").isActive());
+        assertTrue(userService.deactivate("BLis"));
+        assertFalse(userService.findByLogin("BLis").isActive());
+        assertTrue(userService.activate("BLis"));
+        assertTrue(userService.findByLogin("BLis").isActive());
+    }
 }

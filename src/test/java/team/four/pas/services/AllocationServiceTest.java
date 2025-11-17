@@ -87,15 +87,50 @@ class AllocationServiceTest {
         int initialSize = allocationService.getAll().size();
 
         VirtualMachine virtualMachine = resourceService.getAll().getLast();
+        userService.activate(userService.findByLogin(login).getId());
 
         assertTrue(allocationService.add((Client) userService.findByLogin(login), virtualMachine, Instant.now()));
 
         assertEquals(initialSize + 1, allocationService.getAll().size());
+        assertEquals(1, allocationService.getActive(virtualMachine).size());
+        assertEquals(0, allocationService.getPast(virtualMachine).size());
     }
 
     @Test
-    void addNegative() {
+    void addNegativeDeactivatedClient() {
+        String login = "HKwinto";
+        assertTrue(userService.add(login, "Henryk", "Kwinto", Client.class));
+        assertTrue(resourceService.addVM(8, 16, 256));
 
+        int initialSize = allocationService.getAll().size();
+
+        VirtualMachine virtualMachine = resourceService.getAll().getLast();
+        userService.deactivate(userService.findByLogin(login).getId());
+
+        assertFalse(allocationService.add((Client) userService.findByLogin(login), virtualMachine, Instant.now()));
+
+        assertEquals(initialSize, allocationService.getAll().size());
+    }
+
+    @Test
+    void addNegativeResourceAllocated() {
+        String login = "HKwinto";
+        assertTrue(userService.add(login, "Henryk", "Kwinto", Client.class));
+        assertTrue(resourceService.addVM(8, 16, 256));
+
+        int initialSize = allocationService.getAll().size();
+
+        VirtualMachine virtualMachine = resourceService.getAll().getLast();
+        userService.activate(userService.findByLogin(login).getId());
+
+        assertTrue(allocationService.add((Client) userService.findByLogin(login), virtualMachine, Instant.now()));
+
+        assertEquals(initialSize + 1, allocationService.getAll().size());
+        assertEquals(1, allocationService.getActive(virtualMachine).size());
+
+        assertFalse(allocationService.add((Client) userService.findByLogin("JKernel"), virtualMachine, Instant.now()));
+
+        assertEquals(initialSize + 1, allocationService.getAll().size());
     }
 
     /* RRR
@@ -130,7 +165,7 @@ class AllocationServiceTest {
         assertNotNull(vmAllocation);
         assertNotNull(vmAllocation2);
 
-        List<VMAllocation> allocations = new ArrayList<VMAllocation>();
+        List<VMAllocation> allocations = new ArrayList<>();
         allocations.add(vmAllocation);
         allocations.add(vmAllocation2);
 
@@ -139,5 +174,64 @@ class AllocationServiceTest {
         ids.add(vmAllocation2.getId());
 
         assertEquals(allocations, allocationService.findById(ids));
+    }
+
+    @Test
+    void getActive() {
+        assertEquals(1, allocationService.getActive((Client) userService.findByLogin("JKernel")).size());
+    }
+
+    @Test
+    void getPast() {
+        assertEquals(1, allocationService.getPast((Client) userService.findByLogin("JKernel")).size());
+    }
+
+    /* U   U
+       U   U
+       U   U
+       U   U
+        UUU  */
+
+    @Test
+    void finishAllocation() {
+        VirtualMachine vm = resourceService.getAll().getFirst();
+        int initialActives = allocationService.getActive(vm).size();
+        int initialPasts = allocationService.getPast(vm).size();
+        VMAllocation vmAllocation = allocationService.getActive(vm).getFirst();
+
+        assertTrue(allocationService.finishAllocation(vmAllocation.getId()));
+
+        assertEquals(initialActives - 1, allocationService.getActive(vm).size());
+        assertEquals(initialPasts + 1, allocationService.getPast(vm).size());
+    }
+
+    /* DDD
+       D  D
+       D  D
+       D  D
+       DDD  */
+
+    @Test
+    void deletePositive() {
+        int initialSize = allocationService.getAll().size();
+        VMAllocation activeAllocation = allocationService.getActive(resourceService.getAll().getFirst()).getFirst();
+
+        assertNotNull(activeAllocation);
+
+        assertTrue(allocationService.delete(activeAllocation.getId()));
+
+        assertEquals(initialSize - 1, allocationService.getAll().size());
+    }
+
+    @Test
+    void deleteNegative() {
+        int initialSize = allocationService.getAll().size();
+        VMAllocation pastAllocation = allocationService.getPast(resourceService.getAll().getFirst()).getFirst();
+
+        assertNotNull(pastAllocation);
+
+        assertFalse(allocationService.delete(pastAllocation.getId()));
+
+        assertEquals(initialSize, allocationService.getAll().size());
     }
 }

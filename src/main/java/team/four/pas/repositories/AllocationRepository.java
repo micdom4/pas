@@ -15,4 +15,6 @@ public interface AllocationRepository extends Repository<VMAllocation> {
 
     List<VMAllocation> getActive(Client client);
     List<VMAllocation> getPast(Client client);
+
+    boolean finishAllocation(String allocationId);
 }
