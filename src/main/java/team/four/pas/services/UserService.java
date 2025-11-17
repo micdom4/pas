@@ -1,5 +1,7 @@
 package team.four.pas.services;
 
+import team.four.pas.controllers.DTOs.UserAddDTO;
+import team.four.pas.controllers.DTOs.UserDTO;
 import team.four.pas.services.data.users.User;
 
 import java.util.List;
@@ -13,7 +15,7 @@ public interface UserService {
 
     List<User> findByMatchingLogin(String login);
 
-    <T extends User> boolean add(String login, String name, String surname, Class<T> userClass);
+    UserDTO add(UserAddDTO addDTO);
 
     boolean update(String id, String surname);
 

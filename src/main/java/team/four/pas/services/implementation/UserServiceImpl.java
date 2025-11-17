@@ -1,11 +1,19 @@
 package team.four.pas.services.implementation;
 
+import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import team.four.pas.controllers.DTOs.UserAddDTO;
+import team.four.pas.controllers.DTOs.UserDTO;
 import team.four.pas.repositories.UserRepository;
 import team.four.pas.services.UserService;
+import team.four.pas.services.data.users.Admin;
+import team.four.pas.services.data.users.Client;
+import team.four.pas.services.data.users.Manager;
 import team.four.pas.services.data.users.User;
+import team.four.pas.services.mappers.UserToDTO;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -15,6 +23,8 @@ import java.util.regex.Pattern;
 public class UserServiceImpl implements UserService {
     @NonNull
     private final UserRepository userRepository;
+    @Autowired
+    private UserToDTO userToDTO;
 
     @Override
     public List<User> getAll() {
@@ -37,11 +47,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public <T extends User> boolean add(String login, String name, String surname, Class<T> userClass) {
-        if (validateLogin(login) && validateName(name) && validateSurname(surname)) {
-            return userRepository.add(login, name, surname, userClass);
+    public UserDTO add(UserAddDTO addDTO) {
+        if (validateLogin(addDTO.login()) && validateName(addDTO.name()) && validateSurname(addDTO.name())) {
+            return switch (addDTO.type()) {
+                case CLIENT -> userToDTO.toDTO(userRepository.add(addDTO.login(), addDTO.name(), addDTO.surname(), Client.class));
+                case MANAGER -> userToDTO.toDTO(userRepository.add(addDTO.login(), addDTO.name(), addDTO.surname(), Manager.class));
+                case ADMIN-> userToDTO.toDTO(userRepository.add(addDTO.login(), addDTO.name(), addDTO.surname(), Admin.class));
+                default -> throw new IllegalArgumentException("Unknown user type: " + addDTO.type());
+            };
         } else {
-            return false;
+            throw new IllegalArgumentException("Invalid login:" + addDTO.login());
         }
     }
 

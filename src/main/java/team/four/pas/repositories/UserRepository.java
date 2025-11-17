@@ -11,7 +11,7 @@ public interface UserRepository  extends Repository<User> {
 
     List<User> findByMatchingLogin(String loginStart);
 
-    <T extends User> boolean add(String login, String name, String surname, Class<T> userClass);
+    <T extends User> User add(String login, String name, String surname, Class<T> userClass);
 
     boolean update(String id, String Surname);
 

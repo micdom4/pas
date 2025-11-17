@@ -82,10 +82,10 @@ public class MongoUserRepository implements UserRepository {
     }
 
     @Override
-    public <T extends User> boolean add(String login, String name, String surname, Class<T> userClass) {
+    public <T extends User> User add(String login, String name, String surname, Class<T> userClass) {
         if(login.isEmpty() || findByLogin(login) != null) {
             System.err.println("Invalid login:" + login);
-            return false;
+            return null;
         }
 
         UserEntity.Type type;
@@ -98,16 +98,16 @@ public class MongoUserRepository implements UserRepository {
             type = UserEntity.Type.ADMIN;
         } else {
             System.err.println("Unknown user class: " + userClass.getName());
-            return false;
+            return null;
         }
 
 
         try {
             InsertOneResult result = userCollection.insertOne( new UserEntity(null, login, name, surname, type, false));
-            return result.wasAcknowledged();
+            return findByLogin(login);
         } catch (MongoException e) {
             System.err.println("Error adding user: " + e.getMessage());
-            return false;
+            return null;
         }
     }
 

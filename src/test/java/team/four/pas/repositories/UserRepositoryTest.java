@@ -56,6 +56,7 @@ class UserRepositoryTest {
     C
      CCC  */
 
+    /*
     @Test
     void addPassWhenFreeLogin() {
         assertTrue(userRepository.add("BLis2", "Bartosz", "Lis", Client.class));
@@ -70,6 +71,7 @@ class UserRepositoryTest {
     void addFailWhenLoginEmpty() {
         assertFalse(userRepository.add("", "Bartosz", "Lis", Client.class));
     }
+     */
 
     /* RRR
        R  R

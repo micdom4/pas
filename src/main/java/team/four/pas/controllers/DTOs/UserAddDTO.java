@@ -1,7 +1,7 @@
 package team.four.pas.controllers.DTOs;
 
-public record UserDTO(
-        String id,
+
+public record UserAddDTO(
         String login,
         String name,
         String surname,

@@ -3,6 +3,8 @@ package team.four.pas.controllers;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import team.four.pas.controllers.DTOs.UserAddDTO;
+import team.four.pas.controllers.DTOs.UserDTO;
 import team.four.pas.services.UserService;
 import team.four.pas.services.data.users.User;
 
@@ -45,17 +47,17 @@ public class UserControllerImpl {
         userService.deactivate(id);
     }
 
-    /*
+
     @PostMapping(
             value = {""},
             consumes = {"application/json"}
     )
-    public User createPerson(@RequestBody String login) {
-        return userService.createUser();
+    public UserDTO createPerson(@RequestBody UserAddDTO addDTO) {
+        return userService.add(addDTO);
     }
 
 
-
+    /*
     @PutMapping(
             value = {"/{id}"},
             consumes = {"application/json"}
