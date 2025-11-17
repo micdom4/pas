@@ -25,7 +25,7 @@ import team.four.pas.services.data.users.Client;
 import team.four.pas.services.implementation.AllocationServiceImpl;
 import team.four.pas.services.implementation.ResourceServiceImpl;
 import team.four.pas.services.implementation.UserServiceImpl;
-import team.four.pas.services.mappers.UserToDTOImpl;
+import team.four.pas.services.mappers.UserToDTO;
 
 import javax.management.BadAttributeValueExpException;
 import java.io.File;
@@ -65,7 +65,7 @@ public class ResourceServiceTest {
 
         resourceService = new ResourceServiceImpl(resourceRepository, allocationRepository);
         allocationService = new AllocationServiceImpl(allocationRepository);
-        userService = new UserServiceImpl(context.getBean(UserRepository.class), context.getBean(UserToDTOImpl.class));
+        userService = new UserServiceImpl(context.getBean(UserRepository.class), context.getBean(UserToDTO.class));
 
         database = context.getBean(MongoClient.class).getDatabase("pas");
     }
@@ -234,7 +234,7 @@ public class ResourceServiceTest {
             assertNotNull(userService.add(new UserAddDTO(login, "Henryk", "Kwinto", UserType.CLIENT)));
             resourceService.addVM(12, 16, 256);
 
-            userService.activate(userService.findByLogin(login).getId());
+            userService.activate(userService.findByLogin(login).id());
             assertTrue(allocationService.add((Client) userService.findByLogin(login), resourceService.getAll().getFirst(), Instant.now()));
 
             List<VirtualMachine> resources = resourceService.getAll();
