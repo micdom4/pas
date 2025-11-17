@@ -9,6 +9,9 @@ import com.mongodb.client.result.InsertOneResult;
 import com.mongodb.client.result.UpdateResult;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
+import team.four.pas.controllers.exceptions.service.AddVMException;
+import team.four.pas.controllers.exceptions.service.DeleteVMException;
+import team.four.pas.controllers.exceptions.service.UpdateVMException;
 import team.four.pas.repositories.ResourceRepository;
 import team.four.pas.repositories.entities.VirtualMachineEntity;
 import team.four.pas.repositories.mappers.StringToObjectId;
@@ -18,6 +21,7 @@ import team.four.pas.services.data.resources.VirtualMachine;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class MongoResourceRepository implements ResourceRepository {
@@ -33,28 +37,31 @@ public class MongoResourceRepository implements ResourceRepository {
     }
 
     @Override
-    public boolean addVM(int cpuNumber, int ram, int memory) {
+    public VirtualMachine addVM(int cpuNumber, int ram, int memory) throws AddVMException {
         try {
             VirtualMachineEntity newVM = new VirtualMachineEntity(null, cpuNumber,
-                                                                     ram, memory);
+                    ram, memory);
 
             InsertOneResult result = resourceCollection.insertOne(newVM);
+            ObjectId id = Objects.requireNonNull(result.getInsertedId()).asObjectId().getValue();
+            Bson filter = Filters.eq("_id", id);
+            VirtualMachineEntity entity = resourceCollection.find(filter).first();
+            return mapper.toData(entity);
 
-            return result.wasAcknowledged();
-        } catch (MongoException e) {
+        } catch (Exception e) {
             System.out.println("Failed to add VM " + e.getMessage());
-            return false;
+            throw new AddVMException(e.getMessage(), e);
         }
     }
 
     @Override
-    public boolean updateVM(String id, int cpuNumber, int ram, int memory) {
+    public VirtualMachine updateVM(String id, int cpuNumber, int ram, int memory) throws UpdateVMException {
         ObjectId objectId;
 
         try {
             objectId = new ObjectId(id);
         } catch (IllegalArgumentException e) {
-            return false;
+            throw new UpdateVMException(e.getMessage(), e);
         }
 
         Bson filter = Filters.eq("_id", objectId);
@@ -68,17 +75,23 @@ public class MongoResourceRepository implements ResourceRepository {
         try {
             UpdateResult result = resourceCollection.updateOne(filter, update);
 
-            return result.getModifiedCount() == 1;
-        } catch (MongoException e) {
-            return false;
+            VirtualMachineEntity entity = resourceCollection.find(filter).first();
+
+            if (result.getModifiedCount() != 1) {
+                throw new UpdateVMException(String.format("Could not update VM %d", id));
+            }
+            return mapper.toData(entity);
+        } catch (Exception e) {
+            throw new UpdateVMException(e.getMessage(), e);
         }
     }
+
     @Override
     public List<VirtualMachine> getAll() {
         try {
             return resourceCollection.find()
-                                     .map(mapper::toData)
-                                     .into(new ArrayList<>());
+                    .map(mapper::toData)
+                    .into(new ArrayList<>());
         } catch (MongoException e) {
             return Collections.emptyList();
         }
@@ -112,9 +125,9 @@ public class MongoResourceRepository implements ResourceRepository {
     @Override
     public List<VirtualMachine> findById(List<String> ids) {
         List<ObjectId> objectIds = ids.stream()
-                                      .map(idMapper::stringToObjectId)
-                                      .filter(java.util.Objects::nonNull)
-                                      .collect(Collectors.toList());
+                .map(idMapper::stringToObjectId)
+                .filter(java.util.Objects::nonNull)
+                .collect(Collectors.toList());
 
         if (objectIds.isEmpty()) {
             return Collections.emptyList();
@@ -124,32 +137,35 @@ public class MongoResourceRepository implements ResourceRepository {
 
         try {
             return resourceCollection.find(filter)
-                                     .map(mapper::toData)
-                                     .into(new ArrayList<>());
+                    .map(mapper::toData)
+                    .into(new ArrayList<>());
         } catch (MongoException e) {
             System.err.println("Error finding VMs by ID list: " + e.getMessage());
             return Collections.emptyList();
-        }    }
+        }
+    }
 
-    public boolean delete(String id) {
+    public void delete(String id) throws DeleteVMException {
         ObjectId objectId;
         try {
             objectId = idMapper.stringToObjectId(id);
             if (objectId == null) {
-                return false;
+                throw new IllegalArgumentException("Invalid id: " + id);
             }
         } catch (IllegalArgumentException e) {
-            return false;
+            throw new DeleteVMException(e.getMessage(), e);
         }
 
         Bson filter = Filters.eq("_id", objectId);
 
         try {
             DeleteResult result = resourceCollection.deleteOne(filter);
-            return result.getDeletedCount() == 1;
+            if (result.getDeletedCount() != 1) {
+                throw new DeleteVMException(String.format("Could not delete VM %d", id));
+            }
         } catch (MongoException e) {
             System.err.println("Error deleting VM by ID: " + e.getMessage());
-            return false;
+            throw new DeleteVMException(e.getMessage(), e);
         }
     }
 }

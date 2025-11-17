@@ -1,11 +1,14 @@
 package team.four.pas.repositories;
 
+import team.four.pas.controllers.exceptions.service.AddVMException;
+import team.four.pas.controllers.exceptions.service.DeleteVMException;
+import team.four.pas.controllers.exceptions.service.UpdateVMException;
 import team.four.pas.services.data.resources.VirtualMachine;
 
 public interface ResourceRepository extends Repository<VirtualMachine> {
-    boolean addVM(int cpuNumber, int ram, int memory);
-    public boolean updateVM(String id, int cpuNumber, int ram, int memory);
-    public VirtualMachine findById(String id);
-    public boolean delete(String id);
+    VirtualMachine addVM(int cpuNumber, int ram, int memory) throws AddVMException;
+    VirtualMachine updateVM(String id, int cpuNumber, int ram, int memory) throws UpdateVMException;
+    VirtualMachine findById(String id);
+    void delete(String id) throws DeleteVMException;
 }
 

@@ -1,5 +1,8 @@
 package team.four.pas.services;
 
+import team.four.pas.controllers.exceptions.service.AddVMException;
+import team.four.pas.controllers.exceptions.service.DeleteVMException;
+import team.four.pas.controllers.exceptions.service.UpdateVMException;
 import team.four.pas.services.data.resources.VirtualMachine;
 
 import java.util.List;
@@ -9,7 +12,7 @@ public interface ResourceService {
     VirtualMachine findById(String id);
     List<VirtualMachine> findById(List<String> id);
 
-    boolean addVM(int cpuNumber, int ram, int memory);
-    boolean updateVM(String id, int cpuNumber, int ram, int memory);
-    boolean deleteVM(String id);
+    VirtualMachine addVM(int cpuNumber, int ram, int memory) throws AddVMException;
+    VirtualMachine updateVM(String id, int cpuNumber, int ram, int memory) throws UpdateVMException;
+    void deleteVM(String id) throws DeleteVMException;
 }
