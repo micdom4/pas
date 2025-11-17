@@ -61,4 +61,14 @@ public class AllocationServiceImpl implements AllocationService {
     public List<VMAllocation> getPast(Client client) {
         return allocationRepository.getPast(client);
     }
+
+    @Override
+    public boolean finishAllocation(String id) {
+        return allocationRepository.finishAllocation(id);
+    }
+
+    @Override
+    public boolean delete(String id) {
+        return false;
+    }
 }

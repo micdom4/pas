@@ -117,10 +117,12 @@ class UserRepositoryTest {
         assertEquals("Lis-Nowak", userRepository.findByLogin("BLis").getSurname());
     }
 
-    /* DDD
-       D  D
-       D  D
-       D  D
-       DDD  */
-
+    @Test
+    void activateDeactivate() {
+        assertTrue(userRepository.findByLogin("BLis").isActive());
+        assertTrue(userRepository.deactivate("BLis"));
+        assertFalse(userRepository.findByLogin("BLis").isActive());
+        assertTrue(userRepository.activate("BLis"));
+        assertTrue(userRepository.findByLogin("BLis").isActive());
+    }
 }

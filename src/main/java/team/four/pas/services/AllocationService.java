@@ -21,4 +21,8 @@ public interface AllocationService {
 
     List<VMAllocation> getActive(Client client);
     List<VMAllocation> getPast(Client client);
+
+    boolean finishAllocation(String id);
+
+    boolean delete(String id);
 }
