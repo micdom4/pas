@@ -90,16 +90,16 @@ class ResourceRepositoryTest {
         int memory = vm.getStorageGiB();
         int cpus = vm.getCpuNumber();
 
-        assertNotEquals(-1, ramBefore);
-        assertNotEquals(-1, memory);
-        assertNotEquals(-1, cpus);
+        assertNotEquals(2, ramBefore);
+        assertNotEquals(2, memory);
+        assertNotEquals(2, cpus);
 
-        assertTrue(resourceRepository.updateVM(vm.getId(), -1, -1 ,-1));
+        assertTrue(resourceRepository.updateVM(vm.getId(), 2, 2 ,2));
 
         VirtualMachine updatedVM = resourceRepository.getAll().getFirst();
-        assertEquals(-1, updatedVM.getRamGiB());
-        assertEquals(-1, updatedVM.getStorageGiB());
-        assertEquals(-1, updatedVM.getCpuNumber());
+        assertEquals(2, updatedVM.getRamGiB());
+        assertEquals(2, updatedVM.getStorageGiB());
+        assertEquals(2, updatedVM.getCpuNumber());
     }
 
     /* DDD
