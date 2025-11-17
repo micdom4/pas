@@ -155,11 +155,17 @@ public class UserServiceTest {
     }
 
     @Test
-    void activateDeactivate() {
+    void activateDeactivate() throws ServerException, KeyManagementException, BadAttributeValueExpException {
+        assertNotNull(userService.add(new UserAddDTO("BLis", "Bartosz", "Lis", UserType.ADMIN)));
+
+        String id = userService.getAll().getFirst().getId();
+
+        userService.activate(id);
+
         assertTrue(userService.findByLogin("BLis").isActive());
-        assertTrue(userService.deactivate("BLis"));
+        assertTrue(userService.deactivate(id));
         assertFalse(userService.findByLogin("BLis").isActive());
-        assertTrue(userService.activate("BLis"));
+        assertTrue(userService.activate(id));
         assertTrue(userService.findByLogin("BLis").isActive());
     }
 }

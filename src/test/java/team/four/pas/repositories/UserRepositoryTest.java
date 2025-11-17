@@ -118,11 +118,14 @@ class UserRepositoryTest {
     }
 
     @Test
-    void activateDeactivate() {
+    void activateDeactivate() throws ServerException, KeyManagementException, BadAttributeValueExpException {
+        userRepository.add("BLis", "Bartosz", "Lis", Admin.class);
+        String id = userRepository.getAll().getFirst().getId();
+        userRepository.activate(id);
         assertTrue(userRepository.findByLogin("BLis").isActive());
-        assertTrue(userRepository.deactivate("BLis"));
+        assertTrue(userRepository.deactivate(id));
         assertFalse(userRepository.findByLogin("BLis").isActive());
-        assertTrue(userRepository.activate("BLis"));
+        assertTrue(userRepository.activate(id));
         assertTrue(userRepository.findByLogin("BLis").isActive());
     }
 }
