@@ -3,6 +3,7 @@ package team.four.pas.controllers;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
 import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
 import org.bson.Document;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -30,9 +31,7 @@ import java.io.File;
 import java.rmi.ServerException;
 import java.security.KeyManagementException;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItem;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.hamcrest.Matchers.*;
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
@@ -72,9 +71,11 @@ class UserControllerImplTest {
         database.getCollection("virtualMachines").deleteMany(new Document());
         database.getCollection("vmAllocations").deleteMany(new Document());
     }
+
     @Test
     void getAll() throws ServerException, KeyManagementException, BadAttributeValueExpException {
         userService.add(new UserAddDTO("BLis", "Bartosz", "Lis", UserType.ADMIN));
+
         RestAssured.given()
                 .log().parameters()
                 .when()
@@ -85,25 +86,152 @@ class UserControllerImplTest {
                 .body("login", hasItem("BLis"));
     }
 
-        /*
     @Test
-    void getUser() {
+    void getUser() throws ServerException, KeyManagementException, BadAttributeValueExpException {
+        userService.add(new UserAddDTO("BLis", "Bartosz", "Lis", UserType.ADMIN));
+        String id = userService.findByLogin("BLis").id();
+        RestAssured.given()
+                .log().parameters()
+                .when()
+                .get("/users/{id}", id)
+                .then()
+                .log().body()
+                .statusCode(HttpStatus.OK.value())
+                .body("name", equalTo("Bartosz"))
+                .body("type", equalTo("ADMIN"));
     }
 
     @Test
-    void findPersonByLogin() {
+    void searchByLogin() throws ServerException, KeyManagementException, BadAttributeValueExpException {
+        userService.add(new UserAddDTO("BLis", "Bartosz", "Lis", UserType.ADMIN));
+        userService.add(new UserAddDTO("BLis2", "Bartosz", "Lis", UserType.ADMIN));
+        userService.add(new UserAddDTO("KLrol", "Bartosz", "Lis", UserType.ADMIN));
+
+        String login = "BL";
+
+        RestAssured.given()
+                .log().parameters()
+                .when()
+                .get("/users/search/{login}", login)
+                .then()
+                .log().body()
+                .statusCode(HttpStatus.OK.value())
+                .body("login", hasItems("BLis", "BLis2"))
+                .body("login", not(hasItems("KLrol")));
     }
 
-    @Test
-    void activateUser() {
-    }
 
     @Test
-    void deactivatePerson() {
+    void activateDeactivatePerson() throws ServerException, KeyManagementException, BadAttributeValueExpException {
+        userService.add(new UserAddDTO("BLis", "Bartosz", "Lis", UserType.ADMIN));
+
+        String id = userService.findByLogin("BLis").id();
+
+        RestAssured.given()
+                .log().parameters()
+                .when()
+                .get("/users/{id}", id)
+                .then()
+                .log().body()
+                .statusCode(HttpStatus.OK.value())
+                .body("name", equalTo("Bartosz"))
+                .body("type", equalTo("ADMIN"))
+                .body("active", equalTo(false));
+
+        RestAssured.given()
+                .log().parameters()
+                .when()
+                .post("/users/{id}/activate", id)
+                .then()
+                .log().body()
+                .statusCode(HttpStatus.OK.value());
+
+        RestAssured.given()
+                .log().parameters()
+                .when()
+                .get("/users/{id}", id)
+                .then()
+                .log().body()
+                .statusCode(HttpStatus.OK.value())
+                .body("name", equalTo("Bartosz"))
+                .body("type", equalTo("ADMIN"))
+                .body("active", equalTo(true));
+
+        RestAssured.given()
+                .log().parameters()
+                .when()
+                .post("/users/{id}/deactivate", id)
+                .then()
+                .log().body()
+                .statusCode(HttpStatus.OK.value());
+
+        RestAssured.given()
+                .log().parameters()
+                .when()
+                .get("/users/{id}", id)
+                .then()
+                .log().body()
+                .statusCode(HttpStatus.OK.value())
+                .body("name", equalTo("Bartosz"))
+                .body("type", equalTo("ADMIN"))
+                .body("active", equalTo(false));
     }
 
     @Test
     void createPerson() {
+        UserAddDTO newUser = new UserAddDTO("BLis", "Bartosz", "Lis", UserType.ADMIN);
+
+        RestAssured.given()
+                .log().all()
+                .contentType(ContentType.JSON)
+                .body(newUser)
+                .when()
+                .post("/users")
+                .then()
+                .log().body()
+                .statusCode(HttpStatus.CREATED.value())
+                .body("login", equalTo("BLis"))
+                .body("name", equalTo("Bartosz"))
+                .body("type", equalTo("ADMIN"));
     }
-         */
+    @Test
+    void createPersonConflict() {
+        UserAddDTO existingUser = new UserAddDTO("BLis", "Bartosz", "Lis", UserType.ADMIN);
+
+        RestAssured.given()
+                .log().all()
+                .contentType(ContentType.JSON)
+                .body(existingUser)
+                .when()
+                .post("/users")
+                .then()
+                .log().body()
+                .statusCode(HttpStatus.CREATED.value());
+
+        RestAssured.given()
+                .log().all()
+                .contentType(ContentType.JSON)
+                .body(existingUser)
+                .when()
+                .post("/users")
+                .then()
+                .log().body()
+                .statusCode(HttpStatus.CONFLICT.value());
+    }
+
+    @Test
+    void createPersonBadRequest() {
+        UserAddDTO existingUser = new UserAddDTO("BLis", "bLISSASD", "Lis", UserType.ADMIN);
+
+        RestAssured.given()
+                .log().all()
+                .contentType(ContentType.JSON)
+                .body(existingUser)
+                .when()
+                .post("/users")
+                .then()
+                .log().body()
+                .statusCode(HttpStatus.BAD_REQUEST.value());
+    }
+
 }

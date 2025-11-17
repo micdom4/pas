@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import team.four.pas.controllers.DTOs.UserAddDTO;
 import team.four.pas.controllers.DTOs.UserDTO;
 import team.four.pas.services.UserService;
-import team.four.pas.services.data.users.User;
 
 import javax.management.BadAttributeValueExpException;
 import java.rmi.ServerException;
@@ -28,18 +27,23 @@ public class UserControllerImpl {
     private final @NonNull UserService userService;
 
     @GetMapping({""})
-    public List<User> getAll() {
+    public List<UserDTO> getAll() {
         return userService.getAll();
     }
 
     @GetMapping({"/{id}"})
-    public User getUser(@PathVariable String id) {
+    public UserDTO getUser(@PathVariable String id) {
         return userService.findById(id);
     }
 
     @GetMapping({"/login/{login}"})
-    public User findPersonByLogin(@PathVariable String login) {
+    public UserDTO findPersonByLogin(@PathVariable String login) {
         return userService.findByLogin(login);
+    }
+
+    @GetMapping({"/search/{login}"})
+    public List<UserDTO> searchByLogin(@PathVariable String login) {
+        return userService.findByMatchingLogin(login);
     }
 
     @PostMapping({"/{id}/activate"})
@@ -52,16 +56,13 @@ public class UserControllerImpl {
         userService.deactivate(id);
     }
 
-
     @PostMapping(
             value = {""},
             consumes = {"application/json"}
     )
-    public ResponseEntity<?> createPerson(@RequestBody UserAddDTO addDTO) {
+    public ResponseEntity<UserDTO> createPerson(@RequestBody UserAddDTO addDTO) {
         try {
-
             return ResponseEntity.status(HttpStatus.CREATED).body(userService.add(addDTO));
-
         } catch (ServerException e) {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -77,15 +78,12 @@ public class UserControllerImpl {
         }
     }
 
-
-    /*
     @PutMapping(
             value = {"/{id}"},
             consumes = {"application/json"}
     )
-    public User editPerson(@PathVariable String id, @RequestBody String surname) {
-        return userService.updatePerson(id, surname);
+    public UserDTO editPerson(@PathVariable String id, @RequestBody String surname) {
+        return userService.update(id, surname);
     }
-     */
 
 }

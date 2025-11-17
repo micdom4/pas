@@ -5,5 +5,6 @@ public record UserDTO(
         String login,
         String name,
         String surname,
-        UserType type
+        UserType type,
+        boolean active
 ) { }

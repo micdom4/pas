@@ -16,9 +16,7 @@ public interface UserRepository  extends Repository<User> {
 
     <T extends User> User add(String login, String name, String surname, Class<T> userClass) throws ServerException, KeyManagementException, BadAttributeValueExpException;
 
-    boolean update(String id, String Surname);
-
-    boolean updateByLogin(String login, String Surname);
+    User update(String id, String Surname);
 
     boolean activate(String id);
 

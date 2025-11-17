@@ -113,7 +113,7 @@ class UserRepositoryTest {
     void updatePass() throws ServerException, KeyManagementException, BadAttributeValueExpException {
         userRepository.add("BLis", "Bartosz", "Lis", Admin.class);
         assertEquals("Lis", userRepository.findByLogin("BLis").getSurname());
-        assertTrue(userRepository.updateByLogin("BLis", "Lis-Nowak"));
+        assertEquals(userRepository.findByLogin("BLis"), userRepository.update(userRepository.findByLogin("BLis").getId(), "Lis-Nowak"));
         assertEquals("Lis-Nowak", userRepository.findByLogin("BLis").getSurname());
     }
 

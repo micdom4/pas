@@ -10,19 +10,17 @@ import java.security.KeyManagementException;
 import java.util.List;
 
 public interface UserService {
-    List<User> getAll();
+    List<UserDTO> getAll();
 
-    User findById(String id);
+    UserDTO findById(String id);
 
-    User findByLogin(String login);
+    UserDTO findByLogin(String login);
 
-    List<User> findByMatchingLogin(String login);
+    List<UserDTO> findByMatchingLogin(String login);
 
     UserDTO add(UserAddDTO addDTO) throws ServerException, KeyManagementException, BadAttributeValueExpException;
 
-    boolean update(String id, String surname);
-
-    boolean updateByLogin(String login, String surname);
+    UserDTO update(String id, String surname);
 
     boolean activate(String id);
 

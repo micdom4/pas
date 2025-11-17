@@ -114,31 +114,21 @@ public class MongoUserRepository implements UserRepository {
     }
 
     @Override
-    public boolean update(String id, String surname) {
+    public User update(String id, String surname) {
         ObjectId objectId = idMapper.stringToObjectId(id);
-        if (objectId == null) return false;
 
         Bson filter = Filters.eq("_id", objectId);
         Bson update = Updates.set("surname", surname);
         try {
             UpdateResult result = userCollection.updateOne(filter, update);
-            return result.getModifiedCount() == 1;
+            if (result.getMatchedCount() != 1) {
+                //exception
+            }
+            return findById(id);
         } catch (MongoException e) {
             System.err.println("Error updating user by ID: " + e.getMessage());
-            return false;
-        }
-    }
-
-    @Override
-    public boolean updateByLogin(String login, String surname) {
-        Bson filter = Filters.eq("login", login);
-        Bson update = Updates.set("surname", surname);
-        try {
-            UpdateResult result = userCollection.updateOne(filter, update);
-            return result.getModifiedCount() == 1;
-        } catch (MongoException e) {
-            System.err.println("Error updating user by login: " + e.getMessage());
-            return false;
+            //exception
+            return null;
         }
     }
 
