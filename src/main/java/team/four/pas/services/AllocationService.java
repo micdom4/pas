@@ -15,13 +15,15 @@ public interface AllocationService {
 
     VMAllocation add(UserDTO client, VirtualMachine resource, Instant startTime);
 
-    List<VMAllocation> getPast(VirtualMachine resource);
-    List<VMAllocation> getActive(VirtualMachine resource);
+    List<VMAllocation> getPastVm(String id);
 
-    List<VMAllocation> getActive(Client client);
-    List<VMAllocation> getPast(Client client);
+    List<VMAllocation> getActiveVm(String id);
+
+    List<VMAllocation> getActiveClient(String id);
+
+    List<VMAllocation> getPastClient(String id);
 
     void finishAllocation(String id);
 
-    boolean delete(String id);
+    void delete(String id);
 }

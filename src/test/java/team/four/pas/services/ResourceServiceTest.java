@@ -64,7 +64,7 @@ public class ResourceServiceTest {
         AllocationRepository allocationRepository = context.getBean(AllocationRepository.class);
 
         resourceService = new ResourceServiceImpl(resourceRepository, allocationRepository);
-        allocationService = new AllocationServiceImpl(allocationRepository, context.getBean(UserToDTO.class));
+        allocationService = new AllocationServiceImpl(allocationRepository, userService, resourceService, context.getBean(UserToDTO.class));
         userService = new UserServiceImpl(context.getBean(UserRepository.class), context.getBean(UserToDTO.class));
 
         database = context.getBean(MongoClient.class).getDatabase("pas");

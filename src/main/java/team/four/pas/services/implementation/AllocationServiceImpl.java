@@ -6,7 +6,10 @@ import org.springframework.stereotype.Service;
 import team.four.pas.controllers.DTOs.UserDTO;
 import team.four.pas.controllers.DTOs.UserType;
 import team.four.pas.repositories.AllocationRepository;
+import team.four.pas.repositories.UserRepository;
 import team.four.pas.services.AllocationService;
+import team.four.pas.services.ResourceService;
+import team.four.pas.services.UserService;
 import team.four.pas.services.data.allocations.VMAllocation;
 import team.four.pas.services.data.resources.VirtualMachine;
 import team.four.pas.services.data.users.Client;
@@ -19,6 +22,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AllocationServiceImpl implements AllocationService {
     private @NonNull final AllocationRepository allocationRepository;
+    private @NonNull final UserService userService;
+    private @NonNull final ResourceService resourceService;
     private @NonNull final UserToDTO userToDTO;
 
 
@@ -47,22 +52,34 @@ public class AllocationServiceImpl implements AllocationService {
     }
 
     @Override
-    public List<VMAllocation> getPast(VirtualMachine resource) {
+    public List<VMAllocation> getPastVm(String id) {
+        VirtualMachine resource = resourceService.findById(id);
         return allocationRepository.getPast(resource);
     }
 
     @Override
-    public List<VMAllocation> getActive(VirtualMachine resource) {
+    public List<VMAllocation> getActiveVm(String id) {
+        VirtualMachine resource = resourceService.findById(id);
         return allocationRepository.getActive(resource);
     }
 
     @Override
-    public List<VMAllocation> getActive(Client client) {
+    public List<VMAllocation> getActiveClient(String id) {
+        UserDTO clientDTO = userService.findById(id);
+        if (clientDTO.type() != UserType.CLIENT) {
+            throw new IllegalArgumentException("User is not a client");
+        }
+        Client client = userToDTO.clientFromClientDTO(clientDTO);
         return allocationRepository.getActive(client);
     }
 
     @Override
-    public List<VMAllocation> getPast(Client client) {
+    public List<VMAllocation> getPastClient(String id) {
+        UserDTO clientDTO = userService.findById(id);
+        if (clientDTO.type() != UserType.CLIENT) {
+            throw new IllegalArgumentException("User is not a client");
+        }
+        Client client = userToDTO.clientFromClientDTO(clientDTO);
         return allocationRepository.getPast(client);
     }
 
@@ -72,7 +89,7 @@ public class AllocationServiceImpl implements AllocationService {
     }
 
     @Override
-    public boolean delete(String id) {
-        return false;
+    public void delete(String id) {
+        //
     }
 }

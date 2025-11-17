@@ -72,7 +72,7 @@ class AllocationControllerImplTest {
         ResourceRepository resourceRepository = context.getBean(ResourceRepository.class);
         UserRepository userRepository = context.getBean(UserRepository.class);
 
-        allocationService = new AllocationServiceImpl(allocationRepository, context.getBean(UserToDTO.class));
+        allocationService = new AllocationServiceImpl(allocationRepository, userService, resourceService, context.getBean(UserToDTO.class));
         resourceService = new ResourceServiceImpl(resourceRepository, allocationRepository);
         userService =  new UserServiceImpl(userRepository, context.getBean(UserToDTO.class));
         database = context.getBean(MongoClient.class).getDatabase("pas");
