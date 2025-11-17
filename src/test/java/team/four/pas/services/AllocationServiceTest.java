@@ -4,13 +4,17 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import team.four.pas.Config;
+import team.four.pas.controllers.DTOs.UserAddDTO;
+import team.four.pas.controllers.DTOs.UserType;
 import team.four.pas.repositories.AllocationRepository;
 import team.four.pas.repositories.ResourceRepository;
 import team.four.pas.repositories.UserRepository;
@@ -26,7 +30,10 @@ import team.four.pas.services.implementation.UserServiceImpl;
 import team.four.pas.services.mappers.UserToDTO;
 import team.four.pas.services.mappers.UserToDTOImpl;
 
+import javax.management.BadAttributeValueExpException;
 import java.io.File;
+import java.rmi.ServerException;
+import java.security.KeyManagementException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,14 +49,14 @@ class AllocationServiceTest {
             new DockerComposeContainer<>(new File("src/test/resources/docker-compose.yml"))
                     .withExposedService("mongo", 27017);
 
-    private AnnotationConfigApplicationContext context;
+    private static AnnotationConfigApplicationContext context;
 
-    private AllocationService allocationService;
-    private ResourceService resourceService;
-    private UserService userService;
-
-    @BeforeEach
-    void each() {
+    private static AllocationService allocationService;
+    private static ResourceService resourceService;
+    private static UserService userService;
+    private static MongoDatabase database;
+    @BeforeAll
+    static void each() {
         String host = compose.getServiceHost("mongo", 27017);
         Integer port = compose.getServicePort("mongo", 27017);
         String dynamicUri = "mongodb://" + host + ":" + port + "/pas";
@@ -63,12 +70,12 @@ class AllocationServiceTest {
 
         allocationService = new AllocationServiceImpl(allocationRepository);
         resourceService = new ResourceServiceImpl(resourceRepository, allocationRepository);
-        userService = new UserServiceImpl(userRepository);
+        userService =  new UserServiceImpl(userRepository, context.getBean(UserToDTO.class));
+        database = context.getBean(MongoClient.class).getDatabase("pas");
     }
 
     @AfterEach
     void afterEach() {
-        MongoDatabase database = context.getBean(MongoClient.class).getDatabase("pas");
         database.getCollection("users").deleteMany(new Document());
         database.getCollection("virtualMachines").deleteMany(new Document());
         database.getCollection("vmAllocations").deleteMany(new Document());
@@ -110,13 +117,30 @@ class AllocationServiceTest {
        R   R */
 
     @Test
-    void getAll() {
-        assertEquals(2, allocationService.getAll().size());
+    void getAll() throws ServerException, KeyManagementException, BadAttributeValueExpException {
+        String login = "HKwinto";
+
+        assertNotNull(userService.add(new UserAddDTO(login, "Henryk", "Kwinto", UserType.CLIENT)));
+        assertTrue(resourceService.addVM(12, 16, 256));
+
+        userService.activate(userService.findByLogin(login).getId());
+        assertTrue(allocationService.add((Client) userService.findByLogin(login), resourceService.getAll().getFirst(), Instant.now()));
+
+        assertEquals(1, allocationService.getAll().size());
         System.out.println(allocationService.getAll());
     }
 
     @Test
-    void findById() {
+    void findById() throws ServerException, KeyManagementException, BadAttributeValueExpException {
+        String login = "HKwinto";
+
+        assertNotNull(userService.add(new UserAddDTO(login, "Henryk", "Kwinto", UserType.CLIENT)));
+        assertTrue(resourceService.addVM(12, 16, 256));
+
+        userService.activate(userService.findByLogin(login).getId());
+
+
+        assertTrue(allocationService.add((Client) userService.findByLogin(login), resourceService.getAll().getLast(), Instant.now()));
         VMAllocation vmAllocation = allocationService.getAll().getFirst();
         assertNotNull(vmAllocation);
 
@@ -124,25 +148,34 @@ class AllocationServiceTest {
     }
 
     @Test
-    void findByIds() {
-        VMAllocation vmAllocation = allocationService.getAll().getFirst();
-        VMAllocation vmAllocation2 = allocationService.getAll().getLast();
+    void findByIds() throws ServerException, KeyManagementException, BadAttributeValueExpException {
+        String login = "HKwinto";
+        String login2 = "HKwinto2";
+        assertNotNull(userService.add(new UserAddDTO(login, "Henryk", "Kwinto", UserType.CLIENT)));
+        assertNotNull(userService.add(new UserAddDTO(login2, "Henryka", "Kwintowna", UserType.CLIENT)));
 
-        assertNotEquals(vmAllocation, vmAllocation2);
+        assertTrue(resourceService.addVM(12, 16, 256));
+        assertTrue(resourceService.addVM(15, 16, 256));
 
-        System.out.println(vmAllocation);
-        System.out.println(vmAllocation2);
-        assertNotNull(vmAllocation);
-        assertNotNull(vmAllocation2);
+        userService.activate(userService.findByLogin(login).getId());
+        userService.activate(userService.findByLogin(login2).getId());
 
-        List<VMAllocation> allocations = new ArrayList<VMAllocation>();
-        allocations.add(vmAllocation);
-        allocations.add(vmAllocation2);
+        List<VirtualMachine> vms = resourceService.getAll();
+        assertTrue(allocationService.add((Client) userService.findByLogin(login), vms.getFirst(), Instant.now()));
+        assertTrue(allocationService.add((Client) userService.findByLogin(login2), vms.getLast(), Instant.now()));
+
+        List<VMAllocation> vmAllocations = allocationService.getAll();
+
+        assertNotEquals(vmAllocations.getFirst(), vmAllocations.getLast());
+
+        assertNotNull(vmAllocations.getFirst());
+        assertNotNull(vmAllocations.getLast());
+
 
         List<String> ids = new ArrayList<>();
-        ids.add(vmAllocation.getId());
-        ids.add(vmAllocation2.getId());
+        ids.add(vmAllocations.getFirst().getId());
+        ids.add(vmAllocations.getLast().getId());
 
-        assertEquals(allocations, allocationService.findById(ids));
+        assertEquals(vmAllocations, allocationService.findById(ids));
     }
 }

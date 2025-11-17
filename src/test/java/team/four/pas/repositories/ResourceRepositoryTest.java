@@ -4,6 +4,7 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -12,6 +13,8 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import team.four.pas.Config;
 import team.four.pas.services.data.resources.VirtualMachine;
+import team.four.pas.services.data.users.Admin;
+import team.four.pas.services.data.users.Client;
 
 import java.io.File;
 import java.util.Collections;
@@ -27,11 +30,12 @@ class ResourceRepositoryTest {
             new DockerComposeContainer<>(new File("src/test/resources/docker-compose.yml"))
                     .withExposedService("mongo", 27017);
 
-    private ResourceRepository resourceRepository;
-    private AnnotationConfigApplicationContext context;
+    private static ResourceRepository resourceRepository;
+    private static AnnotationConfigApplicationContext context;
+    private static MongoDatabase database;
 
-    @BeforeEach
-    void each(){
+    @BeforeAll
+    static void each(){
         String host = compose.getServiceHost("mongo", 27017);
         Integer port = compose.getServicePort("mongo", 27017);
         String dynamicUri = "mongodb://" + host + ":" + port + "/pas";
@@ -40,11 +44,11 @@ class ResourceRepositoryTest {
 
         context = new AnnotationConfigApplicationContext(Config.class);
         resourceRepository = context.getBean(ResourceRepository.class);
+        database = context.getBean(MongoClient.class).getDatabase("pas");
     }
 
     @AfterEach
     void afterEach(){
-        MongoDatabase database = context.getBean(MongoClient.class).getDatabase("pas");
         database.getCollection("virtualMachines").deleteMany(new Document());
     }
 
@@ -68,12 +72,15 @@ class ResourceRepositoryTest {
 
     @Test
     void findById() {
+        resourceRepository.addVM(5, 12, 10);
         VirtualMachine resource = resourceRepository.getAll().getFirst();
         assertEquals(resource, resourceRepository.findById(resource.getId()));
     }
 
     @Test
     void findAll() {
+        resourceRepository.addVM(5, 12, 10);
+        resourceRepository.addVM(6, 12, 10);
         assertEquals(2, resourceRepository.getAll().size());
     }
 
@@ -85,6 +92,7 @@ class ResourceRepositoryTest {
 
     @Test
     void updatePass() {
+        resourceRepository.addVM(5, 12, 10);
         VirtualMachine vm = resourceRepository.getAll().getFirst();
         int ramBefore = vm.getRamGiB();
         int memory = vm.getStorageGiB();
@@ -110,6 +118,9 @@ class ResourceRepositoryTest {
 
     @Test
     void delete() {
+        resourceRepository.addVM(5, 12, 10);
+        resourceRepository.addVM(6, 12, 10);
+
         List<VirtualMachine> resources = resourceRepository.getAll();
         assertNotEquals(Collections.emptyList(), resources);
 

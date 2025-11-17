@@ -2,12 +2,17 @@ package team.four.pas.controllers;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import team.four.pas.controllers.DTOs.UserAddDTO;
 import team.four.pas.controllers.DTOs.UserDTO;
 import team.four.pas.services.UserService;
 import team.four.pas.services.data.users.User;
 
+import javax.management.BadAttributeValueExpException;
+import java.rmi.ServerException;
+import java.security.KeyManagementException;
 import java.util.List;
 
 @RestController
@@ -52,8 +57,24 @@ public class UserControllerImpl {
             value = {""},
             consumes = {"application/json"}
     )
-    public UserDTO createPerson(@RequestBody UserAddDTO addDTO) {
-        return userService.add(addDTO);
+    public ResponseEntity<?> createPerson(@RequestBody UserAddDTO addDTO) {
+        try {
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(userService.add(addDTO));
+
+        } catch (ServerException e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
+        } catch (KeyManagementException e) {
+            return  ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body(null);
+        } catch (BadAttributeValueExpException e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(null);
+        }
     }
 
 

@@ -23,20 +23,21 @@ import team.four.pas.services.data.users.Client;
 import team.four.pas.repositories.implementation.MongoAllocationRepository;
 import team.four.pas.repositories.implementation.MongoResourceRepository;
 import team.four.pas.repositories.implementation.MongoUserRepository;
+import team.four.pas.services.mappers.UserToDTO;
 
 import java.time.Instant;
 
 @Configuration
 public class Config {
 
-    private Admin theOneAndOnly = new Admin(null, "BLis", "Bartosz", "Lis", false);
-    private Client wdiStudent = new Client(null, "JKernel", "Janek", "Kernel", false);
-    private VirtualMachine strongestWdiVM = new VirtualMachine(null , 1, 1, 10);
 
     @Bean
     public StringToObjectId idMapper() {
         return Mappers.getMapper(StringToObjectId.class);
     }
+
+    @Bean
+    public UserToDTO userDTOMapper() { return Mappers.getMapper(UserToDTO.class); }
 
     @Bean
     public UserMapper userMapper() {
@@ -81,41 +82,25 @@ public class Config {
     public MongoUserRepository MongoUserRepository(MongoClient mongoClient, UserMapper mapper, StringToObjectId idMapper, @Value("${pas.data.mongodb.database:pas}") String dbName) {
         MongoCollection<UserEntity> userColl = mongoClient.getDatabase(dbName).getCollection("users", UserEntity.class);
 
-        var mongoUserRepo = new MongoUserRepository(userColl, mapper, idMapper);
 
-        mongoUserRepo.add(theOneAndOnly.getLogin(), theOneAndOnly.getName(), theOneAndOnly.getSurname(), Admin.class);
-        mongoUserRepo.add(wdiStudent.getLogin(), wdiStudent.getName(), wdiStudent.getSurname(), Client.class);
-
-        return mongoUserRepo;
+        return new MongoUserRepository(userColl, mapper, idMapper);
     }
 
     @Bean
     public MongoAllocationRepository mongoAllocationRepository(MongoClient mongoClient, VMAllocationMapper mapper,
                                                                @Value("${pas.data.mongodb.database:pas}") String dbName,
                                                                UserMapper userMapper, VirtualMachineMapper vmMapper,
-                                                               StringToObjectId idMapper, MongoResourceRepository mgResource,
-                                                               MongoUserRepository mgUser) {
+                                                               StringToObjectId idMapper) {
         MongoCollection<VMAllocationEntity> vmAllocationsColl = mongoClient.getDatabase(dbName).getCollection("vmAllocations", VMAllocationEntity.class);
 
-        var mongoAllocationRepo = new MongoAllocationRepository(vmAllocationsColl, mapper, userMapper,  idMapper, vmMapper);
-
-        mongoAllocationRepo.add((Client) mgUser.findByLogin(wdiStudent.getLogin()), mgResource.getAll().getFirst(), Instant.now());
-        mongoAllocationRepo.finishAllocation(mongoAllocationRepo.getAll().getFirst().getId());
-        mongoAllocationRepo.add((Client) mgUser.findByLogin(wdiStudent.getLogin()), mgResource.getAll().getFirst(), Instant.now());
-
-        return mongoAllocationRepo;
+        return new MongoAllocationRepository(vmAllocationsColl, mapper, userMapper,  idMapper, vmMapper);
     }
 
     @Bean
     public MongoResourceRepository mongoResourceRepository(MongoClient mongoClient, VirtualMachineMapper mapper, StringToObjectId idMapper, @Value("${pas.data.mongodb.database:pas}") String dbName) {
         MongoCollection<VirtualMachineEntity> vmColl = mongoClient.getDatabase(dbName).getCollection("virtualMachines", VirtualMachineEntity.class);
 
-        var mongoResourceRepo = new MongoResourceRepository(vmColl, mapper, idMapper);
-
-        mongoResourceRepo.addVM(strongestWdiVM.getCpuNumber(), strongestWdiVM.getRamGiB(), strongestWdiVM.getStorageGiB());
-        mongoResourceRepo.addVM(strongestWdiVM.getCpuNumber() + 1, strongestWdiVM.getRamGiB() + 1, strongestWdiVM.getStorageGiB() + 1);
-
-        return mongoResourceRepo;
+        return new MongoResourceRepository(vmColl, mapper, idMapper);
     }
 
 }

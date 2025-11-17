@@ -4,6 +4,7 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -11,6 +12,8 @@ import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import team.four.pas.Config;
+import team.four.pas.controllers.DTOs.UserAddDTO;
+import team.four.pas.controllers.DTOs.UserType;
 import team.four.pas.repositories.UserRepository;
 import team.four.pas.services.data.users.Admin;
 import team.four.pas.services.data.users.Client;
@@ -19,7 +22,10 @@ import team.four.pas.services.implementation.UserServiceImpl;
 import team.four.pas.services.mappers.UserToDTO;
 import team.four.pas.services.mappers.UserToDTOImpl;
 
+import javax.management.BadAttributeValueExpException;
 import java.io.File;
+import java.rmi.ServerException;
+import java.security.KeyManagementException;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -32,12 +38,13 @@ public class UserServiceTest {
             new DockerComposeContainer<>(new File("src/test/resources/docker-compose.yml"))
                     .withExposedService("mongo", 27017);
 
-    private AnnotationConfigApplicationContext context;
+    private static AnnotationConfigApplicationContext context;
 
-    private UserService userService;
-
-    @BeforeEach
-    void each() {
+    private static UserService userService;
+    private static MongoDatabase database;
+;
+    @BeforeAll
+    static void each() {
         String host = compose.getServiceHost("mongo", 27017);
         Integer port = compose.getServicePort("mongo", 27017);
         String dynamicUri = "mongodb://" + host + ":" + port + "/pas";
@@ -48,7 +55,8 @@ public class UserServiceTest {
         context = new AnnotationConfigApplicationContext(Config.class);
         UserRepository userRepository = context.getBean(UserRepository.class);
 
-        userService = new UserServiceImpl(userRepository);
+        userService = new UserServiceImpl(userRepository, context.getBean(UserToDTOImpl.class));
+        database = context.getBean(MongoClient.class).getDatabase("pas");
     }
 
     @AfterEach
@@ -101,17 +109,20 @@ public class UserServiceTest {
        R   R */
 
     @Test
-    void findByLogin() {
+    void findByLogin() throws ServerException, KeyManagementException, BadAttributeValueExpException {
+        assertNotNull(userService.add(new UserAddDTO("BLis", "Bartosz", "Lis", UserType.CLIENT)));
         assertEquals("Bartosz", userService.findByLogin("BLis").getName());
     }
 
     @Test
-    void findByMatchingLogin() {
+    void findByMatchingLogin() throws ServerException, KeyManagementException, BadAttributeValueExpException {
+        assertNotNull(userService.add(new UserAddDTO("BLis", "Bartosz", "Lis", UserType.CLIENT)));
         assertEquals("Bartosz", userService.findByMatchingLogin("BL").getFirst().getName());
     }
 
     @Test
-    void shouldReturnCorrectType() {
+    void shouldReturnCorrectType() throws ServerException, KeyManagementException, BadAttributeValueExpException {
+        assertNotNull(userService.add(new UserAddDTO("BLis", "Bartosz", "Lis", UserType.ADMIN)));
         User user = userService.findByLogin("BLis");
         assertEquals(Admin.class, user.getClass());
     }
@@ -123,14 +134,16 @@ public class UserServiceTest {
         UUU  */
 
     @Test
-    void updatePass() {
+    void updatePass() throws ServerException, KeyManagementException, BadAttributeValueExpException {
+        assertNotNull(userService.add(new UserAddDTO("BLis", "Bartosz", "Lis", UserType.ADMIN)));
         assertEquals("Lis", userService.findByLogin("BLis").getSurname());
         assertTrue(userService.updateByLogin("BLis", "Lis-Nowak"));
         assertEquals("Lis-Nowak", userService.findByLogin("BLis").getSurname());
     }
 
     @Test
-    void updateFail() {
+    void updateFail() throws ServerException, KeyManagementException, BadAttributeValueExpException {
+        assertNotNull(userService.add(new UserAddDTO("BLis", "Bartosz", "Lis", UserType.ADMIN)));
         assertEquals("Lis", userService.findByLogin("BLis").getSurname());
 
         assertFalse(userService.updateByLogin("BLis", "Lis-nowak"));

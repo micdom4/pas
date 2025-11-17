@@ -15,6 +15,9 @@ import team.four.pas.services.data.users.Manager;
 import team.four.pas.services.data.users.User;
 import team.four.pas.services.mappers.UserToDTO;
 
+import javax.management.BadAttributeValueExpException;
+import java.rmi.ServerException;
+import java.security.KeyManagementException;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -23,8 +26,8 @@ import java.util.regex.Pattern;
 public class UserServiceImpl implements UserService {
     @NonNull
     private final UserRepository userRepository;
-    @Autowired
-    private UserToDTO userToDTO;
+    @NonNull
+    private final UserToDTO userToDTO;
 
     @Override
     public List<User> getAll() {
@@ -47,7 +50,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO add(UserAddDTO addDTO) {
+    public UserDTO add(UserAddDTO addDTO) throws ServerException, KeyManagementException, BadAttributeValueExpException {
         if (validateLogin(addDTO.login()) && validateName(addDTO.name()) && validateSurname(addDTO.name())) {
             return switch (addDTO.type()) {
                 case CLIENT -> userToDTO.toDTO(userRepository.add(addDTO.login(), addDTO.name(), addDTO.surname(), Client.class));

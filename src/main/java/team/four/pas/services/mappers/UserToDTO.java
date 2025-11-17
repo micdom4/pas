@@ -11,7 +11,7 @@ import team.four.pas.services.data.users.User;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Mapper(componentModel = "spring")
+@Mapper
 public interface UserToDTO {
 
     @Mapping(target = "type", constant = "CLIENT")

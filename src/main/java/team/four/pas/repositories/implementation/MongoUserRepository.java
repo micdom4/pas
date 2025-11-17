@@ -1,5 +1,6 @@
 package team.four.pas.repositories.implementation;
 
+import com.mongodb.DuplicateKeyException;
 import com.mongodb.MongoException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
@@ -18,6 +19,9 @@ import team.four.pas.services.data.users.Client;
 import team.four.pas.services.data.users.Manager;
 import team.four.pas.services.data.users.User;
 
+import javax.management.BadAttributeValueExpException;
+import java.rmi.ServerException;
+import java.security.KeyManagementException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -82,12 +86,9 @@ public class MongoUserRepository implements UserRepository {
     }
 
     @Override
-    public <T extends User> User add(String login, String name, String surname, Class<T> userClass) {
-        if(login.isEmpty() || findByLogin(login) != null) {
-            System.err.println("Invalid login:" + login);
-            return null;
-        }
-
+    public <T extends User> User add(String login, String name, String surname, Class<T> userClass) throws ServerException,
+                                                                                                           KeyManagementException,
+                                                                                                           BadAttributeValueExpException {
         UserEntity.Type type;
 
         if (userClass.equals(Client.class)) {
@@ -97,17 +98,18 @@ public class MongoUserRepository implements UserRepository {
         } else if (userClass.equals(Admin.class)) {
             type = UserEntity.Type.ADMIN;
         } else {
-            System.err.println("Unknown user class: " + userClass.getName());
-            return null;
+            throw new BadAttributeValueExpException("Invalid type");
         }
-
 
         try {
             InsertOneResult result = userCollection.insertOne( new UserEntity(null, login, name, surname, type, false));
             return findByLogin(login);
-        } catch (MongoException e) {
-            System.err.println("Error adding user: " + e.getMessage());
-            return null;
+        }
+        catch (MongoException e) {
+            if(e.getCode() == 11000 || e.getCode() == 121) {
+                throw new KeyManagementException(e.getMessage());
+            }
+            throw new ServerException("Error adding user: " + e.getMessage());
         }
     }
 

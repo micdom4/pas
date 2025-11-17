@@ -4,8 +4,10 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -15,7 +17,10 @@ import team.four.pas.services.data.users.Admin;
 import team.four.pas.services.data.users.Client;
 import team.four.pas.services.data.users.User;
 
+import javax.management.BadAttributeValueExpException;
 import java.io.File;
+import java.rmi.ServerException;
+import java.security.KeyManagementException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -28,25 +33,25 @@ class UserRepositoryTest {
             new DockerComposeContainer<>(new File("src/test/resources/docker-compose.yml"))
                     .withExposedService("mongo", 27017);
 
-    private UserRepository userRepository;
-    private AnnotationConfigApplicationContext context;
+    private static UserRepository userRepository;
+    private static AnnotationConfigApplicationContext context;
+    private static MongoDatabase database;
 
-    @BeforeEach
-    void each(){
+    @BeforeAll
+    static void each(){
         String host = compose.getServiceHost("mongo", 27017);
         Integer port = compose.getServicePort("mongo", 27017);
         String dynamicUri = "mongodb://" + host + ":" + port + "/pas";
 
         System.setProperty("pas.data.mongodb.uri", dynamicUri);
 
-
         context = new AnnotationConfigApplicationContext(Config.class);
         userRepository = context.getBean(UserRepository.class);
+        database = context.getBean(MongoClient.class).getDatabase("pas");
     }
 
     @AfterEach
     void afterEach(){
-        MongoDatabase database = context.getBean(MongoClient.class).getDatabase("pas");
         database.getCollection("users").deleteMany(new Document());
     }
 
@@ -56,22 +61,21 @@ class UserRepositoryTest {
     C
      CCC  */
 
-    /*
     @Test
-    void addPassWhenFreeLogin() {
-        assertTrue(userRepository.add("BLis2", "Bartosz", "Lis", Client.class));
+    void addPassWhenFreeLogin() throws ServerException, KeyManagementException, BadAttributeValueExpException {
+        assertEquals("BLis2" ,userRepository.add("BLis2", "Bartosz", "Lis", Client.class).getLogin());
     }
 
     @Test
-    void addFailWhenLoginExists() {
-        assertFalse(userRepository.add("BLis", "Bartosz", "Lis", Client.class));
+    void addFailWhenLoginExists() throws ServerException, KeyManagementException, BadAttributeValueExpException {
+        assertEquals("BLis", userRepository.add("BLis", "Bartosz", "Lis", Client.class).getLogin());
+        assertThrows(KeyManagementException.class, () -> userRepository.add("BLis", "Bartosz", "Lis", Client.class));
     }
 
     @Test
     void addFailWhenLoginEmpty() {
-        assertFalse(userRepository.add("", "Bartosz", "Lis", Client.class));
+        assertThrows(KeyManagementException.class, () -> userRepository.add(null, "Bartosz", "Lis", Client.class));
     }
-     */
 
     /* RRR
        R  R
@@ -80,17 +84,20 @@ class UserRepositoryTest {
        R   R */
 
     @Test
-    void findByLogin() {
+    void findByLogin() throws ServerException, KeyManagementException, BadAttributeValueExpException {
+        userRepository.add("BLis", "Bartosz", "Lis", Client.class);
         assertEquals("Bartosz", userRepository.findByLogin("BLis").getName());
     }
 
     @Test
-    void findByMatchingLogin() {
+    void findByMatchingLogin() throws ServerException, KeyManagementException, BadAttributeValueExpException {
+        userRepository.add("BLis", "Bartosz", "Lis", Client.class);
         assertEquals("Bartosz", userRepository.findByMatchingLogin("BL").getFirst().getName());
     }
 
     @Test
-    void shouldReturnCorrectType() {
+    void shouldReturnCorrectType() throws ServerException, KeyManagementException, BadAttributeValueExpException {
+        userRepository.add("BLis", "Bartosz", "Lis", Admin.class);
         User user = userRepository.findByLogin("BLis");
         assertEquals(Admin.class, user.getClass());
     }
@@ -103,7 +110,8 @@ class UserRepositoryTest {
         UUU  */
 
     @Test
-    void updatePass() {
+    void updatePass() throws ServerException, KeyManagementException, BadAttributeValueExpException {
+        userRepository.add("BLis", "Bartosz", "Lis", Admin.class);
         assertEquals("Lis", userRepository.findByLogin("BLis").getSurname());
         assertTrue(userRepository.updateByLogin("BLis", "Lis-Nowak"));
         assertEquals("Lis-Nowak", userRepository.findByLogin("BLis").getSurname());

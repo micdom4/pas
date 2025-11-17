@@ -4,6 +4,9 @@ import team.four.pas.controllers.DTOs.UserAddDTO;
 import team.four.pas.controllers.DTOs.UserDTO;
 import team.four.pas.services.data.users.User;
 
+import javax.management.BadAttributeValueExpException;
+import java.rmi.ServerException;
+import java.security.KeyManagementException;
 import java.util.List;
 
 public interface UserService {
@@ -15,7 +18,7 @@ public interface UserService {
 
     List<User> findByMatchingLogin(String login);
 
-    UserDTO add(UserAddDTO addDTO);
+    UserDTO add(UserAddDTO addDTO) throws ServerException, KeyManagementException, BadAttributeValueExpException;
 
     boolean update(String id, String surname);
 

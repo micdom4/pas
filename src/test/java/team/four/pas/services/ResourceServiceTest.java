@@ -4,6 +4,7 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -11,12 +12,23 @@ import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import team.four.pas.Config;
+import team.four.pas.controllers.DTOs.UserAddDTO;
+import team.four.pas.controllers.DTOs.UserType;
 import team.four.pas.repositories.AllocationRepository;
 import team.four.pas.repositories.ResourceRepository;
+import team.four.pas.repositories.UserRepository;
 import team.four.pas.services.data.resources.VirtualMachine;
+import team.four.pas.services.data.users.Client;
+import team.four.pas.services.implementation.AllocationServiceImpl;
 import team.four.pas.services.implementation.ResourceServiceImpl;
+import team.four.pas.services.implementation.UserServiceImpl;
+import team.four.pas.services.mappers.UserToDTOImpl;
 
+import javax.management.BadAttributeValueExpException;
 import java.io.File;
+import java.rmi.ServerException;
+import java.security.KeyManagementException;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,12 +41,15 @@ public class ResourceServiceTest {
             new DockerComposeContainer<>(new File("src/test/resources/docker-compose.yml"))
                     .withExposedService("mongo", 27017);
 
-    private AnnotationConfigApplicationContext context;
+    private static AnnotationConfigApplicationContext context;
 
-    private ResourceService resourceService;
+    private static ResourceService resourceService;
+    private static AllocationService allocationService;
+    private static UserService userService;
+    private static MongoDatabase database;
 
-    @BeforeEach
-    void before(){
+    @BeforeAll
+    static void before(){
         String host = compose.getServiceHost("mongo", 27017);
         Integer port = compose.getServicePort("mongo", 27017);
         String dynamicUri = "mongodb://" + host + ":" + port + "/pas";
@@ -46,11 +61,14 @@ public class ResourceServiceTest {
         AllocationRepository allocationRepository = context.getBean(AllocationRepository.class);
 
         resourceService = new ResourceServiceImpl(resourceRepository, allocationRepository);
+        allocationService = new AllocationServiceImpl(allocationRepository);
+        userService = new UserServiceImpl(context.getBean(UserRepository.class), context.getBean(UserToDTOImpl.class));
+
+        database = context.getBean(MongoClient.class).getDatabase("pas");
     }
 
     @AfterEach
     void after(){
-        MongoDatabase database = context.getBean(MongoClient.class).getDatabase("pas");
         database.getCollection("users").deleteMany(new Document());
         database.getCollection("virtualMachines").deleteMany(new Document());
         database.getCollection("vmAllocations").deleteMany(new Document());
@@ -65,6 +83,9 @@ public class ResourceServiceTest {
 
     @Test
     void addPositive() {
+        resourceService.addVM(5, 12, 10);
+        resourceService.addVM(5, 11, 10);
+
         assertEquals(2, resourceService.getAll().size());
 
         assertTrue(resourceService.addVM(5, 12, 10));
@@ -74,6 +95,9 @@ public class ResourceServiceTest {
 
     @Test
     void addNegative() {
+        resourceService.addVM(5, 12, 10);
+        resourceService.addVM(5, 11, 10);
+
         assertEquals(2, resourceService.getAll().size());
 
         assertFalse(resourceService.addVM(-5, 12, 10));
@@ -95,12 +119,15 @@ public class ResourceServiceTest {
 
     @Test
     void findById() {
+        resourceService.addVM(5, 12, 10);
         VirtualMachine resource = resourceService.getAll().getFirst();
         assertEquals(resource, resourceService.findById(resource.getId()));
     }
 
     @Test
     void findAll() {
+        resourceService.addVM(5, 12, 10);
+        resourceService.addVM(5, 12, 10);
         assertEquals(2, resourceService.getAll().size());
     }
 
@@ -112,6 +139,7 @@ public class ResourceServiceTest {
 
     @Test
     void updatePositive() {
+        resourceService.addVM(5, 12, 10);
         VirtualMachine vm = resourceService.getAll().getFirst();
         int ramBefore = vm.getRamGiB();
         int memoryBefore = vm.getStorageGiB();
@@ -131,6 +159,7 @@ public class ResourceServiceTest {
 
     @Test
     void updateNegative() {
+        resourceService.addVM(5, 12, 10);
         VirtualMachine vm = resourceService.getAll().getFirst();
         int ramBefore = vm.getRamGiB();
         int memoryBefore = vm.getStorageGiB();
@@ -156,6 +185,7 @@ public class ResourceServiceTest {
 
     @Test
     void deletePositive() {
+        resourceService.addVM(5, 12, 10);
         List<VirtualMachine> resources = resourceService.getAll();
         assertNotEquals(Collections.emptyList(), resources);
 
@@ -166,7 +196,15 @@ public class ResourceServiceTest {
     }
 
     @Test
-    void deleteNegative() {
+    void deleteNegative() throws ServerException, KeyManagementException, BadAttributeValueExpException {
+        String login = "HKwinto";
+
+        assertNotNull(userService.add(new UserAddDTO(login, "Henryk", "Kwinto", UserType.CLIENT)));
+        assertTrue(resourceService.addVM(12, 16, 256));
+
+        userService.activate(userService.findByLogin(login).getId());
+        assertTrue(allocationService.add((Client) userService.findByLogin(login), resourceService.getAll().getFirst(), Instant.now()));
+
         List<VirtualMachine> resources = resourceService.getAll();
         assertNotEquals(Collections.emptyList(), resources);
 
