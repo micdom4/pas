@@ -1,10 +1,7 @@
 package team.four.pas.services.implementation;
 
 import org.springframework.stereotype.Service;
-import team.four.pas.controllers.exceptions.service.AddVMException;
-import team.four.pas.controllers.exceptions.service.DataValidationException;
-import team.four.pas.controllers.exceptions.service.DeleteVMException;
-import team.four.pas.controllers.exceptions.service.UpdateVMException;
+import team.four.pas.controllers.exceptions.service.*;
 import team.four.pas.repositories.AllocationRepository;
 import team.four.pas.repositories.ResourceRepository;
 import team.four.pas.services.ResourceService;
@@ -64,7 +61,7 @@ public class ResourceServiceImpl implements ResourceService {
             if (allocationRepository.getActive(findById(id)).isEmpty() && allocationRepository.getPast(findById(id)).isEmpty()) {
                 resourceRepository.delete(id);
             } else {
-                throw new DeleteVMException("Resource is on allocation list");
+                throw new ResourceStillAllocatedException("Resource is still allocated");
             }
         } catch (Exception e) {
             throw new DeleteVMException(e.getMessage(), e);
