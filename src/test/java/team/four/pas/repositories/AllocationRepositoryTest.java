@@ -100,15 +100,6 @@ class AllocationRepositoryTest {
         assertNotNull(vmAllocation);
         assertNotNull(vmAllocation2);
 
-        List<VMAllocation> allocations = new ArrayList<VMAllocation>();
-        allocations.add(vmAllocation);
-        allocations.add(vmAllocation2);
-
-        List<String> ids = new ArrayList<>();
-        ids.add(vmAllocation.getId());
-        ids.add(vmAllocation2.getId());
-
-        assertEquals(allocations, allocationRepository.findById(ids));
     }
 
 }

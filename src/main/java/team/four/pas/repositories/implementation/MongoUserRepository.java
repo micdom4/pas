@@ -190,29 +190,4 @@ public class MongoUserRepository implements UserRepository {
         }
     }
 
-    @Override
-    public List<User> findById(List<String> ids) {
-        if (ids == null || ids.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        List<ObjectId> objectIds = ids.stream()
-                .map(idMapper::stringToObjectId)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-
-        if (objectIds.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        Bson filter = Filters.in("_id", objectIds);
-        try {
-            List<UserEntity> entities = userCollection.find(filter).into(new ArrayList<>());
-            return mapper.toDataList(entities);
-        } catch (MongoException e) {
-            System.err.println("Error finding users by ID list: " + e.getMessage());
-            return Collections.emptyList();
-        }
-    }
-
 }

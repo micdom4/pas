@@ -122,29 +122,6 @@ public class MongoResourceRepository implements ResourceRepository {
         }
     }
 
-    @Override
-    public List<VirtualMachine> findById(List<String> ids) {
-        List<ObjectId> objectIds = ids.stream()
-                .map(idMapper::stringToObjectId)
-                .filter(java.util.Objects::nonNull)
-                .collect(Collectors.toList());
-
-        if (objectIds.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        Bson filter = Filters.in("_id", objectIds);
-
-        try {
-            return resourceCollection.find(filter)
-                    .map(mapper::toData)
-                    .into(new ArrayList<>());
-        } catch (MongoException e) {
-            System.err.println("Error finding VMs by ID list: " + e.getMessage());
-            return Collections.emptyList();
-        }
-    }
-
     public void delete(String id) throws DeleteVMException {
         ObjectId objectId;
         try {

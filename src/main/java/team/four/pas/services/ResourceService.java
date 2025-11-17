@@ -10,7 +10,6 @@ import java.util.List;
 public interface ResourceService {
     List<VirtualMachine> getAll();
     VirtualMachine findById(String id);
-    List<VirtualMachine> findById(List<String> id);
 
     VirtualMachine addVM(int cpuNumber, int ram, int memory) throws AddVMException;
     VirtualMachine updateVM(String id, int cpuNumber, int ram, int memory) throws UpdateVMException;

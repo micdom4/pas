@@ -5,7 +5,4 @@ interface Repository<T> {
     List<T> getAll();
 
     T findById(String id);
-
-   List<T> findById(List<String> id);
-
 }

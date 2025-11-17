@@ -69,32 +69,6 @@ public class MongoAllocationRepository implements AllocationRepository {
         }
     }
 
-    @Override
-    public List<VMAllocation> findById(List<String> ids) {
-        if (ids == null || ids.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        List<ObjectId> objectIds = ids.stream()
-                                      .map(idMapper::stringToObjectId)
-                                      .filter(Objects::nonNull)
-                                      .collect(Collectors.toList());
-
-        if (objectIds.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        Bson filter = Filters.in("_id", objectIds);
-        try {
-            return allocationCollection.find(filter)
-                    .map(VMAllocationMapper::toData)
-                    .into(new ArrayList<>());
-        } catch (MongoException e) {
-            System.err.println("Error finding allocations by ID list: " + e.getMessage());
-            return Collections.emptyList();
-        }
-    }
-
     public List<VMAllocation> getActive(Client user) {
         Bson filter = Filters.and(
                 Filters.eq("client._id", idMapper.stringToObjectId(user.getId())),
@@ -155,7 +129,7 @@ public class MongoAllocationRepository implements AllocationRepository {
         }
     }
 
-    public boolean add(Client client, VirtualMachine resource, Instant startTime) {
+    public VMAllocation add(Client client, VirtualMachine resource, Instant startTime) {
         try {
             UserEntity clientEntity = userMapper.toEntity(client);
             VirtualMachineEntity vmEntity = vmMapper.toEntity(resource);
@@ -167,26 +141,28 @@ public class MongoAllocationRepository implements AllocationRepository {
             );
 
             InsertOneResult result = allocationCollection.insertOne(entity);
-            return result.wasAcknowledged();
+            if(!result.wasAcknowledged()) {
+                //exception
+            }
+
+            String id = idMapper.objectIdToString(result.getInsertedId().asObjectId().getValue());
+            return findById(id);
         } catch (MongoException e) {
-            System.err.println("Error adding allocation: " + e.getMessage());
-            return false;
+            // exception
+            throw new RuntimeException();
         }
     }
 
-    public boolean finishAllocation(String id) {
+    public void finishAllocation(String id) {
         ObjectId objectId = idMapper.stringToObjectId(id);
-        if (objectId == null) return false;
 
         Bson filter = Filters.eq("_id", objectId);
         Bson update = Updates.set("endTime", Instant.now());
 
         try {
             UpdateResult result = allocationCollection.updateOne(filter, update);
-            return result.getModifiedCount() == 1;
         } catch (MongoException e) {
-            System.err.println("Error finishing allocation: " + e.getMessage());
-            return false;
+            //exception
         }
     }
 

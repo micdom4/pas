@@ -23,6 +23,13 @@ public interface UserToDTO {
     @Mapping(target = "type", constant = "ADMIN")
     UserDTO dtoFromAdmin(Admin admin);
 
+    Client clientFromClientDTO(UserDTO clientDto);
+
+    Manager managerFromUserDTO(UserDTO userDto);
+
+    Admin adminFromUserDTO(UserDTO userDto);
+
+
     default List<UserDTO> toDataList(List<User> users) {
         if (users == null) {
             return null;

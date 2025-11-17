@@ -1,22 +1,26 @@
 package team.four.pas.services.implementation;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import team.four.pas.controllers.DTOs.UserDTO;
+import team.four.pas.controllers.DTOs.UserType;
 import team.four.pas.repositories.AllocationRepository;
 import team.four.pas.services.AllocationService;
 import team.four.pas.services.data.allocations.VMAllocation;
 import team.four.pas.services.data.resources.VirtualMachine;
 import team.four.pas.services.data.users.Client;
+import team.four.pas.services.mappers.UserToDTO;
 
 import java.time.Instant;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class AllocationServiceImpl implements AllocationService {
-    private final AllocationRepository allocationRepository;
+    private @NonNull final AllocationRepository allocationRepository;
+    private @NonNull final UserToDTO userToDTO;
 
-    public AllocationServiceImpl(AllocationRepository allocationRepository) {
-        this.allocationRepository = allocationRepository;
-    }
 
     @Override
     public List<VMAllocation> getAll() {
@@ -29,16 +33,16 @@ public class AllocationServiceImpl implements AllocationService {
     }
 
     @Override
-    public List<VMAllocation> findById(List<String> id) {
-        return allocationRepository.findById(id);
-    }
+    public VMAllocation add(UserDTO client, VirtualMachine resource, Instant startTime) {
+        if (client.type() != UserType.CLIENT) {
+            //exception
+        }
 
-    @Override
-    public boolean add(Client client, VirtualMachine resource, Instant startTime) {
-        if(client.isActive() && allocationRepository.getActive(resource).isEmpty()) {
-            return allocationRepository.add(client, resource, startTime);
+        if(client.active() && allocationRepository.getActive(resource).isEmpty()) {
+            return allocationRepository.add(userToDTO.clientFromClientDTO(client), resource, startTime);
         } else {
-            return false;
+            //exception
+            throw new RuntimeException();
         }
     }
 
@@ -63,8 +67,8 @@ public class AllocationServiceImpl implements AllocationService {
     }
 
     @Override
-    public boolean finishAllocation(String id) {
-        return allocationRepository.finishAllocation(id);
+    public void finishAllocation(String id) {
+        allocationRepository.finishAllocation(id);
     }
 
     @Override

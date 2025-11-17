@@ -33,11 +33,6 @@ public class ResourceServiceImpl implements ResourceService {
     }
 
     @Override
-    public List<VirtualMachine> findById(List<String> id) {
-        return resourceRepository.findById(id);
-    }
-
-    @Override
     public VirtualMachine addVM(int cpuNumber, int ram, int memory) throws AddVMException {
         try {
             validateCPUs(cpuNumber);
