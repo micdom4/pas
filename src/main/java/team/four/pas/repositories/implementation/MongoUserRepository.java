@@ -52,22 +52,11 @@ public class MongoUserRepository implements UserRepository {
     }
 
     @Override
-    public List<User> findByLogin(List<String> logins) throws UserInvalidLoginException {
-        if (logins == null || logins.isEmpty()) {
-            throw new UserInvalidLoginException("No logins provided");
-        }
-
-        Bson filter = Filters.in("login", logins);
-        List<UserEntity> entities = userCollection.find(filter).into(new ArrayList<>());
-
-        return mapper.toDataList(entities);
-    }
-
-    @Override
     public List<User> findByMatchingLogin(String loginStart) {
         Bson filter = Filters.regex("login", "^" + Pattern.quote(loginStart) + "(.)*");
 
         List<UserEntity> entities = userCollection.find(filter).into(new ArrayList<>());
+
         return mapper.toDataList(entities);
     }
 

@@ -3,6 +3,7 @@ package team.four.pas.repositories;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -11,9 +12,11 @@ import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import team.four.pas.Config;
+import team.four.pas.exceptions.resource.ResourceException;
 import team.four.pas.exceptions.user.UserAlreadyExistsException;
 import team.four.pas.exceptions.user.UserException;
 import team.four.pas.exceptions.user.UserInvalidLoginException;
+import team.four.pas.exceptions.user.UserNotPresentException;
 import team.four.pas.services.data.users.Admin;
 import team.four.pas.services.data.users.Client;
 import team.four.pas.services.data.users.User;
@@ -100,6 +103,27 @@ class UserRepositoryTest {
     }
 
     @Test
+    void findById() {
+        try {
+            User user = userRepository.add("BLis", "Bartosz", "Lis", Client.class);
+            assertEquals("Bartosz", userRepository.findById(user.getId()).getName());
+        } catch (UserException | ResourceException e) {
+            fail(e.getMessage());
+        }
+    }
+
+    @Test
+    void findByIdFail() {
+        String id = new ObjectId().toHexString();
+        assertThrows(UserNotPresentException.class, () -> userRepository.findById(id));
+    }
+
+    @Test
+    void failFindByLogin() {
+        assertThrows(UserNotPresentException.class, () -> userRepository.findByLogin("BLis"));
+    }
+
+    @Test
     void findByMatchingLogin() {
         try {
             userRepository.add("BLis", "Bartosz", "Lis", Client.class);
@@ -107,6 +131,11 @@ class UserRepositoryTest {
         } catch (UserException e) {
             fail(e.getMessage());
         }
+    }
+
+    @Test
+    void findByMatchingLoginShouldReturnEmptyList() {
+        assertEquals(0, userRepository.findByMatchingLogin("BL").size());
     }
 
     @Test
@@ -140,6 +169,16 @@ class UserRepositoryTest {
     }
 
     @Test
+    void updateFailWrongId() {
+        assertThrows(IllegalArgumentException.class, () -> userRepository.update("123231", "Lis-Nowak"));
+    }
+
+    @Test
+    void updateFailNoId() {
+        assertThrows(UserInvalidLoginException.class, () -> userRepository.update("", "Lis-Nowak"));
+    }
+
+    @Test
     void activateDeactivate() {
         try {
             userRepository.add("BLis", "Bartosz", "Lis", Admin.class);
@@ -154,4 +193,20 @@ class UserRepositoryTest {
             fail(e.getMessage());
         }
     }
+
+    @Test
+    void activateDeactivateFailWhenUserDontExists() {
+        String id = new ObjectId().toHexString();
+        assertThrows(UserNotPresentException.class, () -> userRepository.activate(id));
+        assertThrows(UserNotPresentException.class, () -> userRepository.deactivate(id));
+    }
+
+    @Test
+    void activateDeactivateFailWhenLoginEmpty() {
+        String id = "";
+        assertThrows(UserInvalidLoginException.class, () -> userRepository.activate(id));
+        assertThrows(UserInvalidLoginException.class, () -> userRepository.deactivate(id));
+    }
+
+
 }

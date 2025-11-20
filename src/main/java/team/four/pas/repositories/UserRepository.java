@@ -11,8 +11,6 @@ import java.util.List;
 public interface UserRepository  extends Repository<User> {
     User findByLogin(String login) throws UserInvalidLoginException, UserNotPresentException;
 
-    List<User> findByLogin(List<String> login) throws UserInvalidLoginException;
-
     List<User> findByMatchingLogin(String loginStart);
 
     <T extends User> User add(String login, String name, String surname, Class<T> userClass) throws UserInvalidTypeException, UserInvalidLoginException, UserNotPresentException, UserAlreadyExistsException;
