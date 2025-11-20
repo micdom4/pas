@@ -3,6 +3,7 @@ package team.four.pas.repositories;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -12,6 +13,8 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import team.four.pas.Config;
 import team.four.pas.exceptions.resource.ResourceException;
+import team.four.pas.exceptions.resource.ResourceInvalidIdException;
+import team.four.pas.exceptions.resource.ResourceNotPresentException;
 import team.four.pas.services.data.resources.VirtualMachine;
 
 import java.io.File;
@@ -79,6 +82,17 @@ class ResourceRepositoryTest {
     }
 
     @Test
+    void findByIdFailEmpty() {
+        assertThrows(ResourceInvalidIdException.class, () -> resourceRepository.findById(""));
+    }
+
+    @Test
+    void findByIdFailNotPresent() {
+        String id = new ObjectId().toHexString();
+        assertThrows(ResourceNotPresentException.class, () -> resourceRepository.findById(id));
+    }
+
+    @Test
     void findAll() {
         resourceRepository.addVM(5, 12, 10);
         resourceRepository.addVM(6, 12, 10);
@@ -86,14 +100,8 @@ class ResourceRepositoryTest {
     }
 
     @Test
-    void findByIdFail() {
-        try {
-            resourceRepository.findById("0");
-        } catch (ResourceException e) {
-            if (!(e.getCause() instanceof ResourceException)) {
-                fail(e.getMessage());
-            }
-        }
+    void findAllShouldReturnEmptyList() {
+        assertEquals(0, resourceRepository.getAll().size());
     }
 
     /* U   U
@@ -126,6 +134,17 @@ class ResourceRepositoryTest {
         }
     }
 
+
+    @Test
+    void updateFailEmptyId() {
+        assertThrows(ResourceInvalidIdException.class, () -> resourceRepository.updateVM("", 2, 2, 2));
+    }
+
+    @Test
+    void updateFailNotPresent() {
+        String id = new ObjectId().toHexString();
+        assertThrows(ResourceNotPresentException.class, () -> resourceRepository.updateVM(id, 2, 2, 2));
+    }
     /* DDD
        D  D
        D  D
@@ -133,7 +152,7 @@ class ResourceRepositoryTest {
        DDD  */
 
     @Test
-    void delete() {
+    void deletePass() {
         try {
             resourceRepository.addVM(5, 12, 10);
             resourceRepository.addVM(6, 12, 10);
@@ -144,9 +163,20 @@ class ResourceRepositoryTest {
             VirtualMachine resource = resourceRepository.getAll().getFirst();
 
             resourceRepository.delete(resource.getId());
-            assertNull(resourceRepository.findById(resource.getId()));
+            assertThrows(ResourceNotPresentException.class, () -> resourceRepository.findById(resource.getId()));
         } catch (ResourceException e) {
             fail(e.getMessage());
         }
+    }
+
+    @Test
+    void deleteFailNoId() {
+        assertThrows(ResourceInvalidIdException.class, () -> resourceRepository.delete(""));
+    }
+
+    @Test
+    void deleteFailInvalidId() {
+        String id = new ObjectId().toHexString();
+        assertThrows(ResourceNotPresentException.class, () -> resourceRepository.delete(id));
     }
 }
