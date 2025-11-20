@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import team.four.pas.controllers.DTOs.UserAddDTO;
 import team.four.pas.controllers.DTOs.UserDTO;
+import team.four.pas.exceptions.user.*;
 import team.four.pas.repositories.UserRepository;
 import team.four.pas.services.UserService;
 import team.four.pas.services.data.users.Admin;
@@ -12,9 +13,6 @@ import team.four.pas.services.data.users.Client;
 import team.four.pas.services.data.users.Manager;
 import team.four.pas.services.mappers.UserToDTO;
 
-import javax.management.BadAttributeValueExpException;
-import java.rmi.ServerException;
-import java.security.KeyManagementException;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -27,70 +25,110 @@ public class UserServiceImpl implements UserService {
     private final UserToDTO userToDTO;
 
     @Override
-    public List<UserDTO> getAll() {
-        return userToDTO.toDataList(userRepository.getAll());
+    public List<UserDTO> getAll() throws UserGetAllException {
+        try {
+            return userToDTO.toDataList(userRepository.getAll());
+        } catch (Exception e) {
+            throw new UserGetAllException(e.getMessage(), e);
+        }
     }
 
     @Override
-    public UserDTO findById(String id) {
-        return userToDTO.toDTO(userRepository.findById(id));
+    public UserDTO findById(String id) throws UserFindException {
+        try {
+            return userToDTO.toDTO(userRepository.findById(id));
+        } catch (Exception e) {
+            throw new UserFindException(e.getMessage(), e);
+        }
     }
 
     @Override
-    public UserDTO findByLogin(String login) {
-        return userToDTO.toDTO(userRepository.findByLogin(login));
+    public UserDTO findByLogin(String login) throws UserFindException {
+        try {
+            return userToDTO.toDTO(userRepository.findByLogin(login));
+        } catch (Exception e) {
+            throw new UserFindException(e.getMessage(), e);
+        }
     }
 
     @Override
-    public List<UserDTO> findByMatchingLogin(String login) {
-        return userToDTO.toDataList(userRepository.findByMatchingLogin(login));
+    public List<UserDTO> findByMatchingLogin(String login) throws UserFindException {
+        try {
+            return userToDTO.toDataList(userRepository.findByMatchingLogin(login));
+        } catch (Exception e) {
+            throw new UserFindException(e.getMessage(), e);
+        }
     }
 
     @Override
-    public UserDTO add(UserAddDTO addDTO) throws ServerException, KeyManagementException, BadAttributeValueExpException {
-        if (validateLogin(addDTO.login()) && validateName(addDTO.name()) && validateSurname(addDTO.name())) {
+    public UserDTO add(UserAddDTO addDTO) throws UserAddException {
+        try {
+            validateLogin(addDTO.login());
+            validateName(addDTO.name());
+            validateSurname(addDTO.name());
+
             return switch (addDTO.type()) {
-                case CLIENT -> userToDTO.toDTO(userRepository.add(addDTO.login(), addDTO.name(), addDTO.surname(), Client.class));
-                case MANAGER -> userToDTO.toDTO(userRepository.add(addDTO.login(), addDTO.name(), addDTO.surname(), Manager.class));
-                case ADMIN-> userToDTO.toDTO(userRepository.add(addDTO.login(), addDTO.name(), addDTO.surname(), Admin.class));
-                default -> throw new IllegalArgumentException("Unknown user type: " + addDTO.type());
+                case CLIENT ->
+                        userToDTO.toDTO(userRepository.add(addDTO.login(), addDTO.name(), addDTO.surname(), Client.class));
+                case MANAGER ->
+                        userToDTO.toDTO(userRepository.add(addDTO.login(), addDTO.name(), addDTO.surname(), Manager.class));
+                case ADMIN ->
+                        userToDTO.toDTO(userRepository.add(addDTO.login(), addDTO.name(), addDTO.surname(), Admin.class));
             };
-        } else {
-            throw new BadAttributeValueExpException("Data doesn't conform to standards");
+
+        } catch (Exception e) {
+            throw new UserAddException(e.getMessage(), e);
         }
     }
 
     @Override
-    public UserDTO update(String id, String surname) {
-        if (validateSurname(surname)) {
+    public UserDTO update(String id, String surname) throws UserUpdateException {
+        try {
+            validateSurname(surname);
+
             return userToDTO.toDTO(userRepository.update(id, surname));
-        } else {
-            return null;
+        } catch (Exception e) {
+            throw new UserUpdateException(e.getMessage(), e);
         }
     }
 
     @Override
-    public boolean activate(String id) {
-        return userRepository.activate(id);
+    public void activate(String id) throws UserUpdateException {
+        try {
+            userRepository.activate(id);
+        } catch (Exception e) {
+            throw new UserUpdateException(e.getMessage(), e);
+        }
+
     }
 
     @Override
-    public boolean deactivate(String id) {
-        return userRepository.deactivate(id);
+    public void deactivate(String id) throws UserUpdateException {
+        try {
+            userRepository.deactivate(id);
+        } catch (Exception e) {
+            throw new UserUpdateException(e.getMessage(), e);
+        }
     }
 
-    private boolean validateLogin(String login) {
+    private void validateLogin(String login) throws UserDataValidationException {
         final Pattern pattern = Pattern.compile("^[A-Z][A-Z][a-z]{1,18}[0-9]{0,5}$");
-        return pattern.matcher(login).matches();
+        if (!pattern.matcher(login).matches()) {
+            throw new UserDataValidationException("Wrong format of login");
+        }
     }
 
-    private boolean validateName(String name) {
+    private void validateName(String name) throws UserDataValidationException {
         final Pattern pattern = Pattern.compile("^[A-Z][a-z]{1,19}$");
-        return pattern.matcher(name).matches();
+        if (!pattern.matcher(name).matches()) {
+            throw new UserDataValidationException("Wrong format of name");
+        }
     }
 
-    private boolean validateSurname(String surname) {
+    private void validateSurname(String surname) throws UserDataValidationException {
         final Pattern pattern = Pattern.compile("^[A-Z][a-z]{1,19}(-[A-Z][a-z]{1,19})?$");
-        return pattern.matcher(surname).matches();
+        if (!pattern.matcher(surname).matches()) {
+            throw new UserDataValidationException("Wrong format of surname");
+        }
     }
 }

@@ -1,17 +1,15 @@
 package team.four.pas.services;
 
-import team.four.pas.controllers.exceptions.service.AddVMException;
-import team.four.pas.controllers.exceptions.service.DeleteVMException;
-import team.four.pas.controllers.exceptions.service.UpdateVMException;
+import team.four.pas.exceptions.resource.*;
 import team.four.pas.services.data.resources.VirtualMachine;
 
 import java.util.List;
 
 public interface ResourceService {
-    List<VirtualMachine> getAll();
-    VirtualMachine findById(String id);
+    List<VirtualMachine> getAll() throws ResourceGetAllException;
+    VirtualMachine findById(String id) throws ResourceFindException;
 
-    VirtualMachine addVM(int cpuNumber, int ram, int memory) throws AddVMException;
-    VirtualMachine updateVM(String id, int cpuNumber, int ram, int memory) throws UpdateVMException;
-    void deleteVM(String id) throws DeleteVMException;
+    VirtualMachine addVM(int cpuNumber, int ram, int memory) throws ResourceAddException;
+    VirtualMachine updateVM(String id, int cpuNumber, int ram, int memory) throws ResourceUpdateException;
+    void deleteVM(String id) throws ResourceDeleteException;
 }

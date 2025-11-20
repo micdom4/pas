@@ -5,16 +5,14 @@ import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import team.four.pas.Config;
+import team.four.pas.exceptions.resource.ResourceException;
 import team.four.pas.services.data.resources.VirtualMachine;
-import team.four.pas.services.data.users.Admin;
-import team.four.pas.services.data.users.Client;
 
 import java.io.File;
 import java.util.Collections;
@@ -31,24 +29,23 @@ class ResourceRepositoryTest {
                     .withExposedService("mongo", 27017);
 
     private static ResourceRepository resourceRepository;
-    private static AnnotationConfigApplicationContext context;
     private static MongoDatabase database;
 
     @BeforeAll
-    static void each(){
+    static void each() {
         String host = compose.getServiceHost("mongo", 27017);
         Integer port = compose.getServicePort("mongo", 27017);
         String dynamicUri = "mongodb://" + host + ":" + port + "/pas";
 
         System.setProperty("pas.data.mongodb.uri", dynamicUri);
 
-        context = new AnnotationConfigApplicationContext(Config.class);
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Config.class);
         resourceRepository = context.getBean(ResourceRepository.class);
         database = context.getBean(MongoClient.class).getDatabase("pas");
     }
 
     @AfterEach
-    void afterEach(){
+    void afterEach() {
         database.getCollection("virtualMachines").deleteMany(new Document());
     }
 
@@ -61,11 +58,7 @@ class ResourceRepositoryTest {
 
     @Test
     void add() {
-        try {
-            assertNotNull(resourceRepository.addVM(5, 12, 10));
-        } catch (Exception e) {
-            fail(e.getMessage());
-        }
+        assertNotNull(resourceRepository.addVM(5, 12, 10));
     }
 
     /* RRR
@@ -75,24 +68,31 @@ class ResourceRepositoryTest {
        R   R */
 
     @Test
-    void findById() {
+    void findByIdPass() {
         try {
             resourceRepository.addVM(5, 12, 10);
             VirtualMachine resource = resourceRepository.getAll().getFirst();
             assertEquals(resource, resourceRepository.findById(resource.getId()));
-        } catch (Exception e) {
+        } catch (ResourceException e) {
             fail(e.getMessage());
         }
     }
 
     @Test
     void findAll() {
+        resourceRepository.addVM(5, 12, 10);
+        resourceRepository.addVM(6, 12, 10);
+        assertEquals(2, resourceRepository.getAll().size());
+    }
+
+    @Test
+    void findByIdFail() {
         try {
-            resourceRepository.addVM(5, 12, 10);
-            resourceRepository.addVM(6, 12, 10);
-            assertEquals(2, resourceRepository.getAll().size());
-        } catch (Exception e) {
-            fail(e.getMessage());
+            resourceRepository.findById("0");
+        } catch (ResourceException e) {
+            if (!(e.getCause() instanceof ResourceException)) {
+                fail(e.getMessage());
+            }
         }
     }
 
@@ -121,7 +121,7 @@ class ResourceRepositoryTest {
             assertEquals(2, updatedVM.getRamGiB());
             assertEquals(2, updatedVM.getStorageGiB());
             assertEquals(2, updatedVM.getCpuNumber());
-        } catch (Exception e) {
+        } catch (ResourceException e) {
             fail(e.getMessage());
         }
     }
@@ -145,7 +145,7 @@ class ResourceRepositoryTest {
 
             resourceRepository.delete(resource.getId());
             assertNull(resourceRepository.findById(resource.getId()));
-        } catch (Exception e) {
+        } catch (ResourceException e) {
             fail(e.getMessage());
         }
     }

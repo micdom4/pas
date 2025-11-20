@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import team.four.pas.controllers.DTOs.UserAddDTO;
 import team.four.pas.controllers.DTOs.UserDTO;
+import team.four.pas.exceptions.resource.ResourceFindException;
+import team.four.pas.exceptions.user.UserFindException;
 import team.four.pas.services.AllocationService;
 import team.four.pas.services.data.allocations.VMAllocation;
 import team.four.pas.services.data.resources.VirtualMachine;
@@ -43,22 +45,22 @@ public class AllocationControllerImpl {
     }
 
     @GetMapping({"/past/vm/{id}"})
-    public List<VMAllocation> getPastVmAllocations(@PathVariable String id) {
+    public List<VMAllocation> getPastVmAllocations(@PathVariable String id) throws ResourceFindException {
         return allocationService.getPastVm(id);
     }
 
     @GetMapping({"/active/vm/{id}"})
-    public List<VMAllocation> getActiveVmAllocations(@PathVariable String id) {
+    public List<VMAllocation> getActiveVmAllocations(@PathVariable String id) throws ResourceFindException {
         return allocationService.getActiveVm(id);
     }
 
     @GetMapping({"/active/client/{id}"})
-    public List<VMAllocation> getActiveClientAllocations(@PathVariable String id) {
+    public List<VMAllocation> getActiveClientAllocations(@PathVariable String id) throws UserFindException {
         return allocationService.getActiveClient(id);
     }
 
     @GetMapping({"/past/client/{id}"})
-    public List<VMAllocation> getPastClientAllocations(@PathVariable String id) {
+    public List<VMAllocation> getPastClientAllocations(@PathVariable String id) throws UserFindException {
         return allocationService.getPastClient(id);
     }
 

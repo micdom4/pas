@@ -1,6 +1,6 @@
-package team.four.pas.controllers.exceptions.service;
+package team.four.pas.exceptions.resource;
 
-public class ResourceStillAllocatedException extends ResourceServiceException {
+public class ResourceStillAllocatedException extends ResourceException {
     public ResourceStillAllocatedException(String message) {
         super(message);
     }

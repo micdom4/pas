@@ -5,6 +5,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import team.four.pas.controllers.DTOs.UserDTO;
 import team.four.pas.controllers.DTOs.UserType;
+import team.four.pas.exceptions.resource.ResourceException;
+import team.four.pas.exceptions.resource.ResourceFindException;
+import team.four.pas.exceptions.user.UserException;
+import team.four.pas.exceptions.user.UserFindException;
 import team.four.pas.repositories.AllocationRepository;
 import team.four.pas.repositories.UserRepository;
 import team.four.pas.services.AllocationService;
@@ -33,7 +37,7 @@ public class AllocationServiceImpl implements AllocationService {
     }
 
     @Override
-    public VMAllocation findById(String id) {
+    public VMAllocation findById(String id) throws ResourceException, UserException {
         return allocationRepository.findById(id);
     }
 
@@ -52,19 +56,19 @@ public class AllocationServiceImpl implements AllocationService {
     }
 
     @Override
-    public List<VMAllocation> getPastVm(String id) {
+    public List<VMAllocation> getPastVm(String id) throws ResourceFindException {
         VirtualMachine resource = resourceService.findById(id);
         return allocationRepository.getPast(resource);
     }
 
     @Override
-    public List<VMAllocation> getActiveVm(String id) {
+    public List<VMAllocation> getActiveVm(String id) throws ResourceFindException {
         VirtualMachine resource = resourceService.findById(id);
         return allocationRepository.getActive(resource);
     }
 
     @Override
-    public List<VMAllocation> getActiveClient(String id) {
+    public List<VMAllocation> getActiveClient(String id) throws UserFindException {
         UserDTO clientDTO = userService.findById(id);
         if (clientDTO.type() != UserType.CLIENT) {
             throw new IllegalArgumentException("User is not a client");
@@ -74,7 +78,7 @@ public class AllocationServiceImpl implements AllocationService {
     }
 
     @Override
-    public List<VMAllocation> getPastClient(String id) {
+    public List<VMAllocation> getPastClient(String id) throws UserFindException {
         UserDTO clientDTO = userService.findById(id);
         if (clientDTO.type() != UserType.CLIENT) {
             throw new IllegalArgumentException("User is not a client");

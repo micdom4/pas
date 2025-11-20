@@ -1,6 +1,6 @@
-package team.four.pas.controllers.exceptions;
+package team.four.pas.exceptions;
 
-public class AppBaseException extends Exception {
+public abstract class AppBaseException extends Exception {
     public AppBaseException(String message) {
         super(message);
     }

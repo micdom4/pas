@@ -11,7 +11,11 @@ import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import team.four.pas.Config;
-import team.four.pas.controllers.exceptions.service.AddVMException;
+import team.four.pas.exceptions.resource.ResourceAddException;
+import team.four.pas.exceptions.user.UserAlreadyExistsException;
+import team.four.pas.exceptions.user.UserInvalidLoginException;
+import team.four.pas.exceptions.user.UserInvalidTypeException;
+import team.four.pas.exceptions.user.UserNotPresentException;
 import team.four.pas.repositories.implementation.MongoAllocationRepository;
 import team.four.pas.services.data.allocations.VMAllocation;
 import team.four.pas.services.data.users.Client;
@@ -21,8 +25,6 @@ import java.io.File;
 import java.rmi.ServerException;
 import java.security.KeyManagementException;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -63,7 +65,7 @@ class AllocationRepositoryTest {
     }
 
     @BeforeEach
-    void initTwo() throws ServerException, KeyManagementException, BadAttributeValueExpException, AddVMException {
+    void initTwo() throws ServerException, KeyManagementException, BadAttributeValueExpException, ResourceAddException, UserInvalidTypeException, UserInvalidLoginException, UserAlreadyExistsException, UserNotPresentException {
         resourceRepository.addVM(5, 12, 10);
         userRepository.add("BLis", "Bartosz", "Lis", Client.class);
     }

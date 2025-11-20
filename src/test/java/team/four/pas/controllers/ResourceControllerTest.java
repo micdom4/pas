@@ -20,7 +20,9 @@ import team.four.pas.Config;
 import team.four.pas.controllers.DTOs.UserAddDTO;
 import team.four.pas.controllers.DTOs.UserDTO;
 import team.four.pas.controllers.DTOs.UserType;
-import team.four.pas.controllers.exceptions.service.AddVMException;
+import team.four.pas.exceptions.resource.ResourceException;
+import team.four.pas.exceptions.resource.ResourceAddException;
+import team.four.pas.exceptions.user.UserException;
 import team.four.pas.repositories.AllocationRepository;
 import team.four.pas.repositories.ResourceRepository;
 import team.four.pas.repositories.UserRepository;
@@ -28,24 +30,19 @@ import team.four.pas.services.AllocationService;
 import team.four.pas.services.ResourceService;
 import team.four.pas.services.UserService;
 import team.four.pas.services.data.resources.VirtualMachine;
-import team.four.pas.services.data.users.Client;
 import team.four.pas.services.implementation.AllocationServiceImpl;
 import team.four.pas.services.implementation.ResourceServiceImpl;
 import team.four.pas.services.implementation.UserServiceImpl;
 import team.four.pas.services.mappers.UserToDTO;
 
-import javax.management.BadAttributeValueExpException;
 import java.io.File;
-import java.rmi.ServerException;
-import java.security.KeyManagementException;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @Testcontainers
@@ -55,13 +52,9 @@ public class ResourceControllerTest {
             new DockerComposeContainer<>(new File("src/test/resources/docker-compose.yml"))
                     .withExposedService("mongo", 27017);
 
-    private static ResourceRepository resourceRepository;
-    private static AllocationRepository allocationRepository;
     private static ResourceService resourceService;
     private static AllocationService allocationService;
-    private static UserRepository userRepository;
     private static UserService userService;
-    private static AnnotationConfigApplicationContext context;
     private static MongoDatabase database;
 
     @DynamicPropertySource
@@ -74,14 +67,14 @@ public class ResourceControllerTest {
 
     @BeforeAll
     static void each(){
-        context = new AnnotationConfigApplicationContext(Config.class);
-        resourceRepository = context.getBean(ResourceRepository.class);
-        allocationRepository = context.getBean(AllocationRepository.class);
-        userRepository = context.getBean(UserRepository.class);
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Config.class);
+        ResourceRepository resourceRepository = context.getBean(ResourceRepository.class);
+        AllocationRepository allocationRepository = context.getBean(AllocationRepository.class);
+        UserRepository userRepository = context.getBean(UserRepository.class);
+
         userService = new UserServiceImpl(userRepository, context.getBean(UserToDTO.class));
         resourceService = new ResourceServiceImpl(resourceRepository, allocationRepository);
         allocationService = new AllocationServiceImpl(allocationRepository, userService, resourceService, context.getBean(UserToDTO.class));
-        ResourceController resourceController = new ResourceControllerImpl(resourceService);
         database = context.getBean(MongoClient.class).getDatabase("pas");
     }
 
@@ -93,7 +86,7 @@ public class ResourceControllerTest {
     }
 
     @Test
-    void getAll() throws AddVMException {
+    void getAll() throws ResourceAddException {
         resourceService.addVM(2, 4, 50);
         RestAssured.given()
                 .log().parameters()
@@ -145,110 +138,126 @@ public class ResourceControllerTest {
     }
 
     @Test
-    void updatePositiveVM() throws AddVMException {
-        resourceService.addVM(2, 4, 50);
-        VirtualMachine vm = resourceService.getAll().getLast();
+    void updatePositiveVM() {
+        try {
+            resourceService.addVM(2, 4, 50);
+            VirtualMachine vm = resourceService.getAll().getLast();
 
-        RestAssured.given()
-                .when()
-                .get("/resources/{vm}", vm.getId())
-                .then()
-                .log().body()
-                .statusCode(HttpStatus.OK.value())
-                .body("cpuNumber", equalTo(2));
+            RestAssured.given()
+                    .when()
+                    .get("/resources/{vm}", vm.getId())
+                    .then()
+                    .log().body()
+                    .statusCode(HttpStatus.OK.value())
+                    .body("cpuNumber", equalTo(2));
 
-        Map<String, Integer> requestBody = new HashMap<>();
-        requestBody.put("cpus", 10);
-        requestBody.put("ram", 4);
-        requestBody.put("memory", 50);
+            Map<String, Integer> requestBody = new HashMap<>();
+            requestBody.put("cpus", 10);
+            requestBody.put("ram", 4);
+            requestBody.put("memory", 50);
 
-        RestAssured.given()
-                .contentType(ContentType.JSON)
-                .body(requestBody)
-                .log().body()
-                .when()
-                .put("/resources/{vm}", vm.getId())
-                .then()
-                .statusCode(HttpStatus.OK.value())
-                .log().body()
-                .body("cpuNumber", equalTo(10));
+            RestAssured.given()
+                    .contentType(ContentType.JSON)
+                    .body(requestBody)
+                    .log().body()
+                    .when()
+                    .put("/resources/{vm}", vm.getId())
+                    .then()
+                    .statusCode(HttpStatus.OK.value())
+                    .log().body()
+                    .body("cpuNumber", equalTo(10));
 
-        RestAssured.given()
-                .when()
-                .get("/resources/{vm}", vm.getId())
-                .then()
-                .log().body()
-                .statusCode(HttpStatus.OK.value())
-                .body("cpuNumber", equalTo(10));
+            RestAssured.given()
+                    .when()
+                    .get("/resources/{vm}", vm.getId())
+                    .then()
+                    .log().body()
+                    .statusCode(HttpStatus.OK.value())
+                    .body("cpuNumber", equalTo(10));
+        } catch (ResourceException e) {
+            fail(e.getMessage());
+        }
     }
 
     @Test
-    void updateNegativeVM() throws AddVMException {
-        resourceService.addVM(2, 4, 50);
-        VirtualMachine vm = resourceService.getAll().getLast();
+    void updateNegativeVM() {
+        try {
+            resourceService.addVM(2, 4, 50);
+            VirtualMachine vm = resourceService.getAll().getLast();
 
-        RestAssured.given()
-                .when()
-                .get("/resources/{vm}", vm.getId())
-                .then()
-                .log().body()
-                .statusCode(HttpStatus.OK.value())
-                .body("cpuNumber", equalTo(2));
+            RestAssured.given()
+                    .when()
+                    .get("/resources/{vm}", vm.getId())
+                    .then()
+                    .log().body()
+                    .statusCode(HttpStatus.OK.value())
+                    .body("cpuNumber", equalTo(2));
 
-        Map<String, Integer> requestBody = new HashMap<>();
-        requestBody.put("cpus", -10);
-        requestBody.put("ram", 4);
-        requestBody.put("memory", 50);
+            Map<String, Integer> requestBody = new HashMap<>();
+            requestBody.put("cpus", -10);
+            requestBody.put("ram", 4);
+            requestBody.put("memory", 50);
 
-        RestAssured.given()
-                .contentType(ContentType.JSON)
-                .body(requestBody)
-                .log().body()
-                .when()
-                .put("/resources/{vm}", vm.getId())
-                .then()
-                .statusCode(HttpStatus.UNPROCESSABLE_ENTITY.value());
+            RestAssured.given()
+                    .contentType(ContentType.JSON)
+                    .body(requestBody)
+                    .log().body()
+                    .when()
+                    .put("/resources/{vm}", vm.getId())
+                    .then()
+                    .statusCode(HttpStatus.UNPROCESSABLE_ENTITY.value());
 
-        RestAssured.given()
-                .when()
-                .get("/resources/{vm}", vm.getId())
-                .then()
-                .log().body()
-                .statusCode(HttpStatus.OK.value())
-                .body("cpuNumber", equalTo(2));
+            RestAssured.given()
+                    .when()
+                    .get("/resources/{vm}", vm.getId())
+                    .then()
+                    .log().body()
+                    .statusCode(HttpStatus.OK.value())
+                    .body("cpuNumber", equalTo(2));
+        } catch (ResourceException e) {
+            fail(e.getMessage());
+        }
     }
 
     @Test
-    void deletePositiveVM() throws AddVMException {
-        resourceService.addVM(2, 4, 50);
-        VirtualMachine vm = resourceService.getAll().getLast();
+    void deletePositiveVM() {
+        try {
+            resourceService.addVM(2, 4, 50);
+            VirtualMachine vm = resourceService.getAll().getLast();
 
-        RestAssured.given()
-                .when()
-                .delete("/resources/{vm}", vm.getId())
-                .then()
-                .statusCode(HttpStatus.NO_CONTENT.value());
+            RestAssured.given()
+                    .when()
+                    .delete("/resources/{vm}", vm.getId())
+                    .then()
+                    .statusCode(HttpStatus.NO_CONTENT.value());
 
-        assertTrue(resourceService.getAll().isEmpty());
+            assertTrue(resourceService.getAll().isEmpty());
+        } catch (ResourceException e) {
+            fail(e.getMessage());
+        }
     }
 
     @Test
-    void deleteNegativeVM() throws AddVMException, ServerException, KeyManagementException, BadAttributeValueExpException {
-        resourceService.addVM(2, 4, 50);
-        UserDTO client = userService.add(new UserAddDTO("BLis", "Bartosz", "Lis", UserType.CLIENT));
-        userService.activate(client.id());
-        client = userService.findByLogin("BLis");
-        VirtualMachine vm = resourceService.getAll().getLast();
-        allocationService.add(client, vm, Instant.now());
+    void deleteNegativeVM() {
+        try {
+            resourceService.addVM(2, 4, 50);
+            UserDTO client = userService.add(new UserAddDTO("BLis", "Bartosz", "Lis", UserType.CLIENT));
+            userService.activate(client.id());
+            client = userService.findByLogin("BLis");
+            VirtualMachine vm = resourceService.getAll().getLast();
+            allocationService.add(client, vm, Instant.now());
 
 
-        RestAssured.given()
-                .when()
-                .delete("/resources/{vm}", vm.getId())
-                .then()
-                .statusCode(HttpStatus.FORBIDDEN.value());
+            RestAssured.given()
+                    .when()
+                    .delete("/resources/{vm}", vm.getId())
+                    .then()
+                    .statusCode(HttpStatus.FORBIDDEN.value());
 
-        assertFalse(resourceService.getAll().isEmpty());
+            assertFalse(resourceService.getAll().isEmpty());
+        } catch (ResourceException | UserException e) {
+            fail(e.getMessage());
+        }
     }
 }
 

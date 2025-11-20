@@ -19,6 +19,10 @@ import team.four.pas.Config;
 import team.four.pas.controllers.DTOs.UserAddDTO;
 import team.four.pas.controllers.DTOs.UserDTO;
 import team.four.pas.controllers.DTOs.UserType;
+import team.four.pas.exceptions.resource.ResourceGetAllException;
+import team.four.pas.exceptions.user.UserFindException;
+import team.four.pas.exceptions.user.UserGetAllException;
+import team.four.pas.exceptions.user.UserUpdateException;
 import team.four.pas.repositories.AllocationRepository;
 import team.four.pas.repositories.ResourceRepository;
 import team.four.pas.repositories.UserRepository;
@@ -88,7 +92,7 @@ class AllocationControllerImplTest {
 
 
     @Test
-    void getAll()  {
+    void getAll() throws ResourceGetAllException, UserGetAllException, UserFindException, UserUpdateException {
         String login = "HKwinto";
         assertDoesNotThrow(() -> userService.add(new UserAddDTO(login, "Henryk", "Kwinto", UserType.CLIENT)));
 

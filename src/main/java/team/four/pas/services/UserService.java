@@ -2,27 +2,27 @@ package team.four.pas.services;
 
 import team.four.pas.controllers.DTOs.UserAddDTO;
 import team.four.pas.controllers.DTOs.UserDTO;
-import team.four.pas.services.data.users.User;
+import team.four.pas.exceptions.user.UserAddException;
+import team.four.pas.exceptions.user.UserFindException;
+import team.four.pas.exceptions.user.UserGetAllException;
+import team.four.pas.exceptions.user.UserUpdateException;
 
-import javax.management.BadAttributeValueExpException;
-import java.rmi.ServerException;
-import java.security.KeyManagementException;
 import java.util.List;
 
 public interface UserService {
-    List<UserDTO> getAll();
+    List<UserDTO> getAll() throws UserGetAllException;
 
-    UserDTO findById(String id);
+    UserDTO findById(String id) throws UserFindException;
 
-    UserDTO findByLogin(String login);
+    UserDTO findByLogin(String login) throws UserFindException;
 
-    List<UserDTO> findByMatchingLogin(String login);
+    List<UserDTO> findByMatchingLogin(String login) throws UserFindException;
 
-    UserDTO add(UserAddDTO addDTO) throws ServerException, KeyManagementException, BadAttributeValueExpException;
+    UserDTO add(UserAddDTO addDTO) throws UserAddException;
 
-    UserDTO update(String id, String surname);
+    UserDTO update(String id, String surname) throws UserUpdateException;
 
-    boolean activate(String id);
+    void activate(String id) throws UserUpdateException;
 
-    boolean deactivate(String id);
+    void deactivate(String id) throws UserUpdateException;
 }

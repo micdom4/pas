@@ -5,33 +5,25 @@ import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import team.four.pas.Config;
-import team.four.pas.controllers.DTOs.UserAddDTO;
-import team.four.pas.controllers.DTOs.UserType;
-import team.four.pas.controllers.exceptions.service.AddVMException;
-import team.four.pas.controllers.exceptions.service.DeleteVMException;
-import team.four.pas.controllers.exceptions.service.UpdateVMException;
+import team.four.pas.exceptions.resource.ResourceAddException;
+import team.four.pas.exceptions.resource.ResourceException;
+import team.four.pas.exceptions.resource.ResourceUpdateException;
 import team.four.pas.repositories.AllocationRepository;
 import team.four.pas.repositories.ResourceRepository;
 import team.four.pas.repositories.UserRepository;
 import team.four.pas.services.data.resources.VirtualMachine;
-import team.four.pas.services.data.users.Client;
 import team.four.pas.services.implementation.AllocationServiceImpl;
 import team.four.pas.services.implementation.ResourceServiceImpl;
 import team.four.pas.services.implementation.UserServiceImpl;
 import team.four.pas.services.mappers.UserToDTO;
 
-import javax.management.BadAttributeValueExpException;
 import java.io.File;
-import java.rmi.ServerException;
-import java.security.KeyManagementException;
-import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 
@@ -95,7 +87,7 @@ public class ResourceServiceTest {
             assertNotNull(resourceService.addVM(5, 12, 10));
 
             assertEquals(3, resourceService.getAll().size());
-        } catch (Exception e) {
+        } catch (ResourceException e) {
             fail(e.getMessage());
         }
     }
@@ -108,16 +100,16 @@ public class ResourceServiceTest {
 
             assertEquals(2, resourceService.getAll().size());
 
-            assertThrows(AddVMException.class, () -> resourceService.addVM(-5, 12, 10));
-            assertThrows(AddVMException.class, () -> resourceService.addVM(5, -12, 10));
-            assertThrows(AddVMException.class, () -> resourceService.addVM(5, 12, -10));
-            assertThrows(AddVMException.class, () -> resourceService.addVM(500, 12, 10));
-            assertThrows(AddVMException.class, () -> resourceService.addVM(5, 2048, 10));
-            assertThrows(AddVMException.class, () -> resourceService.addVM(5, 12, 10000000));
-            assertThrows(AddVMException.class, () -> resourceService.addVM(0, 0, 0));
+            assertThrows(ResourceAddException.class, () -> resourceService.addVM(-5, 12, 10));
+            assertThrows(ResourceAddException.class, () -> resourceService.addVM(5, -12, 10));
+            assertThrows(ResourceAddException.class, () -> resourceService.addVM(5, 12, -10));
+            assertThrows(ResourceAddException.class, () -> resourceService.addVM(500, 12, 10));
+            assertThrows(ResourceAddException.class, () -> resourceService.addVM(5, 2048, 10));
+            assertThrows(ResourceAddException.class, () -> resourceService.addVM(5, 12, 10000000));
+            assertThrows(ResourceAddException.class, () -> resourceService.addVM(0, 0, 0));
 
             assertEquals(2, resourceService.getAll().size());
-        } catch (Exception e) {
+        } catch (ResourceException e) {
             fail(e.getMessage());
         }
     }
@@ -134,7 +126,7 @@ public class ResourceServiceTest {
             resourceService.addVM(5, 12, 10);
             VirtualMachine resource = resourceService.getAll().getFirst();
             assertEquals(resource, resourceService.findById(resource.getId()));
-        } catch (Exception e) {
+        } catch (ResourceException e) {
             fail(e.getMessage());
         }
     }
@@ -145,7 +137,7 @@ public class ResourceServiceTest {
             resourceService.addVM(5, 12, 10);
             resourceService.addVM(5, 12, 10);
             assertEquals(2, resourceService.getAll().size());
-        } catch (Exception e) {
+        } catch (ResourceException e) {
             fail(e.getMessage());
         }
     }
@@ -175,7 +167,7 @@ public class ResourceServiceTest {
             assertEquals(10, updatedVM.getCpuNumber());
             assertEquals(16, updatedVM.getRamGiB());
             assertEquals(50, updatedVM.getStorageGiB());
-        } catch (Exception e) {
+        } catch (ResourceException e) {
             fail(e.getMessage());
         }
     }
@@ -193,13 +185,13 @@ public class ResourceServiceTest {
             assertNotEquals(-1, memoryBefore);
             assertNotEquals(-1, cpuBefore);
 
-            assertThrows(UpdateVMException.class, () -> resourceService.updateVM(vm.getId(), -1, -1, -1));
+            assertThrows(ResourceUpdateException.class, () -> resourceService.updateVM(vm.getId(), -1, -1, -1));
 
             VirtualMachine updatedVM = resourceService.getAll().getFirst();
             assertEquals(ramBefore, updatedVM.getRamGiB());
             assertEquals(memoryBefore, updatedVM.getStorageGiB());
             assertEquals(cpuBefore, updatedVM.getCpuNumber());
-        } catch (Exception e) {
+        } catch (ResourceException e) {
             fail(e.getMessage());
         }
     }
@@ -221,7 +213,7 @@ public class ResourceServiceTest {
 
             resourceService.deleteVM(resource.getId());
             assertNull(resourceService.findById(resource.getId()));
-        } catch (Exception e) {
+        } catch (ResourceException e) {
             fail(e.getMessage());
         }
     }

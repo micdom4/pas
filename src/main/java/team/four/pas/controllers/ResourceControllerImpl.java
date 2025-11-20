@@ -1,16 +1,13 @@
 package team.four.pas.controllers;
 
-import lombok.Data;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import team.four.pas.controllers.exceptions.service.*;
+import team.four.pas.controllers.DTOs.ResourceDTO;
+import team.four.pas.exceptions.resource.*;
 import team.four.pas.services.ResourceService;
-import team.four.pas.services.data.resources.VirtualMachine;
-
-import java.util.List;
 
 @RestController
 @CrossOrigin(
@@ -26,39 +23,56 @@ public class ResourceControllerImpl implements ResourceController {
     private final ResourceService resourceService;
 
     @GetMapping({""})
-    public List<VirtualMachine> getAll() {
-        return resourceService.getAll();
+    public ResponseEntity<?> getAll() {
+        try {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(resourceService.getAll());
+        } catch (ResourceGetAllException ex) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
+        }
     }
 
     @GetMapping({"/{id}"})
-    public VirtualMachine getResource(@PathVariable String id) {
-        return resourceService.findById(id);
+    public ResponseEntity<?> getResource(@PathVariable String id) {
+        try {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(resourceService.findById(id));
+        } catch (ResourceFindException ex) {
+            if (ex.getCause() instanceof ResourceNotPresentException) {
+                return ResponseEntity
+                        .status(HttpStatus.NOT_FOUND)
+                        .body(null);
+            } else {
+                return ResponseEntity
+                        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(null);
+            }
+        }
     }
 
     @PostMapping(
             value = {""},
             consumes = {"application/json"}
     )
-    public ResponseEntity<?> createVM(@RequestBody VmDto vmDto) {
+    public ResponseEntity<?> createVM(@RequestBody ResourceDTO vmDto) {
         try {
             return ResponseEntity
                     .status(HttpStatus.CREATED)
-                    .body(resourceService.addVM(vmDto.getCpus(), vmDto.getRam(), vmDto.getMemory()));
-
-        } catch (AddVMException avme) {
-            if (avme.getCause().getClass() == DataValidationException.class) {
+                    .body(resourceService.addVM(vmDto.cpus(), vmDto.ram(), vmDto.memory()));
+        } catch (ResourceAddException rae) {
+            if (rae.getCause() instanceof ResourceDataValidationException) {
                 return ResponseEntity
                         .status(HttpStatus.UNPROCESSABLE_ENTITY)
                         .body(null);
             } else {
                 return ResponseEntity
-                        .status(HttpStatus.CONFLICT)
+                        .status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .body(null);
             }
-        } catch (Exception e) {
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
         }
     }
 
@@ -66,25 +80,25 @@ public class ResourceControllerImpl implements ResourceController {
             value = {"/{id}"},
             consumes = {"application/json"}
     )
-    public ResponseEntity<?> updateVM(@PathVariable String id, @RequestBody VmDto vmDto) {
+    public ResponseEntity<?> updateVM(@PathVariable String id, @RequestBody ResourceDTO vmDto) {
         try {
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(resourceService.updateVM(id, vmDto.getCpus(), vmDto.getRam(), vmDto.getMemory()));
-        } catch (UpdateVMException dve) {
-            if (dve.getCause().getClass() == DataValidationException.class) {
+                    .body(resourceService.updateVM(id, vmDto.cpus(), vmDto.ram(), vmDto.memory()));
+        } catch (ResourceUpdateException dve) {
+            if (dve.getCause() instanceof ResourceDataValidationException) {
                 return ResponseEntity
                         .status(HttpStatus.UNPROCESSABLE_ENTITY)
                         .body(null);
+            } else if (dve.getCause() instanceof ResourceNotPresentException) {
+                return ResponseEntity
+                        .status(HttpStatus.NOT_FOUND)
+                        .body(null);
             } else {
                 return ResponseEntity
-                        .status(HttpStatus.CONFLICT)
+                        .status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .body(null);
             }
-        } catch (Exception e) {
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
         }
     }
 
@@ -97,27 +111,20 @@ public class ResourceControllerImpl implements ResourceController {
             return ResponseEntity
                     .status(HttpStatus.NO_CONTENT)
                     .body(null);
-        } catch (DeleteVMException dvme) {
-            if (dvme.getCause().getClass() == ResourceStillAllocatedException.class) {
+        } catch (ResourceDeleteException rde) {
+            if (rde.getCause() instanceof ResourceStillAllocatedException) {
                 return ResponseEntity
                         .status(HttpStatus.FORBIDDEN)
                         .body(null);
+            } else if (rde.getCause() instanceof ResourceNotPresentException) {
+                return ResponseEntity
+                        .status(HttpStatus.NOT_FOUND)
+                        .body(null);
             } else {
                 return ResponseEntity
-                        .status(HttpStatus.CONFLICT)
+                        .status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .body(null);
             }
-        } catch (Exception e) {
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
         }
     }
-}
-
-@Data
-class VmDto {
-    private int cpus;
-    private int ram;
-    private int memory;
 }
