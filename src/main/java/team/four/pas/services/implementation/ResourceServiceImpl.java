@@ -1,5 +1,6 @@
 package team.four.pas.services.implementation;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import team.four.pas.exceptions.resource.*;
 import team.four.pas.repositories.AllocationRepository;
@@ -10,14 +11,10 @@ import team.four.pas.services.data.resources.VirtualMachine;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ResourceServiceImpl implements ResourceService {
     private final ResourceRepository resourceRepository;
     private final AllocationRepository allocationRepository;
-
-    public ResourceServiceImpl(ResourceRepository resourceRepository, AllocationRepository allocationRepository) {
-        this.resourceRepository = resourceRepository;
-        this.allocationRepository = allocationRepository;
-    }
 
     @Override
     public List<VirtualMachine> getAll() throws ResourceGetAllException {

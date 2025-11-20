@@ -25,10 +25,10 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class AllocationServiceImpl implements AllocationService {
-    private @NonNull final AllocationRepository allocationRepository;
-    private @NonNull final UserService userService;
-    private @NonNull final ResourceService resourceService;
-    private @NonNull final UserToDTO userToDTO;
+    private final AllocationRepository allocationRepository;
+    private final UserService userService;
+    private final ResourceService resourceService;
+    private final UserToDTO userToDTO;
 
 
     @Override

@@ -19,9 +19,7 @@ import java.util.regex.Pattern;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-    @NonNull
     private final UserRepository userRepository;
-    @NonNull
     private final UserToDTO userToDTO;
 
     @Override
