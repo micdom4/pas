@@ -13,9 +13,9 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import team.four.pas.Config;
 import team.four.pas.exceptions.resource.ResourceAddException;
 import team.four.pas.exceptions.user.UserAlreadyExistsException;
-import team.four.pas.exceptions.user.UserInvalidLoginException;
-import team.four.pas.exceptions.user.UserInvalidTypeException;
-import team.four.pas.exceptions.user.UserNotPresentException;
+import team.four.pas.exceptions.user.UserLoginException;
+import team.four.pas.exceptions.user.UserTypeException;
+import team.four.pas.exceptions.user.UserNotFoundException;
 import team.four.pas.repositories.implementation.MongoAllocationRepository;
 import team.four.pas.services.data.allocations.VMAllocation;
 import team.four.pas.services.data.users.Client;
@@ -65,7 +65,7 @@ class AllocationRepositoryTest {
     }
 
     @BeforeEach
-    void initTwo() throws ServerException, KeyManagementException, BadAttributeValueExpException, ResourceAddException, UserInvalidTypeException, UserInvalidLoginException, UserAlreadyExistsException, UserNotPresentException {
+    void initTwo() throws ServerException, KeyManagementException, BadAttributeValueExpException, ResourceAddException, UserTypeException, UserLoginException, UserAlreadyExistsException, UserNotFoundException {
         resourceRepository.addVM(5, 12, 10);
         userRepository.add("BLis", "Bartosz", "Lis", Client.class);
     }

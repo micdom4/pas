@@ -42,7 +42,7 @@ public class ResourceControllerImpl implements ResourceController {
                     .status(HttpStatus.OK)
                     .body(resourceService.findById(id));
         } catch (ResourceFindException ex) {
-            if (ex.getCause() instanceof ResourceNotPresentException) {
+            if (ex.getCause() instanceof ResourceNotFoundException) {
                 return ResponseEntity
                         .status(HttpStatus.NOT_FOUND)
                         .body(null);
@@ -64,7 +64,7 @@ public class ResourceControllerImpl implements ResourceController {
                     .status(HttpStatus.CREATED)
                     .body(resourceService.addVM(vmDto.cpus(), vmDto.ram(), vmDto.memory()));
         } catch (ResourceAddException rae) {
-            if (rae.getCause() instanceof ResourceDataValidationException) {
+            if (rae.getCause() instanceof ResourceDataException) {
                 return ResponseEntity
                         .status(HttpStatus.UNPROCESSABLE_ENTITY)
                         .body(null);
@@ -86,11 +86,11 @@ public class ResourceControllerImpl implements ResourceController {
                     .status(HttpStatus.OK)
                     .body(resourceService.updateVM(id, vmDto.cpus(), vmDto.ram(), vmDto.memory()));
         } catch (ResourceUpdateException dve) {
-            if (dve.getCause() instanceof ResourceDataValidationException) {
+            if (dve.getCause() instanceof ResourceDataException) {
                 return ResponseEntity
                         .status(HttpStatus.UNPROCESSABLE_ENTITY)
                         .body(null);
-            } else if (dve.getCause() instanceof ResourceNotPresentException) {
+            } else if (dve.getCause() instanceof ResourceNotFoundException) {
                 return ResponseEntity
                         .status(HttpStatus.NOT_FOUND)
                         .body(null);
@@ -116,7 +116,7 @@ public class ResourceControllerImpl implements ResourceController {
                 return ResponseEntity
                         .status(HttpStatus.FORBIDDEN)
                         .body(null);
-            } else if (rde.getCause() instanceof ResourceNotPresentException) {
+            } else if (rde.getCause() instanceof ResourceNotFoundException) {
                 return ResponseEntity
                         .status(HttpStatus.NOT_FOUND)
                         .body(null);

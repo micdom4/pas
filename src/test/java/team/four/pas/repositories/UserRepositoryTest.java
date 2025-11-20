@@ -15,8 +15,8 @@ import team.four.pas.Config;
 import team.four.pas.exceptions.resource.ResourceException;
 import team.four.pas.exceptions.user.UserAlreadyExistsException;
 import team.four.pas.exceptions.user.UserException;
-import team.four.pas.exceptions.user.UserInvalidLoginException;
-import team.four.pas.exceptions.user.UserNotPresentException;
+import team.four.pas.exceptions.user.UserLoginException;
+import team.four.pas.exceptions.user.UserNotFoundException;
 import team.four.pas.services.data.users.Admin;
 import team.four.pas.services.data.users.Client;
 import team.four.pas.services.data.users.User;
@@ -83,7 +83,7 @@ class UserRepositoryTest {
 
     @Test
     void addFailWhenLoginEmpty() {
-        assertThrows(UserInvalidLoginException.class, () -> userRepository.add(null, "Bartosz", "Lis", Client.class));
+        assertThrows(UserLoginException.class, () -> userRepository.add(null, "Bartosz", "Lis", Client.class));
     }
 
     /* RRR
@@ -115,12 +115,12 @@ class UserRepositoryTest {
     @Test
     void findByIdFail() {
         String id = new ObjectId().toHexString();
-        assertThrows(UserNotPresentException.class, () -> userRepository.findById(id));
+        assertThrows(UserNotFoundException.class, () -> userRepository.findById(id));
     }
 
     @Test
     void failFindByLogin() {
-        assertThrows(UserNotPresentException.class, () -> userRepository.findByLogin("BLis"));
+        assertThrows(UserNotFoundException.class, () -> userRepository.findByLogin("BLis"));
     }
 
     @Test
@@ -175,7 +175,7 @@ class UserRepositoryTest {
 
     @Test
     void updateFailNoId() {
-        assertThrows(UserInvalidLoginException.class, () -> userRepository.update("", "Lis-Nowak"));
+        assertThrows(UserLoginException.class, () -> userRepository.update("", "Lis-Nowak"));
     }
 
     @Test
@@ -197,15 +197,15 @@ class UserRepositoryTest {
     @Test
     void activateDeactivateFailWhenUserDontExists() {
         String id = new ObjectId().toHexString();
-        assertThrows(UserNotPresentException.class, () -> userRepository.activate(id));
-        assertThrows(UserNotPresentException.class, () -> userRepository.deactivate(id));
+        assertThrows(UserNotFoundException.class, () -> userRepository.activate(id));
+        assertThrows(UserNotFoundException.class, () -> userRepository.deactivate(id));
     }
 
     @Test
     void activateDeactivateFailWhenLoginEmpty() {
         String id = "";
-        assertThrows(UserInvalidLoginException.class, () -> userRepository.activate(id));
-        assertThrows(UserInvalidLoginException.class, () -> userRepository.deactivate(id));
+        assertThrows(UserLoginException.class, () -> userRepository.activate(id));
+        assertThrows(UserLoginException.class, () -> userRepository.deactivate(id));
     }
 
 

@@ -73,21 +73,21 @@ public class ResourceServiceImpl implements ResourceService {
         }
     }
 
-    private void validateCPUs(int cpuNumber) throws ResourceDataValidationException {
+    private void validateCPUs(int cpuNumber) throws ResourceDataException {
         if (!(cpuNumber > 0 && cpuNumber <= 100)) {
-            throw new ResourceDataValidationException("cpu number must be between 1 and 100");
+            throw new ResourceDataException("cpu number must be between 1 and 100");
         }
     }
 
-    private void validateRAM(int ram) throws ResourceDataValidationException {
+    private void validateRAM(int ram) throws ResourceDataException {
         if (!(ram > 0 && ram <= 1024)) {
-            throw new ResourceDataValidationException("ram must be between 1 and 1024 GB");
+            throw new ResourceDataException("ram must be between 1 and 1024 GB");
         }
     }
 
-    private void validateMemory(int memory) throws ResourceDataValidationException {
+    private void validateMemory(int memory) throws ResourceDataException {
         if (!(memory > 0 && memory <= 1048576)) {
-            throw new ResourceDataValidationException("storage must be between 1 GiB and 1 PiB");
+            throw new ResourceDataException("storage must be between 1 GiB and 1 PiB");
         }
     }
 }

@@ -34,9 +34,9 @@ public class MongoUserRepository implements UserRepository {
     }
 
     @Override
-    public User findByLogin(String login) throws UserInvalidLoginException, UserNotPresentException {
+    public User findByLogin(String login) throws UserLoginException, UserNotFoundException {
         if (login == null || login.isEmpty()) {
-            throw new UserInvalidLoginException("Provided login is empty");
+            throw new UserLoginException("Provided login is empty");
         }
 
         Bson filter = Filters.eq("login", login);
@@ -44,7 +44,7 @@ public class MongoUserRepository implements UserRepository {
         UserEntity entity = userCollection.find(filter).first();
 
         if (entity == null) {
-            throw new UserNotPresentException("User not found with login: " + login);
+            throw new UserNotFoundException("User not found with login: " + login);
         }
 
         return mapper.toData(entity);
@@ -61,9 +61,9 @@ public class MongoUserRepository implements UserRepository {
     }
 
     @Override
-    public <T extends User> User add(String login, String name, String surname, Class<T> userClass) throws UserInvalidTypeException, UserInvalidLoginException, UserNotPresentException, UserAlreadyExistsException {
+    public <T extends User> User add(String login, String name, String surname, Class<T> userClass) throws UserTypeException, UserLoginException, UserNotFoundException, UserAlreadyExistsException {
         if (login == null || login.isEmpty()) {
-            throw new UserInvalidLoginException("Provided login is empty");
+            throw new UserLoginException("Provided login is empty");
         }
 
         UserEntity.Type type;
@@ -75,12 +75,12 @@ public class MongoUserRepository implements UserRepository {
         } else if (userClass.equals(Admin.class)) {
             type = UserEntity.Type.ADMIN;
         } else {
-            throw new UserInvalidTypeException("Invalid type");
+            throw new UserTypeException("Invalid type");
         }
 
         try {
             findByLogin(login);
-        } catch (UserNotPresentException e) {
+        } catch (UserNotFoundException e) {
             InsertOneResult result = userCollection.insertOne(new UserEntity(null, login, name, surname, type, false));
 
             return findByLogin(login);
@@ -90,10 +90,10 @@ public class MongoUserRepository implements UserRepository {
     }
 
     @Override
-    public User update(String id, String surname) throws UserNotPresentException, UserInvalidLoginException, UserInvalidIdException {
+    public User update(String id, String surname) throws UserNotFoundException, UserLoginException, UserIdException {
         ObjectId objectId = idMapper.stringToObjectId(id);
         if (objectId == null) {
-            throw new UserInvalidLoginException("Empty login provided");
+            throw new UserLoginException("Empty login provided");
         }
 
         Bson filter = Filters.eq("_id", objectId);
@@ -101,17 +101,17 @@ public class MongoUserRepository implements UserRepository {
 
         UpdateResult result = userCollection.updateOne(filter, update);
         if (result.getMatchedCount() == 0) {
-            throw new UserNotPresentException("No user found with ID: " + id);
+            throw new UserNotFoundException("No user found with ID: " + id);
         }
 
         return findById(id);
     }
 
     @Override
-    public void activate(String id) throws UserInvalidLoginException, UserNotPresentException {
+    public void activate(String id) throws UserLoginException, UserNotFoundException {
         ObjectId objectId = idMapper.stringToObjectId(id);
         if (objectId == null) {
-            throw new UserInvalidLoginException("Empty login provided");
+            throw new UserLoginException("Empty login provided");
         }
 
         Bson filter = Filters.eq("_id", objectId);
@@ -120,17 +120,17 @@ public class MongoUserRepository implements UserRepository {
         UpdateResult result = userCollection.updateOne(filter, update);
 
         if (result.getModifiedCount() == 0) {
-            throw new UserNotPresentException("No User found with ID: " + id);
+            throw new UserNotFoundException("No User found with ID: " + id);
         } else if (result.getModifiedCount() != 1) {
             throw new MongoException("Error while activating user by ID: " + id);
         }
     }
 
     @Override
-    public void deactivate(String id) throws UserInvalidLoginException, UserNotPresentException {
+    public void deactivate(String id) throws UserLoginException, UserNotFoundException {
         ObjectId objectId = idMapper.stringToObjectId(id);
         if (objectId == null) {
-            throw new UserInvalidLoginException("Empty login provided");
+            throw new UserLoginException("Empty login provided");
         }
 
         Bson filter = Filters.eq("_id", objectId);
@@ -139,7 +139,7 @@ public class MongoUserRepository implements UserRepository {
         UpdateResult result = userCollection.updateOne(filter, update);
 
         if (result.getModifiedCount() == 0) {
-            throw new UserNotPresentException("No User found with ID: " + id);
+            throw new UserNotFoundException("No User found with ID: " + id);
         } else if (result.getModifiedCount() != 1) {
             throw new MongoException("Error while deactivating user by ID: " + id);
         }
@@ -153,17 +153,17 @@ public class MongoUserRepository implements UserRepository {
     }
 
     @Override
-    public User findById(String id) throws UserInvalidIdException, UserNotPresentException {
+    public User findById(String id) throws UserIdException, UserNotFoundException {
         ObjectId objectId = idMapper.stringToObjectId(id);
         if (objectId == null) {
-            throw new UserInvalidIdException("Invalid ID:" + id);
+            throw new UserIdException("Invalid ID:" + id);
         }
 
         Bson filter = Filters.eq("_id", objectId);
         UserEntity entity = userCollection.find(filter).first();
 
         if (entity == null) {
-            throw new UserNotPresentException("No user found with ID: " + id);
+            throw new UserNotFoundException("No user found with ID: " + id);
         }
 
         return mapper.toData(entity);

@@ -13,8 +13,8 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import team.four.pas.Config;
 import team.four.pas.exceptions.resource.ResourceException;
-import team.four.pas.exceptions.resource.ResourceInvalidIdException;
-import team.four.pas.exceptions.resource.ResourceNotPresentException;
+import team.four.pas.exceptions.resource.ResourceIdException;
+import team.four.pas.exceptions.resource.ResourceNotFoundException;
 import team.four.pas.services.data.resources.VirtualMachine;
 
 import java.io.File;
@@ -83,13 +83,13 @@ class ResourceRepositoryTest {
 
     @Test
     void findByIdFailEmpty() {
-        assertThrows(ResourceInvalidIdException.class, () -> resourceRepository.findById(""));
+        assertThrows(ResourceIdException.class, () -> resourceRepository.findById(""));
     }
 
     @Test
     void findByIdFailNotPresent() {
         String id = new ObjectId().toHexString();
-        assertThrows(ResourceNotPresentException.class, () -> resourceRepository.findById(id));
+        assertThrows(ResourceNotFoundException.class, () -> resourceRepository.findById(id));
     }
 
     @Test
@@ -137,13 +137,13 @@ class ResourceRepositoryTest {
 
     @Test
     void updateFailEmptyId() {
-        assertThrows(ResourceInvalidIdException.class, () -> resourceRepository.updateVM("", 2, 2, 2));
+        assertThrows(ResourceIdException.class, () -> resourceRepository.updateVM("", 2, 2, 2));
     }
 
     @Test
     void updateFailNotPresent() {
         String id = new ObjectId().toHexString();
-        assertThrows(ResourceNotPresentException.class, () -> resourceRepository.updateVM(id, 2, 2, 2));
+        assertThrows(ResourceNotFoundException.class, () -> resourceRepository.updateVM(id, 2, 2, 2));
     }
     /* DDD
        D  D
@@ -163,7 +163,7 @@ class ResourceRepositoryTest {
             VirtualMachine resource = resourceRepository.getAll().getFirst();
 
             resourceRepository.delete(resource.getId());
-            assertThrows(ResourceNotPresentException.class, () -> resourceRepository.findById(resource.getId()));
+            assertThrows(ResourceNotFoundException.class, () -> resourceRepository.findById(resource.getId()));
         } catch (ResourceException e) {
             fail(e.getMessage());
         }
@@ -171,12 +171,12 @@ class ResourceRepositoryTest {
 
     @Test
     void deleteFailNoId() {
-        assertThrows(ResourceInvalidIdException.class, () -> resourceRepository.delete(""));
+        assertThrows(ResourceIdException.class, () -> resourceRepository.delete(""));
     }
 
     @Test
     void deleteFailInvalidId() {
         String id = new ObjectId().toHexString();
-        assertThrows(ResourceNotPresentException.class, () -> resourceRepository.delete(id));
+        assertThrows(ResourceNotFoundException.class, () -> resourceRepository.delete(id));
     }
 }

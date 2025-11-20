@@ -1,6 +1,5 @@
 package team.four.pas.services.implementation;
 
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import team.four.pas.controllers.DTOs.UserAddDTO;
@@ -109,24 +108,24 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private void validateLogin(String login) throws UserDataValidationException {
+    private void validateLogin(String login) throws UserDataException {
         final Pattern pattern = Pattern.compile("^[A-Z][A-Z][a-z]{1,18}[0-9]{0,5}$");
         if (!pattern.matcher(login).matches()) {
-            throw new UserDataValidationException("Wrong format of login");
+            throw new UserDataException("Wrong format of login");
         }
     }
 
-    private void validateName(String name) throws UserDataValidationException {
+    private void validateName(String name) throws UserDataException {
         final Pattern pattern = Pattern.compile("^[A-Z][a-z]{1,19}$");
         if (!pattern.matcher(name).matches()) {
-            throw new UserDataValidationException("Wrong format of name");
+            throw new UserDataException("Wrong format of name");
         }
     }
 
-    private void validateSurname(String surname) throws UserDataValidationException {
+    private void validateSurname(String surname) throws UserDataException {
         final Pattern pattern = Pattern.compile("^[A-Z][a-z]{1,19}(-[A-Z][a-z]{1,19})?$");
         if (!pattern.matcher(surname).matches()) {
-            throw new UserDataValidationException("Wrong format of surname");
+            throw new UserDataException("Wrong format of surname");
         }
     }
 }

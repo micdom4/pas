@@ -44,11 +44,11 @@ public class UserControllerImpl {
                     .status(HttpStatus.OK)
                     .body(userService.findById(id));
         } catch (UserFindException e) {
-            if (e.getCause() instanceof UserNotPresentException) {
+            if (e.getCause() instanceof UserNotFoundException) {
                 return ResponseEntity
                         .status(HttpStatus.NOT_FOUND)
                         .body(null);
-            } else if (e.getCause() instanceof UserInvalidIdException) {
+            } else if (e.getCause() instanceof UserIdException) {
                 return ResponseEntity
                         .status(HttpStatus.BAD_REQUEST)
                         .body(null);
@@ -67,11 +67,11 @@ public class UserControllerImpl {
                     .status(HttpStatus.OK)
                     .body(userService.findByLogin(login));
         } catch (UserFindException e) {
-            if (e.getCause() instanceof UserNotPresentException) {
+            if (e.getCause() instanceof UserNotFoundException) {
                 return ResponseEntity
                         .status(HttpStatus.NOT_FOUND)
                         .body(null);
-            } else if (e.getCause() instanceof UserInvalidLoginException) {
+            } else if (e.getCause() instanceof UserLoginException) {
                 return ResponseEntity
                         .status(HttpStatus.BAD_REQUEST)
                         .body(null);
@@ -104,11 +104,11 @@ public class UserControllerImpl {
                     .status(HttpStatus.OK)
                     .build();
         } catch (UserUpdateException ex) {
-            if (ex.getCause() instanceof UserNotPresentException) {
+            if (ex.getCause() instanceof UserNotFoundException) {
                 return ResponseEntity
                         .status(HttpStatus.NOT_FOUND)
                         .body(null);
-            } else if (ex.getCause() instanceof UserInvalidIdException) {
+            } else if (ex.getCause() instanceof UserIdException) {
                 return ResponseEntity
                         .status(HttpStatus.UNPROCESSABLE_ENTITY)
                         .body(null);
@@ -128,11 +128,11 @@ public class UserControllerImpl {
                     .status(HttpStatus.OK)
                     .build();
         } catch (UserUpdateException e) {
-            if (e.getCause() instanceof UserNotPresentException) {
+            if (e.getCause() instanceof UserNotFoundException) {
                 return ResponseEntity
                         .status(HttpStatus.NOT_FOUND)
                         .body(null);
-            } else if (e.getCause() instanceof UserInvalidIdException) {
+            } else if (e.getCause() instanceof UserIdException) {
                 return ResponseEntity
                         .status(HttpStatus.UNPROCESSABLE_ENTITY)
                         .body(null);
@@ -154,7 +154,7 @@ public class UserControllerImpl {
                     .status(HttpStatus.CREATED)
                     .body(userService.add(addDTO));
         } catch (UserAddException ue) {
-            if (ue.getCause() instanceof UserDataValidationException) {
+            if (ue.getCause() instanceof UserDataException) {
                 return ResponseEntity
                         .status(HttpStatus.BAD_REQUEST)
                         .body(null);
@@ -180,15 +180,15 @@ public class UserControllerImpl {
                     .status(HttpStatus.OK)
                     .body(userService.update(id, surname));
         } catch (UserUpdateException e) {
-            if (e.getCause() instanceof UserNotPresentException) {
+            if (e.getCause() instanceof UserNotFoundException) {
                 return ResponseEntity
                         .status(HttpStatus.NOT_FOUND)
                         .body(null);
-            } else if (e.getCause() instanceof UserInvalidIdException) {
+            } else if (e.getCause() instanceof UserIdException) {
                 return ResponseEntity
                         .status(HttpStatus.UNPROCESSABLE_ENTITY)
                         .body(null);
-            } else if (e.getCause() instanceof UserDataValidationException) {
+            } else if (e.getCause() instanceof UserDataException) {
                 return ResponseEntity
                         .status(HttpStatus.BAD_REQUEST)
                         .body(null);

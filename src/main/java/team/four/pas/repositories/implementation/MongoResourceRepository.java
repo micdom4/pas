@@ -9,8 +9,8 @@ import com.mongodb.client.result.InsertOneResult;
 import com.mongodb.client.result.UpdateResult;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
-import team.four.pas.exceptions.resource.ResourceInvalidIdException;
-import team.four.pas.exceptions.resource.ResourceNotPresentException;
+import team.four.pas.exceptions.resource.ResourceIdException;
+import team.four.pas.exceptions.resource.ResourceNotFoundException;
 import team.four.pas.repositories.ResourceRepository;
 import team.four.pas.repositories.entities.VirtualMachineEntity;
 import team.four.pas.repositories.mappers.StringToObjectId;
@@ -45,13 +45,13 @@ public class MongoResourceRepository implements ResourceRepository {
     }
 
     @Override
-    public VirtualMachine updateVM(String id, int cpuNumber, int ram, int memory) throws ResourceNotPresentException, ResourceInvalidIdException {
+    public VirtualMachine updateVM(String id, int cpuNumber, int ram, int memory) throws ResourceNotFoundException, ResourceIdException {
         ObjectId objectId;
 
         objectId = idMapper.stringToObjectId(id);
 
         if (objectId == null) {
-            throw new ResourceInvalidIdException("Invalid ID: " + id);
+            throw new ResourceIdException("Invalid ID: " + id);
         }
 
         Bson filter = Filters.eq("_id", objectId);
@@ -65,7 +65,7 @@ public class MongoResourceRepository implements ResourceRepository {
         UpdateResult result = resourceCollection.updateOne(filter, update);
 
         if (result.getModifiedCount() == 0) {
-            throw new ResourceNotPresentException("No VM found with ID: " + id);
+            throw new ResourceNotFoundException("No VM found with ID: " + id);
         } else if (result.getModifiedCount() != 1) {
             throw new MongoException("Error while updating VM " + id);
         }
@@ -83,12 +83,12 @@ public class MongoResourceRepository implements ResourceRepository {
     }
 
     @Override
-    public VirtualMachine findById(String id) throws ResourceNotPresentException, ResourceInvalidIdException {
+    public VirtualMachine findById(String id) throws ResourceNotFoundException, ResourceIdException {
         ObjectId objectId;
 
         objectId = idMapper.stringToObjectId(id);
         if (objectId == null) {
-            throw new ResourceInvalidIdException("Invalid id: " + id);
+            throw new ResourceIdException("Invalid id: " + id);
         }
 
         Bson filter = Filters.eq("_id", objectId);
@@ -96,19 +96,19 @@ public class MongoResourceRepository implements ResourceRepository {
         VirtualMachineEntity entity = resourceCollection.find(filter).first();
 
         if (entity == null) {
-            throw new ResourceNotPresentException("No VM found with ID: " + id);
+            throw new ResourceNotFoundException("No VM found with ID: " + id);
         }
 
         return mapper.toData(entity);
     }
 
     @Override
-    public void delete(String id) throws ResourceNotPresentException, ResourceInvalidIdException {
+    public void delete(String id) throws ResourceNotFoundException, ResourceIdException {
         ObjectId objectId;
 
         objectId = idMapper.stringToObjectId(id);
         if (objectId == null) {
-            throw new ResourceInvalidIdException("Invalid ID: " + id);
+            throw new ResourceIdException("Invalid ID: " + id);
         }
 
         Bson filter = Filters.eq("_id", objectId);
@@ -116,7 +116,7 @@ public class MongoResourceRepository implements ResourceRepository {
         DeleteResult result = resourceCollection.deleteOne(filter);
 
         if (result.getDeletedCount() == 0) {
-            throw new ResourceNotPresentException("No VM found with ID " + id);
+            throw new ResourceNotFoundException("No VM found with ID " + id);
         } else if (result.getDeletedCount() != 1) {
             throw new MongoException("Error while deleting VM " + id);
         }
