@@ -8,10 +8,10 @@ import com.mongodb.client.result.InsertOneResult;
 import com.mongodb.client.result.UpdateResult;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
-import team.four.pas.exceptions.allocation.AllocationClientException;
 import team.four.pas.exceptions.allocation.AllocationIdException;
 import team.four.pas.exceptions.allocation.AllocationNotFoundException;
-import team.four.pas.exceptions.allocation.AllocationResourceException;
+import team.four.pas.exceptions.resource.ResourceIdException;
+import team.four.pas.exceptions.user.UserIdException;
 import team.four.pas.repositories.AllocationRepository;
 import team.four.pas.repositories.entities.UserEntity;
 import team.four.pas.repositories.entities.VMAllocationEntity;
@@ -74,11 +74,11 @@ public class MongoAllocationRepository implements AllocationRepository {
     }
 
     @Override
-    public List<VMAllocation> getActive(Client user) throws AllocationClientException {
+    public List<VMAllocation> getActive(Client user) throws UserIdException {
         ObjectId objectId = idMapper.stringToObjectId(user.getId());
 
         if (objectId == null) {
-            throw new AllocationClientException("Client cannot be null");
+            throw new UserIdException("Client cannot be null");
         }
 
         Bson filter = Filters.and(
@@ -92,11 +92,11 @@ public class MongoAllocationRepository implements AllocationRepository {
     }
 
     @Override
-    public List<VMAllocation> getActive(VirtualMachine resource) throws AllocationResourceException {
+    public List<VMAllocation> getActive(VirtualMachine resource) throws ResourceIdException {
         ObjectId objectId = idMapper.stringToObjectId(resource.getId());
 
         if (objectId == null) {
-            throw new AllocationResourceException("Resource cannot be null");
+            throw new ResourceIdException("Resource cannot be null");
         }
 
         Bson filter = Filters.and(
@@ -110,11 +110,11 @@ public class MongoAllocationRepository implements AllocationRepository {
     }
 
     @Override
-    public List<VMAllocation> getPast(Client user) throws AllocationClientException {
+    public List<VMAllocation> getPast(Client user) throws UserIdException {
         ObjectId objectId = idMapper.stringToObjectId(user.getId());
 
         if (objectId == null) {
-            throw new AllocationClientException("Client cannot be null");
+            throw new UserIdException("Client cannot be null");
         }
 
         Bson filter = Filters.and(
@@ -128,11 +128,11 @@ public class MongoAllocationRepository implements AllocationRepository {
     }
 
     @Override
-    public List<VMAllocation> getPast(VirtualMachine resource) throws AllocationResourceException {
+    public List<VMAllocation> getPast(VirtualMachine resource) throws ResourceIdException {
         ObjectId objectId = idMapper.stringToObjectId(resource.getId());
 
         if (objectId == null) {
-            throw new AllocationResourceException("Resource cannot be null");
+            throw new ResourceIdException("Resource cannot be null");
         }
 
         Bson filter = Filters.and(

@@ -34,9 +34,9 @@ public interface UserToDTO {
         if (users == null) {
             return null;
         }
-        return  users.stream()
-                       .map(this::toDTO)
-                       .collect(Collectors.toList());
+        return users.stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
     default UserDTO toDTO(User data) {

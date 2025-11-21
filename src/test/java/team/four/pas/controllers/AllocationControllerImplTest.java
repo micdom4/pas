@@ -19,10 +19,7 @@ import team.four.pas.Config;
 import team.four.pas.controllers.DTOs.UserAddDTO;
 import team.four.pas.controllers.DTOs.UserDTO;
 import team.four.pas.controllers.DTOs.UserType;
-import team.four.pas.exceptions.resource.ResourceGetAllException;
-import team.four.pas.exceptions.user.UserFindException;
-import team.four.pas.exceptions.user.UserGetAllException;
-import team.four.pas.exceptions.user.UserUpdateException;
+import team.four.pas.exceptions.user.UserException;
 import team.four.pas.repositories.AllocationRepository;
 import team.four.pas.repositories.ResourceRepository;
 import team.four.pas.repositories.UserRepository;
@@ -39,7 +36,9 @@ import java.io.File;
 import java.time.Instant;
 
 import static org.hamcrest.Matchers.hasItem;
+import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @Testcontainers
@@ -87,28 +86,32 @@ class AllocationControllerImplTest {
 
 
     @Test
-    void getAll() throws ResourceGetAllException, UserGetAllException, UserFindException, UserUpdateException {
-        String login = "HKwinto";
-        assertDoesNotThrow(() -> userService.add(new UserAddDTO(login, "Henryk", "Kwinto", UserType.CLIENT)));
+    void getAll() {
+        try {
+            String login = "HKwinto";
+            assertDoesNotThrow(() -> userService.add(new UserAddDTO(login, "Henryk", "Kwinto", UserType.CLIENT)));
 
-        assertDoesNotThrow(() -> resourceService.addVM(8, 16, 256));
+            assertDoesNotThrow(() -> resourceService.addVM(8, 16, 256));
 
-        int initialSize = allocationService.getAll().size();
+            assertEquals(1, allocationService.getAll().size());
 
-        VirtualMachine virtualMachine = resourceService.getAll().getLast();
-        userService.activate(userService.findByLogin(login).id());
-        UserDTO userDTO = userService.getAll().getLast();
+            VirtualMachine virtualMachine = resourceService.getAll().getLast();
+            userService.activate(userService.findByLogin(login).id());
+            UserDTO userDTO = userService.getAll().getLast();
 
-        assertDoesNotThrow(() -> allocationService.add(userDTO, virtualMachine, Instant.now()));
+            assertDoesNotThrow(() -> allocationService.add(userDTO, virtualMachine, Instant.now()));
 
-        RestAssured.given()
-                .log().parameters()
-                .when()
-                .get("/allocations")
-                .then()
-                .log().body()
-                .statusCode(HttpStatus.OK.value())
-                .body("client.login", hasItem("HKwinto"));
+            RestAssured.given()
+                    .log().parameters()
+                    .when()
+                    .get("/allocations")
+                    .then()
+                    .log().body()
+                    .statusCode(HttpStatus.OK.value())
+                    .body("client.login", hasItem("HKwinto"));
+        } catch (UserException e) {
+            fail(e.getMessage());
+        }
     }
 
 }

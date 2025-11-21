@@ -40,9 +40,7 @@ class UserControllerImplTest {
             new DockerComposeContainer<>(new File("src/test/resources/docker-compose.yml"))
                     .withExposedService("mongo", 27017);
 
-    private static UserRepository userRepository;
     private static UserService userService;
-    private static AnnotationConfigApplicationContext context;
     private static MongoDatabase database;
 
     @DynamicPropertySource
@@ -55,8 +53,9 @@ class UserControllerImplTest {
 
     @BeforeAll
     static void each() {
-        context = new AnnotationConfigApplicationContext(Config.class);
-        userRepository = context.getBean(UserRepository.class);
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Config.class);
+
+        UserRepository userRepository = context.getBean(UserRepository.class);
         userService = new UserServiceImpl(userRepository, context.getBean(UserToDTO.class));
         UserControllerImpl userController = new UserControllerImpl(userService);
         database = context.getBean(MongoClient.class).getDatabase("pas");
@@ -131,7 +130,7 @@ class UserControllerImplTest {
 
 
     @Test
-    void activateDeactivatePerson() {
+    void activateDeactivateUser() {
         try {
             userService.add(new UserAddDTO("BLis", "Bartosz", "Lis", UserType.ADMIN));
 
@@ -191,7 +190,7 @@ class UserControllerImplTest {
     }
 
     @Test
-    void createPerson() {
+    void createUser() {
         UserAddDTO newUser = new UserAddDTO("BLis", "Bartosz", "Lis", UserType.ADMIN);
 
         RestAssured.given()
@@ -209,7 +208,7 @@ class UserControllerImplTest {
     }
 
     @Test
-    void createPersonConflict() {
+    void createUserConflict() {
         UserAddDTO existingUser = new UserAddDTO("BLis", "Bartosz", "Lis", UserType.ADMIN);
 
         RestAssured.given()
@@ -234,7 +233,7 @@ class UserControllerImplTest {
     }
 
     @Test
-    void createPersonBadRequest() {
+    void createUserBadRequest() {
         UserAddDTO existingUser = new UserAddDTO("BLis", "bLISSASD", "Lis", UserType.ADMIN);
 
         RestAssured.given()

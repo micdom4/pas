@@ -2,7 +2,10 @@ package team.four.pas.services.implementation;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import team.four.pas.exceptions.resource.*;
+import team.four.pas.exceptions.resource.ResourceDataException;
+import team.four.pas.exceptions.resource.ResourceIdException;
+import team.four.pas.exceptions.resource.ResourceNotFoundException;
+import team.four.pas.exceptions.resource.ResourceStillAllocatedException;
 import team.four.pas.repositories.AllocationRepository;
 import team.four.pas.repositories.ResourceRepository;
 import team.four.pas.services.ResourceService;
@@ -17,59 +20,39 @@ public class ResourceServiceImpl implements ResourceService {
     private final AllocationRepository allocationRepository;
 
     @Override
-    public List<VirtualMachine> getAll() throws ResourceGetAllException {
-        try {
-            return resourceRepository.getAll();
-        } catch (Exception ex) {
-            throw new ResourceGetAllException(ex.getMessage(), ex);
-        }
+    public List<VirtualMachine> getAll() {
+        return resourceRepository.getAll();
     }
 
     @Override
-    public VirtualMachine findById(String id) throws ResourceFindException {
-        try {
-            return resourceRepository.findById(id);
-        } catch (Exception ex) {
-            throw new ResourceFindException(ex.getMessage(), ex);
-        }
+    public VirtualMachine findById(String id) throws ResourceIdException, ResourceNotFoundException {
+        return resourceRepository.findById(id);
     }
 
     @Override
-    public VirtualMachine addVM(int cpuNumber, int ram, int memory) throws ResourceAddException {
-        try {
-            validateCPUs(cpuNumber);
-            validateRAM(ram);
-            validateMemory(memory);
+    public VirtualMachine addVM(int cpuNumber, int ram, int memory) throws ResourceDataException {
+        validateCPUs(cpuNumber);
+        validateRAM(ram);
+        validateMemory(memory);
 
-            return resourceRepository.addVM(cpuNumber, ram, memory);
-        } catch (Exception e) {
-            throw new ResourceAddException(e.getMessage(), e);
-        }
+        return resourceRepository.addVM(cpuNumber, ram, memory);
     }
 
     @Override
-    public VirtualMachine updateVM(String id, int cpuNumber, int ram, int memory) throws ResourceUpdateException {
-        try {
-            validateCPUs(cpuNumber);
-            validateRAM(ram);
-            validateMemory(memory);
+    public VirtualMachine updateVM(String id, int cpuNumber, int ram, int memory) throws ResourceIdException, ResourceNotFoundException, ResourceDataException {
+        validateCPUs(cpuNumber);
+        validateRAM(ram);
+        validateMemory(memory);
 
-            return resourceRepository.updateVM(id, cpuNumber, ram, memory);
-        } catch (Exception e) {
-            throw new ResourceUpdateException(e.getMessage(), e);
-        }
+        return resourceRepository.updateVM(id, cpuNumber, ram, memory);
     }
 
     @Override
-    public void deleteVM(String id) throws ResourceDeleteException {
-        try {
-            if (allocationRepository.getActive(findById(id)).isEmpty() && allocationRepository.getPast(findById(id)).isEmpty()) {
-                resourceRepository.delete(id);
-            } else {
-                throw new ResourceStillAllocatedException("VM with ID: " + id + " is still allocated");
-            }
-        } catch (Exception e) {
-            throw new ResourceDeleteException(e.getMessage(), e);
+    public void deleteVM(String id) throws ResourceIdException, ResourceNotFoundException, ResourceStillAllocatedException {
+        if (allocationRepository.getActive(findById(id)).isEmpty() && allocationRepository.getPast(findById(id)).isEmpty()) {
+            resourceRepository.delete(id);
+        } else {
+            throw new ResourceStillAllocatedException("VM with ID: " + id + " is still allocated");
         }
     }
 

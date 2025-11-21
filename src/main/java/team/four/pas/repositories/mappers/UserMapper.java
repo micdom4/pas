@@ -1,6 +1,5 @@
 package team.four.pas.repositories.mappers;
 
-import org.bson.types.ObjectId;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import team.four.pas.repositories.entities.UserEntity;
@@ -12,13 +11,15 @@ import team.four.pas.services.data.users.User;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Mapper (uses = {
+@Mapper(uses = {
         StringToObjectId.class,
 })
 public interface UserMapper {
 
     Client toClient(UserEntity entity);
+
     Manager toManager(UserEntity entity);
+
     Admin toAdmin(UserEntity entity);
 
     @Mapping(target = "type", constant = "CLIENT")
@@ -39,7 +40,6 @@ public interface UserMapper {
             case CLIENT -> toClient(entity);
             case MANAGER -> toManager(entity);
             case ADMIN -> toAdmin(entity);
-            default -> throw new IllegalArgumentException("Unknown user type: " + entity.type());
         };
     }
 
@@ -48,8 +48,8 @@ public interface UserMapper {
             return null;
         }
         return entities.stream()
-                       .map(this::toData)
-                       .collect(Collectors.toList());
+                .map(this::toData)
+                .collect(Collectors.toList());
     }
 
     default UserEntity toEntity(User data) {

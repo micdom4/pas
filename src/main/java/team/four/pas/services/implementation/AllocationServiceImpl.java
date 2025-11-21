@@ -5,8 +5,11 @@ import org.springframework.stereotype.Service;
 import team.four.pas.controllers.DTOs.UserDTO;
 import team.four.pas.controllers.DTOs.UserType;
 import team.four.pas.exceptions.allocation.*;
-import team.four.pas.exceptions.resource.ResourceFindException;
-import team.four.pas.exceptions.user.UserFindException;
+import team.four.pas.exceptions.resource.ResourceIdException;
+import team.four.pas.exceptions.resource.ResourceNotFoundException;
+import team.four.pas.exceptions.user.UserIdException;
+import team.four.pas.exceptions.user.UserNotFoundException;
+import team.four.pas.exceptions.user.UserTypeException;
 import team.four.pas.repositories.AllocationRepository;
 import team.four.pas.services.AllocationService;
 import team.four.pas.services.ResourceService;
@@ -39,9 +42,9 @@ public class AllocationServiceImpl implements AllocationService {
     }
 
     @Override
-    public VMAllocation add(UserDTO client, VirtualMachine resource, Instant startTime) throws AllocationClientException, AllocationResourceException, InactiveClientException, ResourceAlreadyAllocatedException {
+    public VMAllocation add(UserDTO client, VirtualMachine resource, Instant startTime) throws UserTypeException, InactiveClientException, ResourceAlreadyAllocatedException, ResourceIdException {
         if (client.type() != UserType.CLIENT) {
-            throw new AllocationClientException("Client must be of UserType CLIENT");
+            throw new UserTypeException("Client must be of UserType CLIENT");
         }
 
         if (!client.active()) {
@@ -56,22 +59,22 @@ public class AllocationServiceImpl implements AllocationService {
     }
 
     @Override
-    public List<VMAllocation> getPastVm(String id) throws ResourceFindException, AllocationResourceException {
+    public List<VMAllocation> getPastVm(String id) throws ResourceIdException, ResourceNotFoundException {
         VirtualMachine resource = resourceService.findById(id);
         return allocationRepository.getPast(resource);
     }
 
     @Override
-    public List<VMAllocation> getActiveVm(String id) throws ResourceFindException, AllocationResourceException {
+    public List<VMAllocation> getActiveVm(String id) throws ResourceIdException, ResourceNotFoundException {
         VirtualMachine resource = resourceService.findById(id);
         return allocationRepository.getActive(resource);
     }
 
     @Override
-    public List<VMAllocation> getActiveClient(String id) throws UserFindException, AllocationClientException {
+    public List<VMAllocation> getActiveClient(String id) throws UserTypeException, UserNotFoundException, UserIdException {
         UserDTO clientDTO = userService.findById(id);
         if (clientDTO.type() != UserType.CLIENT) {
-            throw new AllocationClientException("Client must be of UserType CLIENT");
+            throw new UserTypeException("Client must be of UserType CLIENT");
         }
 
         Client client = userToDTO.clientFromClientDTO(clientDTO);
@@ -79,10 +82,10 @@ public class AllocationServiceImpl implements AllocationService {
     }
 
     @Override
-    public List<VMAllocation> getPastClient(String id) throws UserFindException, AllocationClientException {
+    public List<VMAllocation> getPastClient(String id) throws UserTypeException, UserNotFoundException, UserIdException {
         UserDTO clientDTO = userService.findById(id);
         if (clientDTO.type() != UserType.CLIENT) {
-            throw new AllocationClientException("Client must be of UserType CLIENT");
+            throw new UserTypeException("Client must be of UserType CLIENT");
         }
         Client client = userToDTO.clientFromClientDTO(clientDTO);
         return allocationRepository.getPast(client);

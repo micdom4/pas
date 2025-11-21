@@ -30,7 +30,7 @@ public class UserControllerImpl {
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(userService.getAll());
-        } catch (UserGetAllException ex) {
+        } catch (RuntimeException ex) {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(null);
@@ -43,20 +43,18 @@ public class UserControllerImpl {
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(userService.findById(id));
-        } catch (UserFindException e) {
-            if (e.getCause() instanceof UserNotFoundException) {
-                return ResponseEntity
-                        .status(HttpStatus.NOT_FOUND)
-                        .body(null);
-            } else if (e.getCause() instanceof UserIdException) {
-                return ResponseEntity
-                        .status(HttpStatus.BAD_REQUEST)
-                        .body(null);
-            } else {
-                return ResponseEntity
-                        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body(null);
-            }
+        } catch (UserNotFoundException e) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(null);
+        } catch (UserIdException e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(null);
+        } catch (RuntimeException e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
         }
     }
 
@@ -66,34 +64,26 @@ public class UserControllerImpl {
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(userService.findByLogin(login));
-        } catch (UserFindException e) {
-            if (e.getCause() instanceof UserNotFoundException) {
-                return ResponseEntity
-                        .status(HttpStatus.NOT_FOUND)
-                        .body(null);
-            } else if (e.getCause() instanceof UserLoginException) {
-                return ResponseEntity
-                        .status(HttpStatus.BAD_REQUEST)
-                        .body(null);
-            } else {
-                return ResponseEntity
-                        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body(null);
-            }
+        } catch (UserNotFoundException e) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(null);
+        } catch (UserLoginException e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(null);
+        } catch (RuntimeException e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
         }
     }
 
     @GetMapping({"/search/{login}"})
     public ResponseEntity<List<UserDTO>> searchByLogin(@PathVariable String login) {
-        try {
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .body(userService.findByMatchingLogin(login));
-        } catch (UserFindException e) {
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
-        }
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(userService.findByMatchingLogin(login));
     }
 
     @PostMapping({"/{id}/activate"})
@@ -103,44 +93,40 @@ public class UserControllerImpl {
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .build();
-        } catch (UserUpdateException ex) {
-            if (ex.getCause() instanceof UserNotFoundException) {
-                return ResponseEntity
-                        .status(HttpStatus.NOT_FOUND)
-                        .body(null);
-            } else if (ex.getCause() instanceof UserIdException) {
-                return ResponseEntity
-                        .status(HttpStatus.UNPROCESSABLE_ENTITY)
-                        .body(null);
-            } else {
-                return ResponseEntity
-                        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body(null);
-            }
+        } catch (UserNotFoundException e) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(null);
+        } catch (UserIdException e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(null);
+        } catch (RuntimeException e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
         }
     }
 
     @PostMapping({"/{id}/deactivate"})
-    public ResponseEntity<?> deactivatePerson(@PathVariable String id) {
+    public ResponseEntity<?> deactivateUser(@PathVariable String id) {
         try {
             userService.deactivate(id);
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .build();
-        } catch (UserUpdateException e) {
-            if (e.getCause() instanceof UserNotFoundException) {
-                return ResponseEntity
-                        .status(HttpStatus.NOT_FOUND)
-                        .body(null);
-            } else if (e.getCause() instanceof UserIdException) {
-                return ResponseEntity
-                        .status(HttpStatus.UNPROCESSABLE_ENTITY)
-                        .body(null);
-            } else {
-                return ResponseEntity
-                        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body(null);
-            }
+        } catch (UserNotFoundException e) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(null);
+        } catch (UserIdException e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(null);
+        } catch (RuntimeException e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
         }
     }
 
@@ -148,25 +134,27 @@ public class UserControllerImpl {
             value = {""},
             consumes = {"application/json"}
     )
-    public ResponseEntity<UserDTO> createPerson(@RequestBody UserAddDTO addDTO) {
+    public ResponseEntity<UserDTO> createUser(@RequestBody UserAddDTO addDTO) {
         try {
             return ResponseEntity
                     .status(HttpStatus.CREATED)
                     .body(userService.add(addDTO));
-        } catch (UserAddException ue) {
-            if (ue.getCause() instanceof UserDataException) {
-                return ResponseEntity
-                        .status(HttpStatus.BAD_REQUEST)
-                        .body(null);
-            } else if (ue.getCause() instanceof UserAlreadyExistsException) {
-                return ResponseEntity
-                        .status(HttpStatus.CONFLICT)
-                        .body(null);
-            } else {
-                return ResponseEntity
-                        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body(null);
-            }
+        } catch (UserTypeException e) {
+            return ResponseEntity
+                    .status(HttpStatus.UNPROCESSABLE_ENTITY)
+                    .body(null);
+        } catch (UserAlreadyExistsException e) {
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body(null);
+        } catch (UserDataException | UserLoginException e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(null);
+        } catch (RuntimeException e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
         }
     }
 
@@ -174,29 +162,23 @@ public class UserControllerImpl {
             value = {"/{id}"},
             consumes = {"application/json"}
     )
-    public ResponseEntity<?> editPerson(@PathVariable String id, @RequestBody String surname) {
+    public ResponseEntity<?> editUser(@PathVariable String id, @RequestBody String surname) {
         try {
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(userService.update(id, surname));
-        } catch (UserUpdateException e) {
-            if (e.getCause() instanceof UserNotFoundException) {
-                return ResponseEntity
-                        .status(HttpStatus.NOT_FOUND)
-                        .body(null);
-            } else if (e.getCause() instanceof UserIdException) {
-                return ResponseEntity
-                        .status(HttpStatus.UNPROCESSABLE_ENTITY)
-                        .body(null);
-            } else if (e.getCause() instanceof UserDataException) {
-                return ResponseEntity
-                        .status(HttpStatus.BAD_REQUEST)
-                        .body(null);
-            } else {
-                return ResponseEntity
-                        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body(null);
-            }
+        } catch (UserNotFoundException e) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(null);
+        } catch (UserIdException | UserDataException e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(null);
+        } catch (RuntimeException e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
         }
     }
 

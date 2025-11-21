@@ -6,9 +6,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import team.four.pas.controllers.DTOs.UserDTO;
-import team.four.pas.exceptions.allocation.*;
-import team.four.pas.exceptions.resource.ResourceFindException;
-import team.four.pas.exceptions.user.UserFindException;
+import team.four.pas.exceptions.allocation.AllocationIdException;
+import team.four.pas.exceptions.allocation.AllocationNotFoundException;
+import team.four.pas.exceptions.allocation.InactiveClientException;
+import team.four.pas.exceptions.allocation.ResourceAlreadyAllocatedException;
+import team.four.pas.exceptions.resource.ResourceIdException;
+import team.four.pas.exceptions.resource.ResourceNotFoundException;
+import team.four.pas.exceptions.user.UserIdException;
+import team.four.pas.exceptions.user.UserNotFoundException;
+import team.four.pas.exceptions.user.UserTypeException;
 import team.four.pas.services.AllocationService;
 import team.four.pas.services.data.allocations.VMAllocation;
 import team.four.pas.services.data.resources.VirtualMachine;
@@ -32,7 +38,7 @@ public class AllocationControllerImpl {
     public ResponseEntity<VMAllocation> createAllocation(@RequestBody UserDTO userDTO, VirtualMachine vm) {
         try {
             return ResponseEntity.status(HttpStatus.CREATED).body(allocationService.add(userDTO, vm, Instant.now()));
-        } catch (AllocationClientException | AllocationResourceException e) {
+        } catch (ResourceIdException | UserTypeException e) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(null);
         } catch (InactiveClientException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
@@ -47,9 +53,9 @@ public class AllocationControllerImpl {
     public ResponseEntity<List<VMAllocation>> getPastVmAllocations(@PathVariable String id) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(allocationService.getPastVm(id));
-        } catch (ResourceFindException e) {
+        } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        } catch (AllocationResourceException e) {
+        } catch (ResourceIdException e) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(null);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
@@ -60,9 +66,9 @@ public class AllocationControllerImpl {
     public ResponseEntity<List<VMAllocation>> getActiveVmAllocations(@PathVariable String id) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(allocationService.getActiveVm(id));
-        } catch (ResourceFindException e) {
+        } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        } catch (AllocationResourceException e) {
+        } catch (ResourceIdException e) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(null);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
@@ -73,9 +79,9 @@ public class AllocationControllerImpl {
     public ResponseEntity<List<VMAllocation>> getActiveClientAllocations(@PathVariable String id) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(allocationService.getActiveClient(id));
-        } catch (UserFindException e) {
+        } catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        } catch (AllocationClientException e) {
+        } catch (UserIdException | UserTypeException e) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(null);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
@@ -86,9 +92,9 @@ public class AllocationControllerImpl {
     public ResponseEntity<List<VMAllocation>> getPastClientAllocations(@PathVariable String id) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(allocationService.getPastClient(id));
-        } catch (UserFindException e) {
+        } catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        } catch (AllocationClientException e) {
+        } catch (UserIdException | UserTypeException e) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(null);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);

@@ -2,8 +2,11 @@ package team.four.pas.services;
 
 import team.four.pas.controllers.DTOs.UserDTO;
 import team.four.pas.exceptions.allocation.*;
-import team.four.pas.exceptions.resource.ResourceFindException;
-import team.four.pas.exceptions.user.UserFindException;
+import team.four.pas.exceptions.resource.ResourceIdException;
+import team.four.pas.exceptions.resource.ResourceNotFoundException;
+import team.four.pas.exceptions.user.UserIdException;
+import team.four.pas.exceptions.user.UserNotFoundException;
+import team.four.pas.exceptions.user.UserTypeException;
 import team.four.pas.services.data.allocations.VMAllocation;
 import team.four.pas.services.data.resources.VirtualMachine;
 
@@ -15,15 +18,15 @@ public interface AllocationService {
 
     VMAllocation findById(String id) throws AllocationIdException, AllocationNotFoundException;
 
-    VMAllocation add(UserDTO client, VirtualMachine resource, Instant startTime) throws AllocationClientException, AllocationResourceException, InactiveClientException, ResourceAlreadyAllocatedException;
+    VMAllocation add(UserDTO client, VirtualMachine resource, Instant startTime) throws UserTypeException, InactiveClientException, ResourceAlreadyAllocatedException, ResourceIdException;
 
-    List<VMAllocation> getPastVm(String id) throws ResourceFindException, AllocationResourceException;
+    List<VMAllocation> getPastVm(String id) throws ResourceIdException, ResourceNotFoundException;
 
-    List<VMAllocation> getActiveVm(String id) throws ResourceFindException, AllocationResourceException;
+    List<VMAllocation> getActiveVm(String id) throws ResourceIdException, ResourceNotFoundException;
 
-    List<VMAllocation> getActiveClient(String id) throws UserFindException, AllocationClientException;
+    List<VMAllocation> getActiveClient(String id) throws UserTypeException, UserNotFoundException, UserIdException;
 
-    List<VMAllocation> getPastClient(String id) throws UserFindException, AllocationClientException;
+    List<VMAllocation> getPastClient(String id) throws UserTypeException, UserNotFoundException, UserIdException;
 
     void finishAllocation(String id) throws AllocationIdException, AllocationNotFoundException;
 

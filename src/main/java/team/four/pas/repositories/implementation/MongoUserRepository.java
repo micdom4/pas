@@ -94,10 +94,10 @@ public class MongoUserRepository implements UserRepository {
     }
 
     @Override
-    public User update(String id, String surname) throws UserNotFoundException, UserLoginException, UserIdException {
+    public User update(String id, String surname) throws UserNotFoundException, UserIdException {
         ObjectId objectId = idMapper.stringToObjectId(id);
         if (objectId == null) {
-            throw new UserLoginException("Empty login provided");
+            throw new UserIdException("User ID cannot be empty");
         }
 
         Bson filter = Filters.eq("_id", objectId);
@@ -112,10 +112,10 @@ public class MongoUserRepository implements UserRepository {
     }
 
     @Override
-    public void activate(String id) throws UserLoginException, UserNotFoundException {
+    public void activate(String id) throws UserNotFoundException, UserIdException {
         ObjectId objectId = idMapper.stringToObjectId(id);
         if (objectId == null) {
-            throw new UserLoginException("Empty login provided");
+            throw new UserIdException("Empty login provided");
         }
 
         Bson filter = Filters.eq("_id", objectId);
@@ -131,10 +131,10 @@ public class MongoUserRepository implements UserRepository {
     }
 
     @Override
-    public void deactivate(String id) throws UserLoginException, UserNotFoundException {
+    public void deactivate(String id) throws UserNotFoundException, UserIdException {
         ObjectId objectId = idMapper.stringToObjectId(id);
         if (objectId == null) {
-            throw new UserLoginException("Empty login provided");
+            throw new UserIdException("Empty login provided");
         }
 
         Bson filter = Filters.eq("_id", objectId);
@@ -172,5 +172,4 @@ public class MongoUserRepository implements UserRepository {
 
         return mapper.toData(entity);
     }
-
 }

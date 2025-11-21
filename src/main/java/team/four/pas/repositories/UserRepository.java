@@ -16,9 +16,9 @@ public interface UserRepository  extends Repository<User> {
 
     <T extends User> User add(String login, String name, String surname, Class<T> userClass) throws UserTypeException, UserLoginException, UserAlreadyExistsException;
 
-    User update(String id, String Surname) throws UserNotFoundException, UserLoginException, UserIdException;
+    User update(String id, String Surname) throws UserNotFoundException, UserIdException;
 
-    void activate(String id) throws UserLoginException, UserNotFoundException;
+    void activate(String id) throws UserNotFoundException, UserIdException;
 
-    void deactivate(String id) throws UserLoginException, UserNotFoundException;
+    void deactivate(String id) throws UserNotFoundException, UserIdException;
 }

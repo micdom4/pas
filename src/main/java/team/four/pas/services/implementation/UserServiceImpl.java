@@ -22,90 +22,56 @@ public class UserServiceImpl implements UserService {
     private final UserToDTO userToDTO;
 
     @Override
-    public List<UserDTO> getAll() throws UserGetAllException {
-        try {
-            return userToDTO.toDataList(userRepository.getAll());
-        } catch (Exception e) {
-            throw new UserGetAllException(e.getMessage(), e);
-        }
+    public List<UserDTO> getAll() {
+        return userToDTO.toDataList(userRepository.getAll());
     }
 
     @Override
-    public UserDTO findById(String id) throws UserFindException {
-        try {
-            return userToDTO.toDTO(userRepository.findById(id));
-        } catch (Exception e) {
-            throw new UserFindException(e.getMessage(), e);
-        }
+    public UserDTO findById(String id) throws UserNotFoundException, UserIdException {
+        return userToDTO.toDTO(userRepository.findById(id));
     }
 
     @Override
-    public UserDTO findByLogin(String login) throws UserFindException {
-        try {
-            return userToDTO.toDTO(userRepository.findByLogin(login));
-        } catch (Exception e) {
-            throw new UserFindException(e.getMessage(), e);
-        }
+    public UserDTO findByLogin(String login) throws UserNotFoundException, UserLoginException {
+        return userToDTO.toDTO(userRepository.findByLogin(login));
     }
 
     @Override
-    public List<UserDTO> findByMatchingLogin(String login) throws UserFindException {
-        try {
-            return userToDTO.toDataList(userRepository.findByMatchingLogin(login));
-        } catch (Exception e) {
-            throw new UserFindException(e.getMessage(), e);
-        }
+    public List<UserDTO> findByMatchingLogin(String login) {
+        return userToDTO.toDataList(userRepository.findByMatchingLogin(login));
     }
 
     @Override
-    public UserDTO add(UserAddDTO addDTO) throws UserAddException {
-        try {
-            validateLogin(addDTO.login());
-            validateName(addDTO.name());
-            validateSurname(addDTO.name());
+    public UserDTO add(UserAddDTO addDTO) throws UserDataException, UserTypeException, UserAlreadyExistsException, UserLoginException {
+        validateLogin(addDTO.login());
+        validateName(addDTO.name());
+        validateSurname(addDTO.name());
 
-            return switch (addDTO.type()) {
-                case CLIENT ->
-                        userToDTO.toDTO(userRepository.add(addDTO.login(), addDTO.name(), addDTO.surname(), Client.class));
-                case MANAGER ->
-                        userToDTO.toDTO(userRepository.add(addDTO.login(), addDTO.name(), addDTO.surname(), Manager.class));
-                case ADMIN ->
-                        userToDTO.toDTO(userRepository.add(addDTO.login(), addDTO.name(), addDTO.surname(), Admin.class));
-            };
-
-        } catch (Exception e) {
-            throw new UserAddException(e.getMessage(), e);
-        }
+        return switch (addDTO.type()) {
+            case CLIENT ->
+                    userToDTO.toDTO(userRepository.add(addDTO.login(), addDTO.name(), addDTO.surname(), Client.class));
+            case MANAGER ->
+                    userToDTO.toDTO(userRepository.add(addDTO.login(), addDTO.name(), addDTO.surname(), Manager.class));
+            case ADMIN ->
+                    userToDTO.toDTO(userRepository.add(addDTO.login(), addDTO.name(), addDTO.surname(), Admin.class));
+        };
     }
 
     @Override
-    public UserDTO update(String id, String surname) throws UserUpdateException {
-        try {
-            validateSurname(surname);
+    public UserDTO update(String id, String surname) throws UserDataException, UserNotFoundException, UserIdException {
+        validateSurname(surname);
 
-            return userToDTO.toDTO(userRepository.update(id, surname));
-        } catch (Exception e) {
-            throw new UserUpdateException(e.getMessage(), e);
-        }
+        return userToDTO.toDTO(userRepository.update(id, surname));
     }
 
     @Override
-    public void activate(String id) throws UserUpdateException {
-        try {
-            userRepository.activate(id);
-        } catch (Exception e) {
-            throw new UserUpdateException(e.getMessage(), e);
-        }
-
+    public void activate(String id) throws UserNotFoundException, UserIdException {
+        userRepository.activate(id);
     }
 
     @Override
-    public void deactivate(String id) throws UserUpdateException {
-        try {
-            userRepository.deactivate(id);
-        } catch (Exception e) {
-            throw new UserUpdateException(e.getMessage(), e);
-        }
+    public void deactivate(String id) throws UserNotFoundException, UserIdException {
+        userRepository.deactivate(id);
     }
 
     private void validateLogin(String login) throws UserDataException {

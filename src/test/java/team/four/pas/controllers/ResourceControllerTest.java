@@ -22,7 +22,6 @@ import team.four.pas.controllers.DTOs.UserDTO;
 import team.four.pas.controllers.DTOs.UserType;
 import team.four.pas.exceptions.allocation.AllocationException;
 import team.four.pas.exceptions.resource.ResourceException;
-import team.four.pas.exceptions.resource.ResourceAddException;
 import team.four.pas.exceptions.user.UserException;
 import team.four.pas.repositories.AllocationRepository;
 import team.four.pas.repositories.ResourceRepository;
@@ -67,7 +66,7 @@ public class ResourceControllerTest {
     }
 
     @BeforeAll
-    static void each(){
+    static void each() {
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Config.class);
         ResourceRepository resourceRepository = context.getBean(ResourceRepository.class);
         AllocationRepository allocationRepository = context.getBean(AllocationRepository.class);
@@ -80,15 +79,19 @@ public class ResourceControllerTest {
     }
 
     @AfterEach
-    void afterEach(){
+    void afterEach() {
         database.getCollection("users").deleteMany(new Document());
         database.getCollection("virtualMachines").deleteMany(new Document());
         database.getCollection("vmAllocations").deleteMany(new Document());
     }
 
     @Test
-    void getAll() throws ResourceAddException {
-        resourceService.addVM(2, 4, 50);
+    void getAll() {
+        try {
+            resourceService.addVM(2, 4, 50);
+        } catch (ResourceException e) {
+            fail(e.getMessage());
+        }
         RestAssured.given()
                 .log().parameters()
                 .when()

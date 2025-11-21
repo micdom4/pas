@@ -17,6 +17,7 @@ import team.four.pas.controllers.DTOs.UserType;
 import team.four.pas.exceptions.allocation.*;
 import team.four.pas.exceptions.resource.ResourceException;
 import team.four.pas.exceptions.user.UserException;
+import team.four.pas.exceptions.user.UserTypeException;
 import team.four.pas.repositories.AllocationRepository;
 import team.four.pas.repositories.ResourceRepository;
 import team.four.pas.repositories.UserRepository;
@@ -116,7 +117,7 @@ class AllocationServiceTest {
             assertNotNull(userService.add(new UserAddDTO(login2, "Patrick", "Bateman", UserType.MANAGER)));
             userService.activate(userService.findByLogin(login2).id());
 
-            assertThrows(AllocationClientException.class, () -> allocationService.add(userService.findByLogin(login2), virtualMachine, Instant.now()));
+            assertThrows(UserTypeException.class, () -> allocationService.add(userService.findByLogin(login2), virtualMachine, Instant.now()));
 
             String login3 = "WWhite";
             assertNotNull(userService.add(new UserAddDTO(login3, "Walter", "White", UserType.CLIENT)));
