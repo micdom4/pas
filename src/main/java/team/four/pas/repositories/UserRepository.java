@@ -6,11 +6,15 @@ import team.four.pas.services.data.users.User;
 import java.util.List;
 
 public interface UserRepository  extends Repository<User> {
+
+    @Override
+    User findById(String id) throws UserNotFoundException, UserIdException;
+
     User findByLogin(String login) throws UserLoginException, UserNotFoundException;
 
     List<User> findByMatchingLogin(String loginStart);
 
-    <T extends User> User add(String login, String name, String surname, Class<T> userClass) throws UserTypeException, UserLoginException, UserNotFoundException, UserAlreadyExistsException;
+    <T extends User> User add(String login, String name, String surname, Class<T> userClass) throws UserTypeException, UserLoginException, UserAlreadyExistsException;
 
     User update(String id, String Surname) throws UserNotFoundException, UserLoginException, UserIdException;
 

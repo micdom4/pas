@@ -1,4 +1,5 @@
 package team.four.pas.repositories;
+
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
@@ -11,23 +12,18 @@ import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import team.four.pas.Config;
-import team.four.pas.exceptions.resource.ResourceAddException;
-import team.four.pas.exceptions.user.UserAlreadyExistsException;
-import team.four.pas.exceptions.user.UserLoginException;
-import team.four.pas.exceptions.user.UserTypeException;
-import team.four.pas.exceptions.user.UserNotFoundException;
+import team.four.pas.exceptions.allocation.AllocationException;
+import team.four.pas.exceptions.allocation.AllocationIdException;
+import team.four.pas.exceptions.allocation.AllocationNotFoundException;
+import team.four.pas.exceptions.user.UserException;
 import team.four.pas.repositories.implementation.MongoAllocationRepository;
 import team.four.pas.services.data.allocations.VMAllocation;
 import team.four.pas.services.data.users.Client;
 
-import javax.management.BadAttributeValueExpException;
 import java.io.File;
-import java.rmi.ServerException;
-import java.security.KeyManagementException;
 import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.*;
-
 
 @Testcontainers
 class AllocationRepositoryTest {
@@ -39,18 +35,18 @@ class AllocationRepositoryTest {
     private static MongoAllocationRepository allocationRepository;
     private static ResourceRepository resourceRepository;
     private static UserRepository userRepository;
-    private static AnnotationConfigApplicationContext context;
     private static MongoDatabase database;
 
     @BeforeAll
-    static void each(){
+    static void each() {
         String host = compose.getServiceHost("mongo", 27017);
         Integer port = compose.getServicePort("mongo", 27017);
         String dynamicUri = "mongodb://" + host + ":" + port + "/pas";
 
         System.setProperty("pas.data.mongodb.uri", dynamicUri);
 
-        context = new AnnotationConfigApplicationContext(Config.class);
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Config.class);
+
         allocationRepository = context.getBean(MongoAllocationRepository.class);
         resourceRepository = context.getBean(ResourceRepository.class);
         userRepository = context.getBean(UserRepository.class);
@@ -58,50 +54,69 @@ class AllocationRepositoryTest {
     }
 
     @AfterEach
-    void afterEach(){
+    void afterEach() {
         database.getCollection("users").deleteMany(new Document());
         database.getCollection("virtualMachines").deleteMany(new Document());
         database.getCollection("vmAllocations").deleteMany(new Document());
     }
 
     @BeforeEach
-    void initTwo() throws ServerException, KeyManagementException, BadAttributeValueExpException, ResourceAddException, UserTypeException, UserLoginException, UserAlreadyExistsException, UserNotFoundException {
+    void initTwo() throws UserException {
         resourceRepository.addVM(5, 12, 10);
         userRepository.add("BLis", "Bartosz", "Lis", Client.class);
     }
 
     @Test
     void getAll() {
-        allocationRepository.add((Client) userRepository.getAll().getFirst(), resourceRepository.getAll().getFirst(), Instant.now());
-        allocationRepository.finishAllocation(allocationRepository.getAll().getFirst().getId());
-        allocationRepository.add((Client) userRepository.getAll().getFirst(), resourceRepository.getAll().getFirst(), Instant.now());
-        assertEquals(2, allocationRepository.getAll().size());
+        try {
+            allocationRepository.add((Client) userRepository.getAll().getFirst(), resourceRepository.getAll().getFirst(), Instant.now());
+            allocationRepository.finishAllocation(allocationRepository.getAll().getFirst().getId());
+            allocationRepository.add((Client) userRepository.getAll().getFirst(), resourceRepository.getAll().getFirst(), Instant.now());
+            assertEquals(2, allocationRepository.getAll().size());
+        } catch (AllocationException ae) {
+            fail(ae.getMessage());
+        }
     }
 
     @Test
-    void findById() {
+    void findByIdPass() {
         allocationRepository.add((Client) userRepository.getAll().getFirst(), resourceRepository.getAll().getFirst(), Instant.now());
 
         VMAllocation vmAllocation = allocationRepository.getAll().getFirst();
         assertNotNull(vmAllocation);
 
-        assertEquals(vmAllocation, allocationRepository.findById(vmAllocation.getId()));
+        try {
+            assertEquals(vmAllocation, allocationRepository.findById(vmAllocation.getId()));
+        } catch (AllocationException e) {
+            fail(e.getMessage());
+        }
+    }
+
+    @Test
+    void findByIdFail() {
+        assertThrows(AllocationNotFoundException.class, () -> allocationRepository.findById("notfound"));
+
+        assertThrows(AllocationIdException.class, () -> allocationRepository.findById(""));
+        assertThrows(AllocationIdException.class, () -> allocationRepository.findById(null));
     }
 
     @Test
     void findByIds() {
-        allocationRepository.add((Client) userRepository.getAll().getFirst(), resourceRepository.getAll().getFirst(), Instant.now());
-        allocationRepository.finishAllocation(allocationRepository.getAll().getFirst().getId());
-        allocationRepository.add((Client) userRepository.getAll().getFirst(), resourceRepository.getAll().getFirst(), Instant.now());
+        try {
+            allocationRepository.add((Client) userRepository.getAll().getFirst(), resourceRepository.getAll().getFirst(), Instant.now());
+            allocationRepository.finishAllocation(allocationRepository.getAll().getFirst().getId());
+            allocationRepository.add((Client) userRepository.getAll().getFirst(), resourceRepository.getAll().getFirst(), Instant.now());
 
-        VMAllocation vmAllocation = allocationRepository.getAll().getFirst();
-        VMAllocation vmAllocation2 = allocationRepository.getAll().getLast();
+            VMAllocation vmAllocation = allocationRepository.getAll().getFirst();
+            VMAllocation vmAllocation2 = allocationRepository.getAll().getLast();
 
-        assertNotEquals(vmAllocation, vmAllocation2);
+            assertNotEquals(vmAllocation, vmAllocation2);
 
-        assertNotNull(vmAllocation);
-        assertNotNull(vmAllocation2);
-
+            assertNotNull(vmAllocation);
+            assertNotNull(vmAllocation2);
+        } catch (AllocationException ae) {
+            fail(ae.getMessage());
+        }
     }
 
 }

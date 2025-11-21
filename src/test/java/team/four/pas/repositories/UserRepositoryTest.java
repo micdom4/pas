@@ -12,6 +12,7 @@ import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import team.four.pas.Config;
+import team.four.pas.exceptions.AppBaseException;
 import team.four.pas.exceptions.resource.ResourceException;
 import team.four.pas.exceptions.user.UserAlreadyExistsException;
 import team.four.pas.exceptions.user.UserException;
@@ -107,7 +108,7 @@ class UserRepositoryTest {
         try {
             User user = userRepository.add("BLis", "Bartosz", "Lis", Client.class);
             assertEquals("Bartosz", userRepository.findById(user.getId()).getName());
-        } catch (UserException | ResourceException e) {
+        } catch (AppBaseException e) {
             fail(e.getMessage());
         }
     }

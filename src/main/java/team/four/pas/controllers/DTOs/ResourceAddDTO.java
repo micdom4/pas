@@ -1,6 +1,6 @@
 package team.four.pas.controllers.DTOs;
 
-public record ResourceDTO(
+public record ResourceAddDTO(
         int cpus,
         int ram,
         int memory

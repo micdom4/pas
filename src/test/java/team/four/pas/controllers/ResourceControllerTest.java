@@ -20,6 +20,7 @@ import team.four.pas.Config;
 import team.four.pas.controllers.DTOs.UserAddDTO;
 import team.four.pas.controllers.DTOs.UserDTO;
 import team.four.pas.controllers.DTOs.UserType;
+import team.four.pas.exceptions.allocation.AllocationException;
 import team.four.pas.exceptions.resource.ResourceException;
 import team.four.pas.exceptions.resource.ResourceAddException;
 import team.four.pas.exceptions.user.UserException;
@@ -255,7 +256,7 @@ public class ResourceControllerTest {
                     .statusCode(HttpStatus.FORBIDDEN.value());
 
             assertFalse(resourceService.getAll().isEmpty());
-        } catch (ResourceException | UserException e) {
+        } catch (ResourceException | UserException | AllocationException e) {
             fail(e.getMessage());
         }
     }

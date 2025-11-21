@@ -1,12 +1,11 @@
 package team.four.pas.repositories;
 
-import team.four.pas.exceptions.resource.ResourceException;
-import team.four.pas.exceptions.user.UserException;
+import team.four.pas.exceptions.AppBaseException;
 
 import java.util.List;
 
 interface Repository<T> {
     List<T> getAll();
 
-    T findById(String id) throws ResourceException, UserException;
+    T findById(String id) throws AppBaseException;
 }

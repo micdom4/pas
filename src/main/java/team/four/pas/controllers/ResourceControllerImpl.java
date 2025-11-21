@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import team.four.pas.controllers.DTOs.ResourceDTO;
+import team.four.pas.controllers.DTOs.ResourceAddDTO;
 import team.four.pas.exceptions.resource.*;
 import team.four.pas.services.ResourceService;
 
@@ -58,7 +58,7 @@ public class ResourceControllerImpl implements ResourceController {
             value = {""},
             consumes = {"application/json"}
     )
-    public ResponseEntity<?> createVM(@RequestBody ResourceDTO vmDto) {
+    public ResponseEntity<?> createVM(@RequestBody ResourceAddDTO vmDto) {
         try {
             return ResponseEntity
                     .status(HttpStatus.CREATED)
@@ -80,7 +80,7 @@ public class ResourceControllerImpl implements ResourceController {
             value = {"/{id}"},
             consumes = {"application/json"}
     )
-    public ResponseEntity<?> updateVM(@PathVariable String id, @RequestBody ResourceDTO vmDto) {
+    public ResponseEntity<?> updateVM(@PathVariable String id, @RequestBody ResourceAddDTO vmDto) {
         try {
             return ResponseEntity
                     .status(HttpStatus.OK)

@@ -30,21 +30,16 @@ import team.four.pas.services.AllocationService;
 import team.four.pas.services.ResourceService;
 import team.four.pas.services.UserService;
 import team.four.pas.services.data.resources.VirtualMachine;
-import team.four.pas.services.data.users.Client;
 import team.four.pas.services.implementation.AllocationServiceImpl;
 import team.four.pas.services.implementation.ResourceServiceImpl;
 import team.four.pas.services.implementation.UserServiceImpl;
 import team.four.pas.services.mappers.UserToDTO;
 
-import javax.management.BadAttributeValueExpException;
 import java.io.File;
-import java.rmi.ServerException;
-import java.security.KeyManagementException;
 import java.time.Instant;
 
 import static org.hamcrest.Matchers.hasItem;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @Testcontainers
@@ -78,7 +73,7 @@ class AllocationControllerImplTest {
 
         allocationService = new AllocationServiceImpl(allocationRepository, userService, resourceService, context.getBean(UserToDTO.class));
         resourceService = new ResourceServiceImpl(resourceRepository, allocationRepository);
-        userService =  new UserServiceImpl(userRepository, context.getBean(UserToDTO.class));
+        userService = new UserServiceImpl(userRepository, context.getBean(UserToDTO.class));
         database = context.getBean(MongoClient.class).getDatabase("pas");
         AllocationControllerImpl allocationController = new AllocationControllerImpl(allocationService);
     }

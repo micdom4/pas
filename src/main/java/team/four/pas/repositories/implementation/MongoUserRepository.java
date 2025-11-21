@@ -61,9 +61,9 @@ public class MongoUserRepository implements UserRepository {
     }
 
     @Override
-    public <T extends User> User add(String login, String name, String surname, Class<T> userClass) throws UserTypeException, UserLoginException, UserNotFoundException, UserAlreadyExistsException {
+    public <T extends User> User add(String login, String name, String surname, Class<T> userClass) throws UserTypeException, UserLoginException, UserAlreadyExistsException {
         if (login == null || login.isEmpty()) {
-            throw new UserLoginException("Provided login is empty");
+            throw new UserLoginException("User login may not be empty");
         }
 
         UserEntity.Type type;
@@ -83,7 +83,11 @@ public class MongoUserRepository implements UserRepository {
         } catch (UserNotFoundException e) {
             InsertOneResult result = userCollection.insertOne(new UserEntity(null, login, name, surname, type, false));
 
-            return findByLogin(login);
+            try {
+                return findByLogin(login);
+            } catch (UserNotFoundException ex) {
+                throw new MongoException("Error while adding new User");
+            }
         }
 
         throw new UserAlreadyExistsException("User with login: " + login + " already exists");
@@ -156,7 +160,7 @@ public class MongoUserRepository implements UserRepository {
     public User findById(String id) throws UserIdException, UserNotFoundException {
         ObjectId objectId = idMapper.stringToObjectId(id);
         if (objectId == null) {
-            throw new UserIdException("Invalid ID:" + id);
+            throw new UserIdException("User ID cannot be empty");
         }
 
         Bson filter = Filters.eq("_id", objectId);
