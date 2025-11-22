@@ -40,6 +40,7 @@ class UserControllerImplTest {
             new DockerComposeContainer<>(new File("src/test/resources/docker-compose.yml"))
                     .withExposedService("mongo", 27017);
 
+    private static AnnotationConfigApplicationContext context;
     private static UserService userService;
     private static MongoDatabase database;
 
@@ -53,7 +54,7 @@ class UserControllerImplTest {
 
     @BeforeAll
     static void each() {
-        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Config.class);
+        context = new AnnotationConfigApplicationContext(Config.class);
 
         UserRepository userRepository = context.getBean(UserRepository.class);
         userService = new UserServiceImpl(userRepository, context.getBean(UserToDTO.class));

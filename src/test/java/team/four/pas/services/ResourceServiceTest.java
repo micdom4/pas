@@ -215,7 +215,7 @@ public class ResourceServiceTest {
             VirtualMachine resource = resourceService.getAll().getLast();
 
             resourceService.deleteVM(resource.getId());
-            assertNull(resourceService.findById(resource.getId()));
+            assertThrows(ResourceNotFoundException.class, () -> resourceService.findById(resource.getId()));
         } catch (ResourceException e) {
             fail(e.getMessage());
         }

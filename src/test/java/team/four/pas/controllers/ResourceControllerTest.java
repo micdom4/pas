@@ -52,6 +52,8 @@ public class ResourceControllerTest {
             new DockerComposeContainer<>(new File("src/test/resources/docker-compose.yml"))
                     .withExposedService("mongo", 27017);
 
+    private static AnnotationConfigApplicationContext context;
+
     private static ResourceService resourceService;
     private static AllocationService allocationService;
     private static UserService userService;
@@ -67,7 +69,8 @@ public class ResourceControllerTest {
 
     @BeforeAll
     static void each() {
-        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Config.class);
+        context = new AnnotationConfigApplicationContext(Config.class);
+
         ResourceRepository resourceRepository = context.getBean(ResourceRepository.class);
         AllocationRepository allocationRepository = context.getBean(AllocationRepository.class);
         UserRepository userRepository = context.getBean(UserRepository.class);
@@ -137,7 +140,7 @@ public class ResourceControllerTest {
                 .when()
                 .post("/resources")
                 .then()
-                .statusCode(HttpStatus.UNPROCESSABLE_ENTITY.value())
+                .statusCode(HttpStatus.BAD_REQUEST.value())
                 .log().body();
     }
 
@@ -209,7 +212,7 @@ public class ResourceControllerTest {
                     .when()
                     .put("/resources/{vm}", vm.getId())
                     .then()
-                    .statusCode(HttpStatus.UNPROCESSABLE_ENTITY.value());
+                    .statusCode(HttpStatus.BAD_REQUEST.value());
 
             RestAssured.given()
                     .when()

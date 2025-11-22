@@ -74,10 +74,10 @@ public class UserServiceImpl implements UserService {
         userRepository.deactivate(id);
     }
 
-    private void validateLogin(String login) throws UserDataException {
+    private void validateLogin(String login) throws UserLoginException {
         final Pattern pattern = Pattern.compile("^[A-Z][A-Z][a-z]{1,18}[0-9]{0,5}$");
         if (!pattern.matcher(login).matches()) {
-            throw new UserDataException("Wrong format of login");
+            throw new UserLoginException("Wrong format of login");
         }
     }
 

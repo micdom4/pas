@@ -37,7 +37,7 @@ public class UserServiceTest {
 
     private static UserService userService;
     private static MongoDatabase database;
-    ;
+
 
     @BeforeAll
     static void each() {

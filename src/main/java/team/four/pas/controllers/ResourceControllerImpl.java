@@ -6,9 +6,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import team.four.pas.controllers.DTOs.ResourceAddDTO;
-import team.four.pas.exceptions.resource.*;
+import team.four.pas.exceptions.resource.ResourceDataException;
+import team.four.pas.exceptions.resource.ResourceIdException;
+import team.four.pas.exceptions.resource.ResourceNotFoundException;
+import team.four.pas.exceptions.resource.ResourceStillAllocatedException;
 import team.four.pas.services.ResourceService;
 import team.four.pas.services.data.resources.VirtualMachine;
+
+import java.util.List;
 
 @RestController
 @CrossOrigin(
@@ -24,7 +29,7 @@ public class ResourceControllerImpl implements ResourceController {
     private final ResourceService resourceService;
 
     @GetMapping({""})
-    public ResponseEntity<?> getAll() {
+    public ResponseEntity<List<VirtualMachine>> getAll() {
         try {
             return ResponseEntity
                     .status(HttpStatus.OK)

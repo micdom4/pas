@@ -14,10 +14,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import team.four.pas.Config;
 import team.four.pas.exceptions.AppBaseException;
 import team.four.pas.exceptions.resource.ResourceException;
-import team.four.pas.exceptions.user.UserAlreadyExistsException;
-import team.four.pas.exceptions.user.UserException;
-import team.four.pas.exceptions.user.UserLoginException;
-import team.four.pas.exceptions.user.UserNotFoundException;
+import team.four.pas.exceptions.user.*;
 import team.four.pas.services.data.users.Admin;
 import team.four.pas.services.data.users.Client;
 import team.four.pas.services.data.users.User;
@@ -176,7 +173,7 @@ class UserRepositoryTest {
 
     @Test
     void updateFailNoId() {
-        assertThrows(UserLoginException.class, () -> userRepository.update("", "Lis-Nowak"));
+        assertThrows(UserIdException.class, () -> userRepository.update("", "Lis-Nowak"));
     }
 
     @Test
@@ -203,10 +200,10 @@ class UserRepositoryTest {
     }
 
     @Test
-    void activateDeactivateFailWhenLoginEmpty() {
+    void activateDeactivateFailWhenIdEmpty() {
         String id = "";
-        assertThrows(UserLoginException.class, () -> userRepository.activate(id));
-        assertThrows(UserLoginException.class, () -> userRepository.deactivate(id));
+        assertThrows(UserIdException.class, () -> userRepository.activate(id));
+        assertThrows(UserIdException.class, () -> userRepository.deactivate(id));
     }
 
 
