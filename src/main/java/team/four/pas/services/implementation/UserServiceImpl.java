@@ -45,7 +45,7 @@ public class UserServiceImpl implements UserService {
     public UserDTO add(UserAddDTO addDTO) throws UserDataException, UserTypeException, UserAlreadyExistsException, UserLoginException {
         validateLogin(addDTO.login());
         validateName(addDTO.name());
-        validateSurname(addDTO.name());
+        validateSurname(addDTO.surname());
 
         return switch (addDTO.type()) {
             case CLIENT ->

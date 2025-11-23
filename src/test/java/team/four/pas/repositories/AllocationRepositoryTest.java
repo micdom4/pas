@@ -3,6 +3,7 @@ package team.four.pas.repositories;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,7 +39,7 @@ class AllocationRepositoryTest {
     private static MongoDatabase database;
 
     @BeforeAll
-    static void each() {
+    static void beforeAll() {
         String host = compose.getServiceHost("mongo", 27017);
         Integer port = compose.getServicePort("mongo", 27017);
         String dynamicUri = "mongodb://" + host + ":" + port + "/pas";
@@ -76,6 +77,35 @@ class AllocationRepositoryTest {
         } catch (AllocationException ae) {
             fail(ae.getMessage());
         }
+    }
+
+    @Test
+    void updatePass() {
+        try {
+            Client client = (Client) userRepository.getAll().getFirst();
+            VMAllocation vmAllocation = allocationRepository.add(client, resourceRepository.getAll().getFirst(), Instant.now());
+
+            assertEquals(1, allocationRepository.getActive(client).size());
+            assertEquals(0, allocationRepository.getPast(client).size());
+
+            assertDoesNotThrow(() -> allocationRepository.finishAllocation(vmAllocation.getId()));
+
+            assertEquals(0, allocationRepository.getActive(client).size());
+            assertEquals(1, allocationRepository.getPast(client).size());
+        } catch (UserException ue) {
+            fail(ue.getMessage());
+        }
+    }
+
+    @Test
+    void updateFailInvalidId() {
+        assertThrows(AllocationIdException.class, () -> allocationRepository.finishAllocation(""));
+    }
+
+    @Test
+    void updateFailNotFound() {
+        String id = new ObjectId().toHexString();
+        assertThrows(AllocationNotFoundException.class, () -> allocationRepository.finishAllocation(id));
     }
 
     @Test
@@ -119,4 +149,25 @@ class AllocationRepositoryTest {
         }
     }
 
+    @Test
+    void deletePass() {
+        VMAllocation vmAllocation = allocationRepository.add((Client) userRepository.getAll().getFirst(), resourceRepository.getAll().getFirst(), Instant.now());
+
+        assertEquals(1, allocationRepository.getAll().size());
+
+        assertDoesNotThrow(() -> allocationRepository.delete(vmAllocation.getId()));
+
+        assertEquals(0, allocationRepository.getAll().size());
+    }
+
+    @Test
+    void deleteFailInvalidId() {
+        assertThrows(AllocationIdException.class, () -> allocationRepository.delete(""));
+    }
+
+    @Test
+    void deleteFailNotFound() {
+        String id = ObjectId.get().toHexString();
+        assertThrows(AllocationNotFoundException.class, () -> allocationRepository.delete(id));
+    }
 }

@@ -40,7 +40,7 @@ public class UserServiceTest {
 
 
     @BeforeAll
-    static void each() {
+    static void beforeAll() {
         String host = compose.getServiceHost("mongo", 27017);
         Integer port = compose.getServicePort("mongo", 27017);
         String dynamicUri = "mongodb://" + host + ":" + port + "/pas";
@@ -66,7 +66,6 @@ public class UserServiceTest {
     C
     C
      CCC  */
-
 
     @Test
     void addPassWhenFreeLogin() {
@@ -96,9 +95,9 @@ public class UserServiceTest {
         assertThrows(UserDataException.class, () -> userService.add(new UserAddDTO("BLis5", "Bart0sz", "Lis", UserType.CLIENT)));
         assertThrows(UserDataException.class, () -> userService.add(new UserAddDTO("BLis5", "Bartosz", "lis", UserType.CLIENT)));
         assertThrows(UserDataException.class, () -> userService.add(new UserAddDTO("BLis5", "Bartosz", "LiS", UserType.CLIENT)));
-        assertThrows(UserDataException.class, () -> userService.add(new UserAddDTO("bLis5", "Bartosz", "Lis", UserType.CLIENT)));
-        assertThrows(UserDataException.class, () -> userService.add(new UserAddDTO("BLis555555", "Bartosz", "Lis", UserType.CLIENT)));
-        assertThrows(UserDataException.class, () -> userService.add(new UserAddDTO("Blis55555", "Bartosz", "Lis", UserType.CLIENT)));
+        assertThrows(UserLoginException.class, () -> userService.add(new UserAddDTO("bLis5", "Bartosz", "Lis", UserType.CLIENT)));
+        assertThrows(UserLoginException.class, () -> userService.add(new UserAddDTO("BLis555555", "Bartosz", "Lis", UserType.CLIENT)));
+        assertThrows(UserLoginException.class, () -> userService.add(new UserAddDTO("Blis55555", "Bartosz", "Lis", UserType.CLIENT)));
 
         assertEquals(initialSize, userService.getAll().size());
     }

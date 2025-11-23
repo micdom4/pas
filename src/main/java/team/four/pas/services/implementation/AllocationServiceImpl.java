@@ -2,6 +2,7 @@ package team.four.pas.services.implementation;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import team.four.pas.controllers.DTOs.ResourceDTO;
 import team.four.pas.controllers.DTOs.UserDTO;
 import team.four.pas.controllers.DTOs.UserType;
 import team.four.pas.exceptions.allocation.*;
@@ -17,6 +18,7 @@ import team.four.pas.services.UserService;
 import team.four.pas.services.data.allocations.VMAllocation;
 import team.four.pas.services.data.resources.VirtualMachine;
 import team.four.pas.services.data.users.Client;
+import team.four.pas.services.mappers.ResourceToDTO;
 import team.four.pas.services.mappers.UserToDTO;
 
 import java.time.Instant;
@@ -29,6 +31,7 @@ public class AllocationServiceImpl implements AllocationService {
     private final UserService userService;
     private final ResourceService resourceService;
     private final UserToDTO userToDTO;
+    private final ResourceToDTO resourceToDTO;
 
 
     @Override
@@ -42,7 +45,7 @@ public class AllocationServiceImpl implements AllocationService {
     }
 
     @Override
-    public VMAllocation add(UserDTO client, VirtualMachine resource, Instant startTime) throws UserTypeException, InactiveClientException, ResourceAlreadyAllocatedException, ResourceIdException {
+    public VMAllocation add(UserDTO client, ResourceDTO resource, Instant startTime) throws UserTypeException, InactiveClientException, ResourceAlreadyAllocatedException, ResourceIdException {
         if (client.type() != UserType.CLIENT) {
             throw new UserTypeException("Client must be of UserType CLIENT");
         }
@@ -97,7 +100,11 @@ public class AllocationServiceImpl implements AllocationService {
     }
 
     @Override
-    public void delete(String id) {
-        //
+    public void delete(String id) throws AllocationIdException, AllocationNotFoundException, AllocationNotActiveException {
+        if (findById(id).getEndTime() == null) {
+            allocationRepository.delete(id);
+        } else {
+            throw new AllocationNotActiveException("Allocation is not active");
+        }
     }
 }

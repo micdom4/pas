@@ -5,11 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import team.four.pas.controllers.DTOs.ResourceDTO;
 import team.four.pas.controllers.DTOs.UserDTO;
-import team.four.pas.exceptions.allocation.AllocationIdException;
-import team.four.pas.exceptions.allocation.AllocationNotFoundException;
-import team.four.pas.exceptions.allocation.InactiveClientException;
-import team.four.pas.exceptions.allocation.ResourceAlreadyAllocatedException;
+import team.four.pas.exceptions.allocation.*;
 import team.four.pas.exceptions.resource.ResourceIdException;
 import team.four.pas.exceptions.resource.ResourceNotFoundException;
 import team.four.pas.exceptions.user.UserIdException;
@@ -29,15 +27,20 @@ import java.util.List;
 public class AllocationControllerImpl {
     private final @NonNull AllocationService allocationService;
 
-    @GetMapping({""})
+    @GetMapping(
+            {""}
+    )
     public List<VMAllocation> getAll() {
         return allocationService.getAll();
     }
 
-    @PostMapping(value = {""}, consumes = {"application/json"})
-    public ResponseEntity<VMAllocation> createAllocation(@RequestBody UserDTO userDTO, VirtualMachine vm) {
+    @PostMapping(
+            value = {""},
+            consumes = {"application/json"}
+    )
+    public ResponseEntity<VMAllocation> createAllocation(@RequestBody UserDTO userDTO, @RequestBody ResourceDTO resourceDTO) {
         try {
-            return ResponseEntity.status(HttpStatus.CREATED).body(allocationService.add(userDTO, vm, Instant.now()));
+            return ResponseEntity.status(HttpStatus.CREATED).body(allocationService.add(userDTO, resourceDTO, Instant.now()));
         } catch (ResourceIdException | UserTypeException e) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(null);
         } catch (InactiveClientException e) {
@@ -49,7 +52,9 @@ public class AllocationControllerImpl {
         }
     }
 
-    @GetMapping({"/past/vm/{id}"})
+    @GetMapping(
+            {"/past/vm/{id}"}
+    )
     public ResponseEntity<List<VMAllocation>> getPastVmAllocations(@PathVariable String id) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(allocationService.getPastVm(id));
@@ -62,7 +67,9 @@ public class AllocationControllerImpl {
         }
     }
 
-    @GetMapping({"/active/vm/{id}"})
+    @GetMapping(
+            {"/active/vm/{id}"}
+    )
     public ResponseEntity<List<VMAllocation>> getActiveVmAllocations(@PathVariable String id) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(allocationService.getActiveVm(id));
@@ -75,7 +82,9 @@ public class AllocationControllerImpl {
         }
     }
 
-    @GetMapping({"/active/client/{id}"})
+    @GetMapping(
+            {"/active/client/{id}"}
+    )
     public ResponseEntity<List<VMAllocation>> getActiveClientAllocations(@PathVariable String id) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(allocationService.getActiveClient(id));
@@ -88,7 +97,9 @@ public class AllocationControllerImpl {
         }
     }
 
-    @GetMapping({"/past/client/{id}"})
+    @GetMapping(
+            {"/past/client/{id}"}
+    )
     public ResponseEntity<List<VMAllocation>> getPastClientAllocations(@PathVariable String id) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(allocationService.getPastClient(id));
@@ -101,7 +112,9 @@ public class AllocationControllerImpl {
         }
     }
 
-    @PostMapping({"/{id}/finish"})
+    @PostMapping(
+            {"/{id}/finish"}
+    )
     public ResponseEntity<?> finishAllocation(@PathVariable String id) {
         try {
             allocationService.finishAllocation(id);
@@ -110,11 +123,26 @@ public class AllocationControllerImpl {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(null);
         } catch (AllocationNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
-    @DeleteMapping({"/{id}"})
-    public void deleteAllocation(@PathVariable String id) {
-        allocationService.delete(id);
+    @DeleteMapping(
+            {"/{id}"}
+    )
+    public ResponseEntity<?> deleteAllocation(@PathVariable String id) {
+        try {
+            allocationService.delete(id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        } catch (AllocationIdException e) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(null);
+        } catch (AllocationNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (AllocationNotActiveException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 }

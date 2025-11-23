@@ -19,10 +19,14 @@ public interface AllocationRepository extends Repository<VMAllocation> {
     VMAllocation add(Client client, VirtualMachine resource, Instant startTime);
 
     List<VMAllocation> getPast(VirtualMachine resource) throws ResourceIdException;
+
     List<VMAllocation> getActive(VirtualMachine resource) throws ResourceIdException;
 
     List<VMAllocation> getActive(Client client) throws UserIdException;
+
     List<VMAllocation> getPast(Client client) throws UserIdException;
 
     void finishAllocation(String allocationId) throws AllocationIdException, AllocationNotFoundException;
+
+    void delete(String allocationId) throws AllocationIdException, AllocationNotFoundException;
 }

@@ -13,17 +13,19 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import team.four.pas.Config;
 import team.four.pas.controllers.DTOs.UserAddDTO;
+import team.four.pas.controllers.DTOs.UserDTO;
 import team.four.pas.controllers.DTOs.UserType;
 import team.four.pas.exceptions.allocation.*;
+import team.four.pas.exceptions.resource.ResourceDataException;
 import team.four.pas.exceptions.resource.ResourceException;
-import team.four.pas.exceptions.user.UserException;
-import team.four.pas.exceptions.user.UserTypeException;
+import team.four.pas.exceptions.user.*;
 import team.four.pas.repositories.AllocationRepository;
 import team.four.pas.repositories.ResourceRepository;
 import team.four.pas.repositories.UserRepository;
 import team.four.pas.repositories.implementation.MongoAllocationRepository;
 import team.four.pas.services.data.allocations.VMAllocation;
 import team.four.pas.services.data.resources.VirtualMachine;
+import team.four.pas.services.data.users.Client;
 import team.four.pas.services.implementation.AllocationServiceImpl;
 import team.four.pas.services.implementation.ResourceServiceImpl;
 import team.four.pas.services.implementation.UserServiceImpl;
@@ -34,7 +36,6 @@ import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@Disabled
 @Testcontainers
 class AllocationServiceTest {
     @Container
@@ -48,7 +49,7 @@ class AllocationServiceTest {
     private static MongoDatabase database;
 
     @BeforeAll
-    static void each() {
+    static void beforeAll() {
         String host = compose.getServiceHost("mongo", 27017);
         Integer port = compose.getServicePort("mongo", 27017);
         String dynamicUri = "mongodb://" + host + ":" + port + "/pas";
@@ -80,7 +81,7 @@ class AllocationServiceTest {
      CCC  */
 
     @Test
-    void addPositive() {
+    void addPass() {
         try {
             String login = "HKwinto";
             assertNotNull(userService.add(new UserAddDTO(login, "Henryk", "Kwinto", UserType.CLIENT)));
@@ -99,7 +100,7 @@ class AllocationServiceTest {
 
 
     @Test
-    void addNegative() {
+    void addFail() {
         try {
             String login = "HKwinto";
             assertNotNull(userService.add(new UserAddDTO(login, "Henryk", "Kwinto", UserType.CLIENT)));
@@ -201,6 +202,48 @@ class AllocationServiceTest {
 
             assertEquals(0, allocationService.getActiveVm(vm.getId()).size());
             assertEquals(1, allocationService.getPastVm(vm.getId()).size());
+        } catch (UserException | ResourceException | AllocationException e) {
+            fail(e.getMessage());
+        }
+    }
+
+    @Test
+    void deletePass() {
+        try {
+            userService.add(new UserAddDTO("SGood", "Saul", "Goodman", UserType.CLIENT));
+            VirtualMachine vm = resourceService.addVM(12, 16, 256);
+            userService.activate(userService.findByLogin("SGood").id());
+
+            VMAllocation allocation = allocationService.add(userService.findByLogin("SGood"), vm, Instant.now());
+
+            assertEquals(1, allocationService.getAll().size());
+
+            assertDoesNotThrow(() -> allocationService.delete(allocation.getId()));
+
+            assertEquals(0, allocationService.getAll().size());
+        } catch (UserException | ResourceException | AllocationException e) {
+            fail(e.getMessage());
+        }
+    }
+
+    @Test
+    void deleteFail() {
+        try {
+            userService.add(new UserAddDTO("SGood", "Saul", "Goodman", UserType.CLIENT));
+            VirtualMachine vm = resourceService.addVM(12, 16, 256);
+            userService.activate(userService.findByLogin("SGood").id());
+
+            VMAllocation allocation = allocationService.add(userService.findByLogin("SGood"), vm, Instant.now());
+
+            assertEquals(1, allocationService.getAll().size());
+
+            allocationService.finishAllocation(allocation.getId());
+
+            assertEquals(1, allocationService.getPastVm(vm.getId()).size());
+
+            assertThrows(AllocationNotActiveException.class, () -> allocationService.delete(allocation.getId()));
+
+            assertEquals(1, allocationService.getAll().size());
         } catch (UserException | ResourceException | AllocationException e) {
             fail(e.getMessage());
         }

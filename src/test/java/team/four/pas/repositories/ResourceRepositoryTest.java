@@ -170,12 +170,12 @@ class ResourceRepositoryTest {
     }
 
     @Test
-    void deleteFailNoId() {
+    void deleteFailInvalidId() {
         assertThrows(ResourceIdException.class, () -> resourceRepository.delete(""));
     }
 
     @Test
-    void deleteFailInvalidId() {
+    void deleteFailNotFound() {
         String id = new ObjectId().toHexString();
         assertThrows(ResourceNotFoundException.class, () -> resourceRepository.delete(id));
     }

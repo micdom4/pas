@@ -4,6 +4,7 @@ import com.mongodb.MongoException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
+import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.InsertOneResult;
 import com.mongodb.client.result.UpdateResult;
 import org.bson.conversions.Bson;
@@ -182,7 +183,26 @@ public class MongoAllocationRepository implements AllocationRepository {
         if (result.getModifiedCount() == 0) {
             throw new AllocationNotFoundException("No Allocation found with ID: " + id);
         } else if (result.getModifiedCount() != 1) {
-            throw new MongoException("Error while finishing allocation with ID = " + id);
+            throw new MongoException("Error while finishing allocation with ID: " + id);
+        }
+    }
+
+    @Override
+    public void delete(String allocationId) throws AllocationIdException, AllocationNotFoundException {
+        ObjectId objectId = idMapper.stringToObjectId(allocationId);
+
+        if (objectId == null) {
+            throw new AllocationIdException("Allocation ID cannot be empty");
+        }
+
+        Bson filter = Filters.eq("_id", objectId);
+
+        DeleteResult result = allocationCollection.deleteOne(filter);
+
+        if (result.getDeletedCount() == 0) {
+            throw new AllocationNotFoundException("No Allocation found with ID: " + allocationId);
+        } else if (result.getDeletedCount() != 1) {
+            throw new MongoException("Error while deleting allocation with ID: " + allocationId);
         }
     }
 

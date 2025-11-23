@@ -33,7 +33,7 @@ import static org.junit.Assert.fail;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @Testcontainers
-class UserControllerImplTest {
+class UserControllerTest {
 
     @Container
     public static DockerComposeContainer<?> compose =

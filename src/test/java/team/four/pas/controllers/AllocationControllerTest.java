@@ -6,6 +6,7 @@ import io.restassured.RestAssured;
 import org.bson.Document;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -19,6 +20,7 @@ import team.four.pas.Config;
 import team.four.pas.controllers.DTOs.UserAddDTO;
 import team.four.pas.controllers.DTOs.UserDTO;
 import team.four.pas.controllers.DTOs.UserType;
+import team.four.pas.exceptions.resource.ResourceDataException;
 import team.four.pas.exceptions.user.UserException;
 import team.four.pas.repositories.AllocationRepository;
 import team.four.pas.repositories.ResourceRepository;
@@ -42,7 +44,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @Testcontainers
-class AllocationControllerImplTest {
+class AllocationControllerTest {
 
     @Container
     public static DockerComposeContainer<?> compose =
@@ -64,7 +66,7 @@ class AllocationControllerImplTest {
     }
 
     @BeforeAll
-    static void each() {
+    static void beforeAll() {
         context = new AnnotationConfigApplicationContext(Config.class);
         AllocationRepository allocationRepository = context.getBean(AllocationRepository.class);
         ResourceRepository resourceRepository = context.getBean(ResourceRepository.class);
@@ -84,20 +86,25 @@ class AllocationControllerImplTest {
         database.getCollection("vmAllocations").deleteMany(new Document());
     }
 
+    @BeforeEach
+    void beforeEach() {
+        try {
+            userService.add(new UserAddDTO("MCorleone", "Michael", "Corleone", UserType.CLIENT));
+            resourceService.addVM(8, 16, 256);
+        } catch (UserException | ResourceDataException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     @Test
     void getAll() {
         try {
-            String login = "HKwinto";
-            assertDoesNotThrow(() -> userService.add(new UserAddDTO(login, "Henryk", "Kwinto", UserType.CLIENT)));
-
-            assertDoesNotThrow(() -> resourceService.addVM(8, 16, 256));
-
-            assertEquals(1, resourceService.getAll().size());
-
             VirtualMachine virtualMachine = resourceService.getAll().getLast();
-            userService.activate(userService.findByLogin(login).id());
+            userService.activate(userService.getAll().getLast().id());
             UserDTO userDTO = userService.getAll().getLast();
+
+            assertEquals(0, allocationService.getAll().size());
 
             assertDoesNotThrow(() -> allocationService.add(userDTO, virtualMachine, Instant.now()));
 
@@ -116,4 +123,10 @@ class AllocationControllerImplTest {
         }
     }
 
+    @Test
+    void createAllocationPass() {
+        try {
+
+        }
+    }
 }
