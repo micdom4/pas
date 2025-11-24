@@ -46,13 +46,7 @@ public class MongoResourceRepository implements ResourceRepository {
 
     @Override
     public VirtualMachine updateVM(String id, int cpuNumber, int ram, int storage) throws ResourceNotFoundException, ResourceIdException {
-        ObjectId objectId;
-
-        objectId = idMapper.stringToObjectId(id);
-
-        if (objectId == null) {
-            throw new ResourceIdException("Invalid ID: " + id);
-        }
+        ObjectId objectId = getObjectId(id);
 
         Bson filter = Filters.eq("_id", objectId);
 
@@ -84,12 +78,7 @@ public class MongoResourceRepository implements ResourceRepository {
 
     @Override
     public VirtualMachine findById(String id) throws ResourceNotFoundException, ResourceIdException {
-        ObjectId objectId;
-
-        objectId = idMapper.stringToObjectId(id);
-        if (objectId == null) {
-            throw new ResourceIdException("Invalid id: " + id);
-        }
+        ObjectId objectId = getObjectId(id);
 
         Bson filter = Filters.eq("_id", objectId);
 
@@ -104,12 +93,7 @@ public class MongoResourceRepository implements ResourceRepository {
 
     @Override
     public void delete(String id) throws ResourceNotFoundException, ResourceIdException {
-        ObjectId objectId;
-
-        objectId = idMapper.stringToObjectId(id);
-        if (objectId == null) {
-            throw new ResourceIdException("Invalid ID: " + id);
-        }
+        ObjectId objectId = getObjectId(id);
 
         Bson filter = Filters.eq("_id", objectId);
 
@@ -120,5 +104,21 @@ public class MongoResourceRepository implements ResourceRepository {
         } else if (result.getDeletedCount() != 1) {
             throw new MongoException("Error while deleting VM " + id);
         }
+    }
+
+    private ObjectId getObjectId(String id) throws ResourceIdException {
+        ObjectId objectId;
+
+        try {
+            objectId = idMapper.stringToObjectId(id);
+        } catch (IllegalArgumentException e) {
+            throw new ResourceIdException("Invalid ID: " + id);
+        }
+
+        if (objectId == null) {
+            throw new ResourceIdException("Invalid ID: " + id);
+        }
+
+        return objectId;
     }
 }

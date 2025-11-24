@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import team.four.pas.controllers.DTOs.AllocationAddDTO;
 import team.four.pas.controllers.DTOs.ResourceDTO;
 import team.four.pas.controllers.DTOs.UserDTO;
 import team.four.pas.exceptions.allocation.*;
@@ -15,7 +16,6 @@ import team.four.pas.exceptions.user.UserNotFoundException;
 import team.four.pas.exceptions.user.UserTypeException;
 import team.four.pas.services.AllocationService;
 import team.four.pas.services.data.allocations.VMAllocation;
-import team.four.pas.services.data.resources.VirtualMachine;
 
 import java.time.Instant;
 import java.util.List;
@@ -30,15 +30,36 @@ public class AllocationControllerImpl {
     @GetMapping(
             {""}
     )
-    public List<VMAllocation> getAll() {
-        return allocationService.getAll();
+    public ResponseEntity<List<VMAllocation>> getAll() {
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(allocationService.getAll());
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    @GetMapping(
+            {"/{id}"}
+    )
+    public ResponseEntity<VMAllocation> getById(@PathVariable String id) {
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(allocationService.findById(id));
+        } catch (AllocationIdException e) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(null);
+        } catch (AllocationNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
     @PostMapping(
             value = {""},
             consumes = {"application/json"}
     )
-    public ResponseEntity<VMAllocation> createAllocation(@RequestBody UserDTO userDTO, @RequestBody ResourceDTO resourceDTO) {
+    public ResponseEntity<VMAllocation> createAllocation(@RequestBody AllocationAddDTO addDTO) {
+        UserDTO userDTO = addDTO.client();
+        ResourceDTO resourceDTO = addDTO.vm();
         try {
             return ResponseEntity.status(HttpStatus.CREATED).body(allocationService.add(userDTO, resourceDTO, Instant.now()));
         } catch (ResourceIdException | UserTypeException e) {
@@ -112,7 +133,7 @@ public class AllocationControllerImpl {
         }
     }
 
-    @PostMapping(
+    @PutMapping(
             {"/{id}/finish"}
     )
     public ResponseEntity<?> finishAllocation(@PathVariable String id) {

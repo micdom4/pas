@@ -3,6 +3,7 @@ package team.four.pas.services;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -175,9 +176,14 @@ class AllocationServiceTest {
     }
 
     @Test
-    void findByIdFail() {
+    void findByIdFailInvalidId() {
         assertThrows(AllocationIdException.class, () -> allocationService.findById(""));
-        assertThrows(AllocationNotFoundException.class, () -> allocationService.findById("notfound"));
+        assertThrows(AllocationIdException.class, () -> allocationService.findById("wrongID"));
+    }
+
+    @Test
+    void findByIdFailNotFound() {
+        assertThrows(AllocationNotFoundException.class, () -> allocationService.findById(ObjectId.get().toHexString()));
     }
 
     @Test

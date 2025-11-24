@@ -95,10 +95,7 @@ public class MongoUserRepository implements UserRepository {
 
     @Override
     public User update(String id, String surname) throws UserNotFoundException, UserIdException {
-        ObjectId objectId = idMapper.stringToObjectId(id);
-        if (objectId == null) {
-            throw new UserIdException("User ID cannot be empty");
-        }
+        ObjectId objectId = getObjectId(id);
 
         Bson filter = Filters.eq("_id", objectId);
         Bson update = Updates.set("surname", surname);
@@ -113,10 +110,7 @@ public class MongoUserRepository implements UserRepository {
 
     @Override
     public void activate(String id) throws UserNotFoundException, UserIdException {
-        ObjectId objectId = idMapper.stringToObjectId(id);
-        if (objectId == null) {
-            throw new UserIdException("Empty login provided");
-        }
+        ObjectId objectId = getObjectId(id);
 
         Bson filter = Filters.eq("_id", objectId);
         Bson update = Updates.set("active", true);
@@ -132,10 +126,7 @@ public class MongoUserRepository implements UserRepository {
 
     @Override
     public void deactivate(String id) throws UserNotFoundException, UserIdException {
-        ObjectId objectId = idMapper.stringToObjectId(id);
-        if (objectId == null) {
-            throw new UserIdException("Empty login provided");
-        }
+        ObjectId objectId = getObjectId(id);
 
         Bson filter = Filters.eq("_id", objectId);
         Bson update = Updates.set("active", false);
@@ -158,10 +149,7 @@ public class MongoUserRepository implements UserRepository {
 
     @Override
     public User findById(String id) throws UserIdException, UserNotFoundException {
-        ObjectId objectId = idMapper.stringToObjectId(id);
-        if (objectId == null) {
-            throw new UserIdException("User ID cannot be empty");
-        }
+        ObjectId objectId = getObjectId(id);
 
         Bson filter = Filters.eq("_id", objectId);
         UserEntity entity = userCollection.find(filter).first();
@@ -171,5 +159,21 @@ public class MongoUserRepository implements UserRepository {
         }
 
         return mapper.toData(entity);
+    }
+
+    private ObjectId getObjectId(String id) throws UserIdException {
+        ObjectId objectId;
+
+        try {
+            objectId = idMapper.stringToObjectId(id);
+        } catch (IllegalArgumentException e) {
+            throw new UserIdException("Invalid user ID: " + id);
+        }
+
+        if (objectId == null) {
+            throw new UserIdException("User ID cannot be empty");
+        }
+
+        return objectId;
     }
 }

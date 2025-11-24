@@ -50,7 +50,7 @@ public class AllocationServiceImpl implements AllocationService {
         }
 
         if (!client.active()) {
-            throw new InactiveClientException("Client must be active in order to allocate a resource");
+            throw new InactiveClientException("Client must be active in order to allocate a vm");
         }
 
         if (allocationRepository.getActive(resourceToDTO.vmFromDTO(resource)).isEmpty()) {

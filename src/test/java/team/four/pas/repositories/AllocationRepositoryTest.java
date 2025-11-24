@@ -124,8 +124,9 @@ class AllocationRepositoryTest {
 
     @Test
     void findByIdFail() {
-        assertThrows(AllocationNotFoundException.class, () -> allocationRepository.findById("notfound"));
+        assertThrows(AllocationNotFoundException.class, () -> allocationRepository.findById(ObjectId.get().toHexString()));
 
+        assertThrows(AllocationIdException.class, () -> allocationRepository.findById("wrongID"));
         assertThrows(AllocationIdException.class, () -> allocationRepository.findById(""));
         assertThrows(AllocationIdException.class, () -> allocationRepository.findById(null));
     }

@@ -54,11 +54,7 @@ public class MongoAllocationRepository implements AllocationRepository {
     @Override
     public VMAllocation findById(String id) throws AllocationIdException, AllocationNotFoundException {
         try {
-            ObjectId objectId = idMapper.stringToObjectId(id);
-            if (objectId == null) {
-                throw new AllocationIdException("Allocation ID cannot be empty");
-            }
-
+            ObjectId objectId = getObjectId(id);
 
             Bson filter = Filters.eq("_id", objectId);
             VMAllocationEntity entity = allocationCollection.find(filter).first();
@@ -170,11 +166,7 @@ public class MongoAllocationRepository implements AllocationRepository {
 
     @Override
     public void finishAllocation(String id) throws AllocationIdException, AllocationNotFoundException {
-        ObjectId objectId = idMapper.stringToObjectId(id);
-
-        if (objectId == null) {
-            throw new AllocationIdException("Allocation ID cannot be empty");
-        }
+        ObjectId objectId = getObjectId(id);
 
         Bson filter = Filters.eq("_id", objectId);
         Bson update = Updates.set("endTime", Instant.now());
@@ -189,11 +181,7 @@ public class MongoAllocationRepository implements AllocationRepository {
 
     @Override
     public void delete(String allocationId) throws AllocationIdException, AllocationNotFoundException {
-        ObjectId objectId = idMapper.stringToObjectId(allocationId);
-
-        if (objectId == null) {
-            throw new AllocationIdException("Allocation ID cannot be empty");
-        }
+        ObjectId objectId = getObjectId(allocationId);
 
         Bson filter = Filters.eq("_id", objectId);
 
@@ -204,6 +192,21 @@ public class MongoAllocationRepository implements AllocationRepository {
         } else if (result.getDeletedCount() != 1) {
             throw new MongoException("Error while deleting allocation with ID: " + allocationId);
         }
+    }
+
+    private ObjectId getObjectId(String id) throws AllocationIdException {
+        ObjectId objectId;
+        try {
+            objectId = idMapper.stringToObjectId(id);
+        } catch (IllegalArgumentException e) {
+            throw new AllocationIdException(e.getMessage());
+        }
+
+        if (objectId == null) {
+            throw new AllocationIdException("Allocation ID cannot be empty");
+        }
+
+        return objectId;
     }
 
 }

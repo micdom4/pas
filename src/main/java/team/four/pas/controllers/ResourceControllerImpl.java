@@ -24,7 +24,7 @@ import java.util.List;
         produces = {"application/json"}
 )
 @RequiredArgsConstructor
-public class ResourceControllerImpl implements ResourceController {
+public class ResourceControllerImpl {
     @NonNull
     private final ResourceService resourceService;
 

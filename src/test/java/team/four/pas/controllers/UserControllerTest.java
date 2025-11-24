@@ -18,6 +18,7 @@ import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import team.four.pas.controllers.DTOs.UserAddDTO;
+import team.four.pas.controllers.DTOs.UserModDTO;
 import team.four.pas.controllers.DTOs.UserType;
 import team.four.pas.exceptions.user.UserException;
 import team.four.pas.services.UserService;
@@ -26,6 +27,8 @@ import java.io.File;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -129,6 +132,27 @@ public class UserControllerTest {
         }
     }
 
+    @Test
+    void findByLoginPass() {
+        assertDoesNotThrow(() -> userService.add(new UserAddDTO("BLis", "Bartosz", "Lis", UserType.ADMIN)));
+
+        RestAssured.given()
+                .when()
+                .get("/users/login/{login}", "BLis")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .log().body()
+                .body("login", equalTo("BLis"));
+    }
+
+    @Test
+    void findByLoginFail() {
+        RestAssured.given()
+                .when()
+                .get("/users/login/{login}", "BLis")
+                .then()
+                .statusCode(HttpStatus.NOT_FOUND.value());
+    }
 
     @Test
     void activateDeactivateUser() {
@@ -246,6 +270,33 @@ public class UserControllerTest {
                 .then()
                 .log().body()
                 .statusCode(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
+    void editUserPass() {
+        try {
+            assertDoesNotThrow(() -> userService.add(new UserAddDTO("ASkywalker", "Anakin", "Skywalker", UserType.MANAGER)));
+            String login = "ASkywalker";
+
+            assertEquals("Skywalker", userService.findByLogin(login).surname());
+
+            UserModDTO mod = new UserModDTO(userService.findByLogin(login).id(), "Vader");
+
+            RestAssured.given()
+                    .contentType(ContentType.JSON)
+                    .body(mod)
+                    .log().body()
+                    .when()
+                    .put("users/{id}", userService.findByLogin(login).id())
+                    .then()
+                    .log().body()
+                    .statusCode(HttpStatus.OK.value())
+                    .body("surname", equalTo("Vader"));
+
+            assertEquals("Vader", userService.findByLogin(login).surname());
+        } catch (UserException e) {
+            fail(e.getMessage());
+        }
     }
 
 }

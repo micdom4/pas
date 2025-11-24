@@ -168,7 +168,12 @@ class UserRepositoryTest {
 
     @Test
     void updateFailWrongId() {
-        assertThrows(IllegalArgumentException.class, () -> userRepository.update("123231", "Lis-Nowak"));
+        assertThrows(UserIdException.class, () -> userRepository.update("123231", "Lis-Nowak"));
+    }
+
+    @Test
+    void updateFailNotFound() {
+        assertThrows(UserNotFoundException.class, () -> userRepository.update(ObjectId.get().toHexString(), "Lis-Nowak"));
     }
 
     @Test

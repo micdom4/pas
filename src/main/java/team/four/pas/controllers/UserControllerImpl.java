@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import team.four.pas.controllers.DTOs.UserAddDTO;
 import team.four.pas.controllers.DTOs.UserDTO;
+import team.four.pas.controllers.DTOs.UserModDTO;
 import team.four.pas.exceptions.user.*;
 import team.four.pas.services.UserService;
 
@@ -49,7 +50,7 @@ public class UserControllerImpl {
                     .body(null);
         } catch (UserIdException e) {
             return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
+                    .status(HttpStatus.UNPROCESSABLE_ENTITY)
                     .body(null);
         } catch (RuntimeException e) {
             return ResponseEntity
@@ -99,7 +100,7 @@ public class UserControllerImpl {
                     .body(null);
         } catch (UserIdException e) {
             return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
+                    .status(HttpStatus.UNPROCESSABLE_ENTITY)
                     .body(null);
         } catch (RuntimeException e) {
             return ResponseEntity
@@ -121,7 +122,7 @@ public class UserControllerImpl {
                     .body(null);
         } catch (UserIdException e) {
             return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
+                    .status(HttpStatus.UNPROCESSABLE_ENTITY)
                     .body(null);
         } catch (RuntimeException e) {
             return ResponseEntity
@@ -162,16 +163,20 @@ public class UserControllerImpl {
             value = {"/{id}"},
             consumes = {"application/json"}
     )
-    public ResponseEntity<?> editUser(@PathVariable String id, @RequestBody String surname) {
+    public ResponseEntity<?> editUser(@PathVariable String id, @RequestBody UserModDTO modDTO) {
         try {
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(userService.update(id, surname));
+                    .body(userService.update(id, modDTO.surname()));
         } catch (UserNotFoundException e) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
                     .body(null);
-        } catch (UserIdException | UserDataException e) {
+        } catch (UserIdException e) {
+            return  ResponseEntity
+                    .status(HttpStatus.UNPROCESSABLE_ENTITY)
+                    .body(null);
+        } catch (UserDataException e) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body(null);
