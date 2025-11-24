@@ -33,8 +33,8 @@ public class MongoResourceRepository implements ResourceRepository {
     }
 
     @Override
-    public VirtualMachine addVM(int cpuNumber, int ram, int memory) {
-        VirtualMachineEntity newVM = new VirtualMachineEntity(null, cpuNumber, ram, memory);
+    public VirtualMachine addVM(int cpuNumber, int ram, int storage) {
+        VirtualMachineEntity newVM = new VirtualMachineEntity(null, cpuNumber, ram, storage);
 
         InsertOneResult result = resourceCollection.insertOne(newVM);
         ObjectId id = Objects.requireNonNull(result.getInsertedId()).asObjectId().getValue();
@@ -45,7 +45,7 @@ public class MongoResourceRepository implements ResourceRepository {
     }
 
     @Override
-    public VirtualMachine updateVM(String id, int cpuNumber, int ram, int memory) throws ResourceNotFoundException, ResourceIdException {
+    public VirtualMachine updateVM(String id, int cpuNumber, int ram, int storage) throws ResourceNotFoundException, ResourceIdException {
         ObjectId objectId;
 
         objectId = idMapper.stringToObjectId(id);
@@ -59,7 +59,7 @@ public class MongoResourceRepository implements ResourceRepository {
         Bson update = Updates.combine(
                 Updates.set("cpuNumber", cpuNumber),
                 Updates.set("ramGiB", ram),
-                Updates.set("storageGiB", memory)
+                Updates.set("storageGiB", storage)
         );
 
         UpdateResult result = resourceCollection.updateOne(filter, update);

@@ -6,34 +6,24 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.bson.Document;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import team.four.pas.Config;
-import team.four.pas.controllers.DTOs.UserAddDTO;
-import team.four.pas.controllers.DTOs.UserDTO;
-import team.four.pas.controllers.DTOs.UserType;
+import team.four.pas.controllers.DTOs.*;
 import team.four.pas.exceptions.allocation.AllocationException;
 import team.four.pas.exceptions.resource.ResourceException;
 import team.four.pas.exceptions.user.UserException;
-import team.four.pas.repositories.AllocationRepository;
-import team.four.pas.repositories.ResourceRepository;
-import team.four.pas.repositories.UserRepository;
 import team.four.pas.services.AllocationService;
 import team.four.pas.services.ResourceService;
 import team.four.pas.services.UserService;
-import team.four.pas.services.data.resources.VirtualMachine;
-import team.four.pas.services.implementation.AllocationServiceImpl;
-import team.four.pas.services.implementation.ResourceServiceImpl;
-import team.four.pas.services.implementation.UserServiceImpl;
-import team.four.pas.services.mappers.UserToDTO;
 
 import java.io.File;
 import java.time.Instant;
@@ -44,20 +34,28 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.junit.Assert.*;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
 public class ResourceControllerTest {
+
     @Container
     public static DockerComposeContainer<?> compose =
             new DockerComposeContainer<>(new File("src/test/resources/docker-compose.yml"))
                     .withExposedService("mongo", 27017);
 
-    private static AnnotationConfigApplicationContext context;
+    @LocalServerPort
+    private int port;
 
-    private static ResourceService resourceService;
-    private static AllocationService allocationService;
-    private static UserService userService;
-    private static MongoDatabase database;
+    @Autowired
+    private ResourceService resourceService;
+    @Autowired
+    private AllocationService allocationService;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private MongoClient mongoClient;
+
+    private MongoDatabase database;
 
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
@@ -67,18 +65,11 @@ public class ResourceControllerTest {
         System.setProperty("pas.data.mongodb.uri", dynamicUri);
     }
 
-    @BeforeAll
-    static void each() {
-        context = new AnnotationConfigApplicationContext(Config.class);
+    @BeforeEach
+    void beforeEach() {
+        RestAssured.port = port;
 
-        ResourceRepository resourceRepository = context.getBean(ResourceRepository.class);
-        AllocationRepository allocationRepository = context.getBean(AllocationRepository.class);
-        UserRepository userRepository = context.getBean(UserRepository.class);
-
-        userService = new UserServiceImpl(userRepository, context.getBean(UserToDTO.class));
-        resourceService = new ResourceServiceImpl(resourceRepository, allocationRepository);
-        allocationService = new AllocationServiceImpl(allocationRepository, userService, resourceService, context.getBean(UserToDTO.class));
-        database = context.getBean(MongoClient.class).getDatabase("pas");
+        this.database = mongoClient.getDatabase("pas");
     }
 
     @AfterEach
@@ -91,7 +82,7 @@ public class ResourceControllerTest {
     @Test
     void getAll() {
         try {
-            resourceService.addVM(2, 4, 50);
+            resourceService.addVM(new ResourceAddDTO(2, 4, 50));
         } catch (ResourceException e) {
             fail(e.getMessage());
         }
@@ -108,9 +99,9 @@ public class ResourceControllerTest {
     @Test
     void createPositiveVM() {
         Map<String, Integer> requestBody = new HashMap<>();
-        requestBody.put("cpus", 2);
-        requestBody.put("ram", 4);
-        requestBody.put("memory", 50);
+        requestBody.put("cpuNumber", 2);
+        requestBody.put("ramGiB", 4);
+        requestBody.put("storageGiB", 50);
 
         RestAssured.given()
                 .contentType(ContentType.JSON)
@@ -129,9 +120,9 @@ public class ResourceControllerTest {
     @Test
     void createNegativeVM() {
         Map<String, Integer> requestBody = new HashMap<>();
-        requestBody.put("cpus", -2);
-        requestBody.put("ram", 4);
-        requestBody.put("memory", 50);
+        requestBody.put("cpuNumber", -2);
+        requestBody.put("ramGiB", 4);
+        requestBody.put("storageGiB", 50);
 
         RestAssured.given()
                 .contentType(ContentType.JSON)
@@ -147,28 +138,28 @@ public class ResourceControllerTest {
     @Test
     void updatePositiveVM() {
         try {
-            resourceService.addVM(2, 4, 50);
-            VirtualMachine vm = resourceService.getAll().getLast();
+            resourceService.addVM(new ResourceAddDTO(2, 4, 50));
+            ResourceDTO vm = resourceService.getAll().getLast();
 
             RestAssured.given()
                     .when()
-                    .get("/resources/{vm}", vm.getId())
+                    .get("/resources/{vm}", vm.id())
                     .then()
                     .log().body()
                     .statusCode(HttpStatus.OK.value())
                     .body("cpuNumber", equalTo(2));
 
             Map<String, Integer> requestBody = new HashMap<>();
-            requestBody.put("cpus", 10);
-            requestBody.put("ram", 4);
-            requestBody.put("memory", 50);
+            requestBody.put("cpuNumber", 10);
+            requestBody.put("ramGiB", 4);
+            requestBody.put("storageGiB", 50);
 
             RestAssured.given()
                     .contentType(ContentType.JSON)
                     .body(requestBody)
                     .log().body()
                     .when()
-                    .put("/resources/{vm}", vm.getId())
+                    .put("/resources/{vm}", vm.id())
                     .then()
                     .statusCode(HttpStatus.OK.value())
                     .log().body()
@@ -176,7 +167,7 @@ public class ResourceControllerTest {
 
             RestAssured.given()
                     .when()
-                    .get("/resources/{vm}", vm.getId())
+                    .get("/resources/{vm}", vm.id())
                     .then()
                     .log().body()
                     .statusCode(HttpStatus.OK.value())
@@ -189,34 +180,34 @@ public class ResourceControllerTest {
     @Test
     void updateNegativeVM() {
         try {
-            resourceService.addVM(2, 4, 50);
-            VirtualMachine vm = resourceService.getAll().getLast();
+            resourceService.addVM(new ResourceAddDTO(2, 4, 50));
+            ResourceDTO vm = resourceService.getAll().getLast();
 
             RestAssured.given()
                     .when()
-                    .get("/resources/{vm}", vm.getId())
+                    .get("/resources/{vm}", vm.id())
                     .then()
                     .log().body()
                     .statusCode(HttpStatus.OK.value())
                     .body("cpuNumber", equalTo(2));
 
             Map<String, Integer> requestBody = new HashMap<>();
-            requestBody.put("cpus", -10);
-            requestBody.put("ram", 4);
-            requestBody.put("memory", 50);
+            requestBody.put("cpuNumber", -10);
+            requestBody.put("ramGiB", 4);
+            requestBody.put("storageGiB", 50);
 
             RestAssured.given()
                     .contentType(ContentType.JSON)
                     .body(requestBody)
                     .log().body()
                     .when()
-                    .put("/resources/{vm}", vm.getId())
+                    .put("/resources/{vm}", vm.id())
                     .then()
                     .statusCode(HttpStatus.BAD_REQUEST.value());
 
             RestAssured.given()
                     .when()
-                    .get("/resources/{vm}", vm.getId())
+                    .get("/resources/{vm}", vm.id())
                     .then()
                     .log().body()
                     .statusCode(HttpStatus.OK.value())
@@ -229,12 +220,12 @@ public class ResourceControllerTest {
     @Test
     void deletePositiveVM() {
         try {
-            resourceService.addVM(2, 4, 50);
-            VirtualMachine vm = resourceService.getAll().getLast();
+            resourceService.addVM(new ResourceAddDTO(2, 4, 50));
+            ResourceDTO vm = resourceService.getAll().getLast();
 
             RestAssured.given()
                     .when()
-                    .delete("/resources/{vm}", vm.getId())
+                    .delete("/resources/{vm}", vm.id())
                     .then()
                     .statusCode(HttpStatus.NO_CONTENT.value());
 
@@ -247,17 +238,17 @@ public class ResourceControllerTest {
     @Test
     void deleteNegativeVM() {
         try {
-            resourceService.addVM(2, 4, 50);
+            resourceService.addVM(new ResourceAddDTO(2, 4, 50));
             UserDTO client = userService.add(new UserAddDTO("BLis", "Bartosz", "Lis", UserType.CLIENT));
             userService.activate(client.id());
             client = userService.findByLogin("BLis");
-            VirtualMachine vm = resourceService.getAll().getLast();
+            ResourceDTO vm = resourceService.getAll().getLast();
             allocationService.add(client, vm, Instant.now());
 
 
             RestAssured.given()
                     .when()
-                    .delete("/resources/{vm}", vm.getId())
+                    .delete("/resources/{vm}", vm.id())
                     .then()
                     .statusCode(HttpStatus.FORBIDDEN.value());
 

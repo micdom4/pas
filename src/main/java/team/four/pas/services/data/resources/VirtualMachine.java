@@ -2,7 +2,6 @@ package team.four.pas.services.data.resources;
 import lombok.*;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import team.four.pas.services.data.allocations.VMAllocation;
 
 @Getter @Setter @NoArgsConstructor
 @AllArgsConstructor

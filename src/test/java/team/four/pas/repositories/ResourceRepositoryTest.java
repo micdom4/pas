@@ -35,7 +35,7 @@ class ResourceRepositoryTest {
     private static MongoDatabase database;
 
     @BeforeAll
-    static void each() {
+    static void beforeAll() {
         String host = compose.getServiceHost("mongo", 27017);
         Integer port = compose.getServicePort("mongo", 27017);
         String dynamicUri = "mongodb://" + host + ":" + port + "/pas";

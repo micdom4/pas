@@ -11,18 +11,23 @@ import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import team.four.pas.Config;
+import team.four.pas.controllers.DTOs.ResourceAddDTO;
+import team.four.pas.controllers.DTOs.ResourceDTO;
 import team.four.pas.controllers.DTOs.UserAddDTO;
 import team.four.pas.controllers.DTOs.UserType;
 import team.four.pas.exceptions.allocation.AllocationException;
-import team.four.pas.exceptions.resource.*;
+import team.four.pas.exceptions.resource.ResourceDataException;
+import team.four.pas.exceptions.resource.ResourceException;
+import team.four.pas.exceptions.resource.ResourceNotFoundException;
+import team.four.pas.exceptions.resource.ResourceStillAllocatedException;
 import team.four.pas.exceptions.user.UserException;
 import team.four.pas.repositories.AllocationRepository;
 import team.four.pas.repositories.ResourceRepository;
 import team.four.pas.repositories.UserRepository;
-import team.four.pas.services.data.resources.VirtualMachine;
 import team.four.pas.services.implementation.AllocationServiceImpl;
 import team.four.pas.services.implementation.ResourceServiceImpl;
 import team.four.pas.services.implementation.UserServiceImpl;
+import team.four.pas.services.mappers.ResourceToDTO;
 import team.four.pas.services.mappers.UserToDTO;
 
 import java.io.File;
@@ -57,8 +62,8 @@ public class ResourceServiceTest {
         ResourceRepository resourceRepository = context.getBean(ResourceRepository.class);
         AllocationRepository allocationRepository = context.getBean(AllocationRepository.class);
 
-        resourceService = new ResourceServiceImpl(resourceRepository, allocationRepository);
-        allocationService = new AllocationServiceImpl(allocationRepository, userService, resourceService, context.getBean(UserToDTO.class));
+        resourceService = new ResourceServiceImpl(resourceRepository, allocationRepository, context.getBean(ResourceToDTO.class));
+        allocationService = new AllocationServiceImpl(allocationRepository, userService, resourceService, context.getBean(UserToDTO.class), context.getBean(ResourceToDTO.class));
         userService = new UserServiceImpl(context.getBean(UserRepository.class), context.getBean(UserToDTO.class));
 
         database = context.getBean(MongoClient.class).getDatabase("pas");
@@ -81,12 +86,12 @@ public class ResourceServiceTest {
     @Test
     void addPositive() {
         try {
-            resourceService.addVM(5, 12, 10);
-            resourceService.addVM(5, 11, 10);
+            resourceService.addVM(new ResourceAddDTO(5, 12, 10));
+            resourceService.addVM(new ResourceAddDTO(5, 11, 10));
 
             assertEquals(2, resourceService.getAll().size());
 
-            assertNotNull(resourceService.addVM(5, 12, 10));
+            assertNotNull(resourceService.addVM(new ResourceAddDTO(5, 12, 10)));
 
             assertEquals(3, resourceService.getAll().size());
         } catch (ResourceException e) {
@@ -97,18 +102,18 @@ public class ResourceServiceTest {
     @Test
     void addNegative() {
         try {
-            resourceService.addVM(5, 12, 10);
-            resourceService.addVM(5, 11, 10);
+            resourceService.addVM(new ResourceAddDTO(5, 12, 10));
+            resourceService.addVM(new ResourceAddDTO(5, 11, 10));
 
             assertEquals(2, resourceService.getAll().size());
 
-            assertThrows(ResourceDataException.class, () -> resourceService.addVM(-5, 12, 10));
-            assertThrows(ResourceDataException.class, () -> resourceService.addVM(5, -12, 10));
-            assertThrows(ResourceDataException.class, () -> resourceService.addVM(5, 12, -10));
-            assertThrows(ResourceDataException.class, () -> resourceService.addVM(500, 12, 10));
-            assertThrows(ResourceDataException.class, () -> resourceService.addVM(5, 2048, 10));
-            assertThrows(ResourceDataException.class, () -> resourceService.addVM(5, 12, 10000000));
-            assertThrows(ResourceDataException.class, () -> resourceService.addVM(0, 0, 0));
+            assertThrows(ResourceDataException.class, () -> resourceService.addVM(new ResourceAddDTO(-5, 12, 10)));
+            assertThrows(ResourceDataException.class, () -> resourceService.addVM(new ResourceAddDTO(5, -12, 10)));
+            assertThrows(ResourceDataException.class, () -> resourceService.addVM(new ResourceAddDTO(5, 12, -10)));
+            assertThrows(ResourceDataException.class, () -> resourceService.addVM(new ResourceAddDTO(500, 12, 10)));
+            assertThrows(ResourceDataException.class, () -> resourceService.addVM(new ResourceAddDTO(5, 2048, 10)));
+            assertThrows(ResourceDataException.class, () -> resourceService.addVM(new ResourceAddDTO(5, 12, 10000000)));
+            assertThrows(ResourceDataException.class, () -> resourceService.addVM(new ResourceAddDTO(0, 0, 0)));
 
             assertEquals(2, resourceService.getAll().size());
         } catch (ResourceException e) {
@@ -125,9 +130,9 @@ public class ResourceServiceTest {
     @Test
     void findById() {
         try {
-            resourceService.addVM(5, 12, 10);
-            VirtualMachine resource = resourceService.getAll().getFirst();
-            assertEquals(resource, resourceService.findById(resource.getId()));
+            resourceService.addVM(new ResourceAddDTO(5, 12, 10));
+            ResourceDTO resource = resourceService.getAll().getFirst();
+            assertEquals(resource, resourceService.findById(resource.id()));
         } catch (ResourceException e) {
             fail(e.getMessage());
         }
@@ -136,8 +141,8 @@ public class ResourceServiceTest {
     @Test
     void findAll() {
         try {
-            resourceService.addVM(5, 12, 10);
-            resourceService.addVM(5, 12, 10);
+            resourceService.addVM(new ResourceAddDTO(5, 12, 10));
+            resourceService.addVM(new ResourceAddDTO(5, 12, 10));
             assertEquals(2, resourceService.getAll().size());
         } catch (ResourceException e) {
             fail(e.getMessage());
@@ -153,22 +158,22 @@ public class ResourceServiceTest {
     @Test
     void updatePositive() {
         try {
-            resourceService.addVM(5, 12, 10);
-            VirtualMachine vm = resourceService.getAll().getFirst();
-            int ramBefore = vm.getRamGiB();
-            int memoryBefore = vm.getStorageGiB();
-            int cpuBefore = vm.getCpuNumber();
+            resourceService.addVM(new ResourceAddDTO(5, 12, 10));
+            ResourceDTO vm = resourceService.getAll().getFirst();
+            int ramBefore = vm.ramGiB();
+            int storageBefore = vm.storageGiB();
+            int cpuBefore = vm.cpuNumber();
 
             assertNotEquals(10, cpuBefore);
             assertNotEquals(16, ramBefore);
-            assertNotEquals(50, memoryBefore);
+            assertNotEquals(50, storageBefore);
 
-            assertNotNull(resourceService.updateVM(vm.getId(), 10, 16, 50));
+            assertNotNull(resourceService.updateVM(vm.id(), new ResourceAddDTO(10, 16, 50)));
 
-            VirtualMachine updatedVM = resourceService.getAll().getFirst();
-            assertEquals(10, updatedVM.getCpuNumber());
-            assertEquals(16, updatedVM.getRamGiB());
-            assertEquals(50, updatedVM.getStorageGiB());
+            ResourceDTO updatedVM = resourceService.getAll().getFirst();
+            assertEquals(10, updatedVM.cpuNumber());
+            assertEquals(16, updatedVM.ramGiB());
+            assertEquals(50, updatedVM.storageGiB());
         } catch (ResourceException e) {
             fail(e.getMessage());
         }
@@ -177,22 +182,22 @@ public class ResourceServiceTest {
     @Test
     void updateNegative() {
         try {
-            resourceService.addVM(5, 12, 10);
-            VirtualMachine vm = resourceService.getAll().getFirst();
-            int ramBefore = vm.getRamGiB();
-            int memoryBefore = vm.getStorageGiB();
-            int cpuBefore = vm.getCpuNumber();
+            resourceService.addVM(new ResourceAddDTO(5, 12, 10));
+            ResourceDTO vm = resourceService.getAll().getFirst();
+            int ramBefore = vm.ramGiB();
+            int storageBefore = vm.storageGiB();
+            int cpuBefore = vm.cpuNumber();
 
             assertNotEquals(-1, ramBefore);
-            assertNotEquals(-1, memoryBefore);
+            assertNotEquals(-1, storageBefore);
             assertNotEquals(-1, cpuBefore);
 
-            assertThrows(ResourceDataException.class, () -> resourceService.updateVM(vm.getId(), -1, -1, -1));
+            assertThrows(ResourceDataException.class, () -> resourceService.updateVM(vm.id(), new ResourceAddDTO(-1, -1, -1)));
 
-            VirtualMachine updatedVM = resourceService.getAll().getFirst();
-            assertEquals(ramBefore, updatedVM.getRamGiB());
-            assertEquals(memoryBefore, updatedVM.getStorageGiB());
-            assertEquals(cpuBefore, updatedVM.getCpuNumber());
+            ResourceDTO updatedVM = resourceService.getAll().getFirst();
+            assertEquals(ramBefore, updatedVM.ramGiB());
+            assertEquals(storageBefore, updatedVM.storageGiB());
+            assertEquals(cpuBefore, updatedVM.cpuNumber());
         } catch (ResourceException e) {
             fail(e.getMessage());
         }
@@ -208,14 +213,14 @@ public class ResourceServiceTest {
     void deletePositive() {
         // should work but doesn't rn :,)
         try {
-            resourceService.addVM(5, 12, 10);
-            List<VirtualMachine> resources = resourceService.getAll();
+            resourceService.addVM(new ResourceAddDTO(5, 12, 10));
+            List<ResourceDTO> resources = resourceService.getAll();
             assertNotEquals(Collections.emptyList(), resources);
 
-            VirtualMachine resource = resourceService.getAll().getLast();
+            ResourceDTO resource = resourceService.getAll().getLast();
 
-            resourceService.deleteVM(resource.getId());
-            assertThrows(ResourceNotFoundException.class, () -> resourceService.findById(resource.getId()));
+            resourceService.deleteVM(resource.id());
+            assertThrows(ResourceNotFoundException.class, () -> resourceService.findById(resource.id()));
         } catch (ResourceException e) {
             fail(e.getMessage());
         }
@@ -227,18 +232,18 @@ public class ResourceServiceTest {
             String login = "HKwinto";
 
             assertNotNull(userService.add(new UserAddDTO(login, "Henryk", "Kwinto", UserType.CLIENT)));
-            resourceService.addVM(12, 16, 256);
+            resourceService.addVM(new ResourceAddDTO(12, 16, 256));
 
             userService.activate(userService.findByLogin(login).id());
             allocationService.add(userService.findByLogin(login), resourceService.getAll().getFirst(), Instant.now());
 
-            List<VirtualMachine> resources = resourceService.getAll();
+            List<ResourceDTO> resources = resourceService.getAll();
             assertNotEquals(Collections.emptyList(), resources);
 
-            VirtualMachine resource = resourceService.getAll().getFirst();
+            ResourceDTO resource = resourceService.getAll().getFirst();
 
-            assertThrows(ResourceStillAllocatedException.class, () -> resourceService.deleteVM(resource.getId()));
-            assertNotNull(resourceService.findById(resource.getId()));
+            assertThrows(ResourceStillAllocatedException.class, () -> resourceService.deleteVM(resource.id()));
+            assertNotNull(resourceService.findById(resource.id()));
         } catch (UserException | ResourceException | AllocationException e) {
             fail(e.getMessage());
         }

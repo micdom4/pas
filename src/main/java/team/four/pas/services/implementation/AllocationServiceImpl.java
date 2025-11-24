@@ -16,7 +16,6 @@ import team.four.pas.services.AllocationService;
 import team.four.pas.services.ResourceService;
 import team.four.pas.services.UserService;
 import team.four.pas.services.data.allocations.VMAllocation;
-import team.four.pas.services.data.resources.VirtualMachine;
 import team.four.pas.services.data.users.Client;
 import team.four.pas.services.mappers.ResourceToDTO;
 import team.four.pas.services.mappers.UserToDTO;
@@ -54,8 +53,8 @@ public class AllocationServiceImpl implements AllocationService {
             throw new InactiveClientException("Client must be active in order to allocate a resource");
         }
 
-        if (allocationRepository.getActive(resource).isEmpty()) {
-            return allocationRepository.add(userToDTO.clientFromClientDTO(client), resource, startTime);
+        if (allocationRepository.getActive(resourceToDTO.vmFromDTO(resource)).isEmpty()) {
+            return allocationRepository.add(userToDTO.clientFromClientDTO(client), resourceToDTO.vmFromDTO(resource), startTime);
         } else {
             throw new ResourceAlreadyAllocatedException("Resource is already allocated");
         }
@@ -63,14 +62,14 @@ public class AllocationServiceImpl implements AllocationService {
 
     @Override
     public List<VMAllocation> getPastVm(String id) throws ResourceIdException, ResourceNotFoundException {
-        VirtualMachine resource = resourceService.findById(id);
-        return allocationRepository.getPast(resource);
+        ResourceDTO resource = resourceService.findById(id);
+        return allocationRepository.getPast(resourceToDTO.vmFromDTO(resource));
     }
 
     @Override
     public List<VMAllocation> getActiveVm(String id) throws ResourceIdException, ResourceNotFoundException {
-        VirtualMachine resource = resourceService.findById(id);
-        return allocationRepository.getActive(resource);
+        ResourceDTO resource = resourceService.findById(id);
+        return allocationRepository.getActive(resourceToDTO.vmFromDTO(resource));
     }
 
     @Override

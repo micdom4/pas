@@ -5,34 +5,23 @@ import com.mongodb.client.MongoDatabase;
 import io.restassured.RestAssured;
 import org.bson.Document;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import team.four.pas.Config;
-import team.four.pas.controllers.DTOs.UserAddDTO;
-import team.four.pas.controllers.DTOs.UserDTO;
-import team.four.pas.controllers.DTOs.UserType;
+import team.four.pas.controllers.DTOs.*;
 import team.four.pas.exceptions.resource.ResourceDataException;
 import team.four.pas.exceptions.user.UserException;
-import team.four.pas.repositories.AllocationRepository;
-import team.four.pas.repositories.ResourceRepository;
-import team.four.pas.repositories.UserRepository;
 import team.four.pas.services.AllocationService;
 import team.four.pas.services.ResourceService;
 import team.four.pas.services.UserService;
-import team.four.pas.services.data.resources.VirtualMachine;
-import team.four.pas.services.implementation.AllocationServiceImpl;
-import team.four.pas.services.implementation.ResourceServiceImpl;
-import team.four.pas.services.implementation.UserServiceImpl;
-import team.four.pas.services.mappers.UserToDTO;
 
 import java.io.File;
 import java.time.Instant;
@@ -42,20 +31,29 @@ import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
-class AllocationControllerTest {
+public class AllocationControllerTest {
 
     @Container
     public static DockerComposeContainer<?> compose =
             new DockerComposeContainer<>(new File("src/test/resources/docker-compose.yml"))
                     .withExposedService("mongo", 27017);
 
-    private static UserService userService;
-    private static AllocationService allocationService;
-    private static ResourceService resourceService;
-    private static AnnotationConfigApplicationContext context;
-    private static MongoDatabase database;
+    @LocalServerPort
+    private int port;
+
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private AllocationService allocationService;
+    @Autowired
+    private ResourceService resourceService;
+
+    @Autowired
+    private MongoClient mongoClient;
+
+    private MongoDatabase database;
 
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
@@ -65,18 +63,17 @@ class AllocationControllerTest {
         System.setProperty("pas.data.mongodb.uri", dynamicUri);
     }
 
-    @BeforeAll
-    static void beforeAll() {
-        context = new AnnotationConfigApplicationContext(Config.class);
-        AllocationRepository allocationRepository = context.getBean(AllocationRepository.class);
-        ResourceRepository resourceRepository = context.getBean(ResourceRepository.class);
-        UserRepository userRepository = context.getBean(UserRepository.class);
+    @BeforeEach
+    void beforeEach() {
+        RestAssured.port = port;
 
-        resourceService = new ResourceServiceImpl(resourceRepository, allocationRepository);
-        userService = new UserServiceImpl(userRepository, context.getBean(UserToDTO.class));
-        allocationService = new AllocationServiceImpl(allocationRepository, userService, resourceService, context.getBean(UserToDTO.class));
-        database = context.getBean(MongoClient.class).getDatabase("pas");
-        AllocationControllerImpl allocationController = new AllocationControllerImpl(allocationService);
+        this.database = mongoClient.getDatabase("pas");
+        try {
+            userService.add(new UserAddDTO("MCorleone", "Michael", "Corleone", UserType.CLIENT));
+            resourceService.addVM(new ResourceAddDTO(8, 16, 256));
+        } catch (UserException | ResourceDataException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @AfterEach
@@ -86,21 +83,10 @@ class AllocationControllerTest {
         database.getCollection("vmAllocations").deleteMany(new Document());
     }
 
-    @BeforeEach
-    void beforeEach() {
-        try {
-            userService.add(new UserAddDTO("MCorleone", "Michael", "Corleone", UserType.CLIENT));
-            resourceService.addVM(8, 16, 256);
-        } catch (UserException | ResourceDataException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
     @Test
     void getAll() {
         try {
-            VirtualMachine virtualMachine = resourceService.getAll().getLast();
+            ResourceDTO virtualMachine = resourceService.getAll().getLast();
             userService.activate(userService.getAll().getLast().id());
             UserDTO userDTO = userService.getAll().getLast();
 
@@ -117,7 +103,7 @@ class AllocationControllerTest {
                     .then()
                     .log().body()
                     .statusCode(HttpStatus.OK.value())
-                    .body("client.login", hasItem("HKwinto"));
+                    .body("client.login", hasItem("MCorleone"));
         } catch (UserException e) {
             fail(e.getMessage());
         }
@@ -125,8 +111,6 @@ class AllocationControllerTest {
 
     @Test
     void createAllocationPass() {
-        try {
 
-        }
     }
 }

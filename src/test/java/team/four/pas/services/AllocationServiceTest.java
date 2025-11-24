@@ -5,30 +5,29 @@ import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import team.four.pas.Config;
+import team.four.pas.controllers.DTOs.ResourceAddDTO;
+import team.four.pas.controllers.DTOs.ResourceDTO;
 import team.four.pas.controllers.DTOs.UserAddDTO;
-import team.four.pas.controllers.DTOs.UserDTO;
 import team.four.pas.controllers.DTOs.UserType;
 import team.four.pas.exceptions.allocation.*;
-import team.four.pas.exceptions.resource.ResourceDataException;
 import team.four.pas.exceptions.resource.ResourceException;
-import team.four.pas.exceptions.user.*;
+import team.four.pas.exceptions.user.UserException;
+import team.four.pas.exceptions.user.UserTypeException;
 import team.four.pas.repositories.AllocationRepository;
 import team.four.pas.repositories.ResourceRepository;
 import team.four.pas.repositories.UserRepository;
 import team.four.pas.repositories.implementation.MongoAllocationRepository;
 import team.four.pas.services.data.allocations.VMAllocation;
-import team.four.pas.services.data.resources.VirtualMachine;
-import team.four.pas.services.data.users.Client;
 import team.four.pas.services.implementation.AllocationServiceImpl;
 import team.four.pas.services.implementation.ResourceServiceImpl;
 import team.four.pas.services.implementation.UserServiceImpl;
+import team.four.pas.services.mappers.ResourceToDTO;
 import team.four.pas.services.mappers.UserToDTO;
 
 import java.io.File;
@@ -61,9 +60,9 @@ class AllocationServiceTest {
         ResourceRepository resourceRepository = context.getBean(ResourceRepository.class);
         UserRepository userRepository = context.getBean(UserRepository.class);
 
-        resourceService = new ResourceServiceImpl(resourceRepository, allocationRepository);
+        resourceService = new ResourceServiceImpl(resourceRepository, allocationRepository, context.getBean(ResourceToDTO.class));
         userService = new UserServiceImpl(userRepository, context.getBean(UserToDTO.class));
-        allocationService = new AllocationServiceImpl(allocationRepository, userService, resourceService, context.getBean(UserToDTO.class));
+        allocationService = new AllocationServiceImpl(allocationRepository, userService, resourceService, context.getBean(UserToDTO.class), context.getBean(ResourceToDTO.class));
         database = context.getBean(MongoClient.class).getDatabase("pas");
     }
 
@@ -85,7 +84,7 @@ class AllocationServiceTest {
         try {
             String login = "HKwinto";
             assertNotNull(userService.add(new UserAddDTO(login, "Henryk", "Kwinto", UserType.CLIENT)));
-            VirtualMachine virtualMachine = resourceService.addVM(8, 16, 256);
+            ResourceDTO virtualMachine = resourceService.addVM(new ResourceAddDTO(8, 16, 256));
 
             int initialSize = allocationService.getAll().size();
 
@@ -104,7 +103,7 @@ class AllocationServiceTest {
         try {
             String login = "HKwinto";
             assertNotNull(userService.add(new UserAddDTO(login, "Henryk", "Kwinto", UserType.CLIENT)));
-            VirtualMachine virtualMachine = resourceService.addVM(8, 16, 256);
+            ResourceDTO virtualMachine = resourceService.addVM(new ResourceAddDTO(8, 16, 256));
 
             int initialSize = allocationService.getAll().size();
 
@@ -144,7 +143,7 @@ class AllocationServiceTest {
             String login = "HKwinto";
 
             assertNotNull(userService.add(new UserAddDTO(login, "Henryk", "Kwinto", UserType.CLIENT)));
-            assertNotNull(resourceService.addVM(12, 16, 256));
+            assertNotNull(resourceService.addVM(new ResourceAddDTO(12, 16, 256)));
 
             userService.activate(userService.findByLogin(login).id());
             assertNotNull(allocationService.add(userService.findByLogin(login), resourceService.getAll().getFirst(), Instant.now()));
@@ -162,7 +161,7 @@ class AllocationServiceTest {
             String login = "HKwinto";
 
             assertNotNull(userService.add(new UserAddDTO(login, "Henryk", "Kwinto", UserType.CLIENT)));
-            assertNotNull(resourceService.addVM(12, 16, 256));
+            assertNotNull(resourceService.addVM(new ResourceAddDTO(12, 16, 256)));
 
             userService.activate(userService.findByLogin(login).id());
 
@@ -187,7 +186,7 @@ class AllocationServiceTest {
             String login = "HKwinto";
             assertNotNull(userService.add(new UserAddDTO(login, "Henryk", "Kwinto", UserType.CLIENT)));
 
-            VirtualMachine vm = resourceService.addVM(12, 16, 256);
+            ResourceDTO vm = resourceService.addVM(new ResourceAddDTO(12, 16, 256));
 
             userService.activate(userService.findByLogin(login).id());
 
@@ -195,13 +194,13 @@ class AllocationServiceTest {
 
             assertNotNull(vmAllocation);
 
-            assertEquals(1, allocationService.getActiveVm(vm.getId()).size());
-            assertEquals(0, allocationService.getPastVm(vm.getId()).size());
+            assertEquals(1, allocationService.getActiveVm(vm.id()).size());
+            assertEquals(0, allocationService.getPastVm(vm.id()).size());
 
             allocationService.finishAllocation(vmAllocation.getId());
 
-            assertEquals(0, allocationService.getActiveVm(vm.getId()).size());
-            assertEquals(1, allocationService.getPastVm(vm.getId()).size());
+            assertEquals(0, allocationService.getActiveVm(vm.id()).size());
+            assertEquals(1, allocationService.getPastVm(vm.id()).size());
         } catch (UserException | ResourceException | AllocationException e) {
             fail(e.getMessage());
         }
@@ -211,7 +210,7 @@ class AllocationServiceTest {
     void deletePass() {
         try {
             userService.add(new UserAddDTO("SGood", "Saul", "Goodman", UserType.CLIENT));
-            VirtualMachine vm = resourceService.addVM(12, 16, 256);
+            ResourceDTO vm = resourceService.addVM(new ResourceAddDTO(12, 16, 256));
             userService.activate(userService.findByLogin("SGood").id());
 
             VMAllocation allocation = allocationService.add(userService.findByLogin("SGood"), vm, Instant.now());
@@ -230,7 +229,7 @@ class AllocationServiceTest {
     void deleteFail() {
         try {
             userService.add(new UserAddDTO("SGood", "Saul", "Goodman", UserType.CLIENT));
-            VirtualMachine vm = resourceService.addVM(12, 16, 256);
+            ResourceDTO vm = resourceService.addVM(new ResourceAddDTO(12, 16, 256));
             userService.activate(userService.findByLogin("SGood").id());
 
             VMAllocation allocation = allocationService.add(userService.findByLogin("SGood"), vm, Instant.now());
@@ -239,7 +238,7 @@ class AllocationServiceTest {
 
             allocationService.finishAllocation(allocation.getId());
 
-            assertEquals(1, allocationService.getPastVm(vm.getId()).size());
+            assertEquals(1, allocationService.getPastVm(vm.id()).size());
 
             assertThrows(AllocationNotActiveException.class, () -> allocationService.delete(allocation.getId()));
 

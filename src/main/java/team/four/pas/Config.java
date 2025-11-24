@@ -5,7 +5,6 @@ import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
-import org.bson.UuidRepresentation;
 import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
@@ -16,16 +15,15 @@ import org.springframework.context.annotation.Configuration;
 import team.four.pas.repositories.entities.UserEntity;
 import team.four.pas.repositories.entities.VMAllocationEntity;
 import team.four.pas.repositories.entities.VirtualMachineEntity;
-import team.four.pas.repositories.mappers.*;
-import team.four.pas.services.data.resources.VirtualMachine;
-import team.four.pas.services.data.users.Admin;
-import team.four.pas.services.data.users.Client;
 import team.four.pas.repositories.implementation.MongoAllocationRepository;
 import team.four.pas.repositories.implementation.MongoResourceRepository;
 import team.four.pas.repositories.implementation.MongoUserRepository;
+import team.four.pas.repositories.mappers.StringToObjectId;
+import team.four.pas.repositories.mappers.UserMapper;
+import team.four.pas.repositories.mappers.VMAllocationMapper;
+import team.four.pas.repositories.mappers.VirtualMachineMapper;
+import team.four.pas.services.mappers.ResourceToDTO;
 import team.four.pas.services.mappers.UserToDTO;
-
-import java.time.Instant;
 
 @Configuration
 public class Config {
@@ -37,7 +35,14 @@ public class Config {
     }
 
     @Bean
-    public UserToDTO userDTOMapper() { return Mappers.getMapper(UserToDTO.class); }
+    public UserToDTO userDTOMapper() {
+        return Mappers.getMapper(UserToDTO.class);
+    }
+
+    @Bean
+    public ResourceToDTO resourceDTOMapper() {
+        return Mappers.getMapper(ResourceToDTO.class);
+    }
 
     @Bean
     public UserMapper userMapper() {
@@ -93,7 +98,7 @@ public class Config {
                                                                StringToObjectId idMapper) {
         MongoCollection<VMAllocationEntity> vmAllocationsColl = mongoClient.getDatabase(dbName).getCollection("vmAllocations", VMAllocationEntity.class);
 
-        return new MongoAllocationRepository(vmAllocationsColl, mapper, userMapper,  idMapper, vmMapper);
+        return new MongoAllocationRepository(vmAllocationsColl, mapper, userMapper, idMapper, vmMapper);
     }
 
     @Bean

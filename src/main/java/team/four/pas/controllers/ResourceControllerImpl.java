@@ -6,12 +6,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import team.four.pas.controllers.DTOs.ResourceAddDTO;
+import team.four.pas.controllers.DTOs.ResourceDTO;
 import team.four.pas.exceptions.resource.ResourceDataException;
 import team.four.pas.exceptions.resource.ResourceIdException;
 import team.four.pas.exceptions.resource.ResourceNotFoundException;
 import team.four.pas.exceptions.resource.ResourceStillAllocatedException;
 import team.four.pas.services.ResourceService;
-import team.four.pas.services.data.resources.VirtualMachine;
 
 import java.util.List;
 
@@ -29,7 +29,7 @@ public class ResourceControllerImpl implements ResourceController {
     private final ResourceService resourceService;
 
     @GetMapping({""})
-    public ResponseEntity<List<VirtualMachine>> getAll() {
+    public ResponseEntity<List<ResourceDTO>> getAll() {
         try {
             return ResponseEntity
                     .status(HttpStatus.OK)
@@ -42,7 +42,7 @@ public class ResourceControllerImpl implements ResourceController {
     }
 
     @GetMapping({"/{id}"})
-    public ResponseEntity<VirtualMachine> getResource(@PathVariable String id) {
+    public ResponseEntity<ResourceDTO> getResource(@PathVariable String id) {
         try {
             return ResponseEntity
                     .status(HttpStatus.OK)
@@ -66,11 +66,11 @@ public class ResourceControllerImpl implements ResourceController {
             value = {""},
             consumes = {"application/json"}
     )
-    public ResponseEntity<VirtualMachine> createVM(@RequestBody ResourceAddDTO vmDto) {
+    public ResponseEntity<ResourceDTO> createVM(@RequestBody ResourceAddDTO vmDto) {
         try {
             return ResponseEntity
                     .status(HttpStatus.CREATED)
-                    .body(resourceService.addVM(vmDto.cpus(), vmDto.ram(), vmDto.memory()));
+                    .body(resourceService.addVM(vmDto));
         } catch (ResourceDataException e) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
@@ -86,11 +86,11 @@ public class ResourceControllerImpl implements ResourceController {
             value = {"/{id}"},
             consumes = {"application/json"}
     )
-    public ResponseEntity<VirtualMachine> updateVM(@PathVariable String id, @RequestBody ResourceAddDTO vmDto) {
+    public ResponseEntity<ResourceDTO> updateVM(@PathVariable String id, @RequestBody ResourceAddDTO vmDto) {
         try {
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(resourceService.updateVM(id, vmDto.cpus(), vmDto.ram(), vmDto.memory()));
+                    .body(resourceService.updateVM(id, vmDto));
         } catch (ResourceIdException e) {
             return ResponseEntity
                     .status(HttpStatus.UNPROCESSABLE_ENTITY)

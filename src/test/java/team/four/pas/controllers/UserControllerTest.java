@@ -6,24 +6,21 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.bson.Document;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import team.four.pas.Config;
 import team.four.pas.controllers.DTOs.UserAddDTO;
 import team.four.pas.controllers.DTOs.UserType;
 import team.four.pas.exceptions.user.UserException;
-import team.four.pas.repositories.UserRepository;
 import team.four.pas.services.UserService;
-import team.four.pas.services.implementation.UserServiceImpl;
-import team.four.pas.services.mappers.UserToDTO;
 
 import java.io.File;
 
@@ -31,18 +28,24 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.fail;
 
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
-class UserControllerTest {
+public class UserControllerTest {
 
     @Container
     public static DockerComposeContainer<?> compose =
             new DockerComposeContainer<>(new File("src/test/resources/docker-compose.yml"))
                     .withExposedService("mongo", 27017);
 
-    private static AnnotationConfigApplicationContext context;
-    private static UserService userService;
-    private static MongoDatabase database;
+    @LocalServerPort
+    private int port;
+
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private MongoClient mongoClient;
+
+    private MongoDatabase database;
 
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
@@ -52,14 +55,11 @@ class UserControllerTest {
         System.setProperty("pas.data.mongodb.uri", dynamicUri);
     }
 
-    @BeforeAll
-    static void each() {
-        context = new AnnotationConfigApplicationContext(Config.class);
+    @BeforeEach
+    void beforeEach() {
+        RestAssured.port = port;
 
-        UserRepository userRepository = context.getBean(UserRepository.class);
-        userService = new UserServiceImpl(userRepository, context.getBean(UserToDTO.class));
-        UserControllerImpl userController = new UserControllerImpl(userService);
-        database = context.getBean(MongoClient.class).getDatabase("pas");
+        this.database = mongoClient.getDatabase("pas");
     }
 
     @AfterEach
