@@ -1,7 +1,5 @@
 package team.four.pas.services;
 
-import team.four.pas.controllers.DTOs.ResourceDTO;
-import team.four.pas.controllers.DTOs.UserDTO;
 import team.four.pas.exceptions.allocation.*;
 import team.four.pas.exceptions.resource.ResourceIdException;
 import team.four.pas.exceptions.resource.ResourceNotFoundException;
@@ -10,6 +8,7 @@ import team.four.pas.exceptions.user.UserNotFoundException;
 import team.four.pas.exceptions.user.UserTypeException;
 import team.four.pas.services.data.allocations.VMAllocation;
 import team.four.pas.services.data.resources.VirtualMachine;
+import team.four.pas.services.data.users.User;
 
 import java.time.Instant;
 import java.util.List;
@@ -19,7 +18,7 @@ public interface AllocationService {
 
     VMAllocation findById(String id) throws AllocationIdException, AllocationNotFoundException;
 
-    VMAllocation add(UserDTO client, ResourceDTO resource, Instant startTime) throws UserTypeException, InactiveClientException, ResourceAlreadyAllocatedException, ResourceIdException;
+    VMAllocation add(User client, VirtualMachine resource, Instant startTime) throws UserTypeException, InactiveClientException, ResourceAlreadyAllocatedException, ResourceIdException;
 
     List<VMAllocation> getPastVm(String id) throws ResourceIdException, ResourceNotFoundException;
 

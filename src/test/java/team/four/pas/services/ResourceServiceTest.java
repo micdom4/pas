@@ -27,8 +27,8 @@ import team.four.pas.repositories.UserRepository;
 import team.four.pas.services.implementation.AllocationServiceImpl;
 import team.four.pas.services.implementation.ResourceServiceImpl;
 import team.four.pas.services.implementation.UserServiceImpl;
-import team.four.pas.services.mappers.ResourceToDTO;
-import team.four.pas.services.mappers.UserToDTO;
+import team.four.pas.controllers.DTOs.mappers.ResourceToDTO;
+import team.four.pas.controllers.DTOs.mappers.UserToDTO;
 
 import java.io.File;
 import java.time.Instant;

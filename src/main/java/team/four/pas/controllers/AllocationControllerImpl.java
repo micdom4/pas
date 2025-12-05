@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.*;
 import team.four.pas.controllers.DTOs.AllocationAddDTO;
 import team.four.pas.controllers.DTOs.ResourceDTO;
 import team.four.pas.controllers.DTOs.UserDTO;
+import team.four.pas.controllers.DTOs.mappers.ResourceToDTO;
+import team.four.pas.controllers.DTOs.mappers.UserToDTO;
 import team.four.pas.exceptions.allocation.*;
 import team.four.pas.exceptions.resource.ResourceIdException;
 import team.four.pas.exceptions.resource.ResourceNotFoundException;
@@ -16,6 +18,8 @@ import team.four.pas.exceptions.user.UserNotFoundException;
 import team.four.pas.exceptions.user.UserTypeException;
 import team.four.pas.services.AllocationService;
 import team.four.pas.services.data.allocations.VMAllocation;
+import team.four.pas.services.data.resources.VirtualMachine;
+import team.four.pas.services.data.users.User;
 
 import java.time.Instant;
 import java.util.List;
@@ -26,6 +30,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AllocationControllerImpl {
     private final @NonNull AllocationService allocationService;
+    private final @NonNull UserToDTO userToDTO;
+    private final @NonNull ResourceToDTO resourceToDTO;
 
     @GetMapping(
             {""}
@@ -61,7 +67,9 @@ public class AllocationControllerImpl {
         UserDTO userDTO = addDTO.client();
         ResourceDTO resourceDTO = addDTO.vm();
         try {
-            return ResponseEntity.status(HttpStatus.CREATED).body(allocationService.add(userDTO, resourceDTO, Instant.now()));
+            User client = userToDTO.clientFromClientDTO(userDTO);
+            VirtualMachine resource = resourceToDTO.vmFromDTO(resourceDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(allocationService.add(client, resource, Instant.now()));
         } catch (ResourceIdException | UserTypeException e) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(null);
         } catch (InactiveClientException e) {

@@ -2,9 +2,6 @@ package team.four.pas.services.implementation;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import team.four.pas.controllers.DTOs.ResourceDTO;
-import team.four.pas.controllers.DTOs.UserDTO;
-import team.four.pas.controllers.DTOs.UserType;
 import team.four.pas.exceptions.allocation.*;
 import team.four.pas.exceptions.resource.ResourceIdException;
 import team.four.pas.exceptions.resource.ResourceNotFoundException;
@@ -16,9 +13,9 @@ import team.four.pas.services.AllocationService;
 import team.four.pas.services.ResourceService;
 import team.four.pas.services.UserService;
 import team.four.pas.services.data.allocations.VMAllocation;
+import team.four.pas.services.data.resources.VirtualMachine;
 import team.four.pas.services.data.users.Client;
-import team.four.pas.services.mappers.ResourceToDTO;
-import team.four.pas.services.mappers.UserToDTO;
+import team.four.pas.services.data.users.User;
 
 import java.time.Instant;
 import java.util.List;
@@ -29,9 +26,6 @@ public class AllocationServiceImpl implements AllocationService {
     private final AllocationRepository allocationRepository;
     private final UserService userService;
     private final ResourceService resourceService;
-    private final UserToDTO userToDTO;
-    private final ResourceToDTO resourceToDTO;
-
 
     @Override
     public List<VMAllocation> getAll() {
@@ -44,17 +38,17 @@ public class AllocationServiceImpl implements AllocationService {
     }
 
     @Override
-    public VMAllocation add(UserDTO client, ResourceDTO resource, Instant startTime) throws UserTypeException, InactiveClientException, ResourceAlreadyAllocatedException, ResourceIdException {
-        if (client.type() != UserType.CLIENT) {
-            throw new UserTypeException("Client must be of UserType CLIENT");
+    public VMAllocation add(User client, VirtualMachine resource, Instant startTime) throws UserTypeException, InactiveClientException, ResourceAlreadyAllocatedException, ResourceIdException {
+        if (client.getClass() != Client.class) {
+            throw new UserTypeException("Client must be of Type CLIENT");
         }
 
-        if (!client.active()) {
+        if (!client.isActive()) {
             throw new InactiveClientException("Client must be active in order to allocate a vm");
         }
 
-        if (allocationRepository.getActive(resourceToDTO.vmFromDTO(resource)).isEmpty()) {
-            return allocationRepository.add(userToDTO.clientFromClientDTO(client), resourceToDTO.vmFromDTO(resource), startTime);
+        if (allocationRepository.getActive(resource).isEmpty()) {
+            return allocationRepository.add((Client) client, resource, startTime);
         } else {
             throw new ResourceAlreadyAllocatedException("Resource is already allocated");
         }
@@ -62,34 +56,35 @@ public class AllocationServiceImpl implements AllocationService {
 
     @Override
     public List<VMAllocation> getPastVm(String id) throws ResourceIdException, ResourceNotFoundException {
-        ResourceDTO resource = resourceService.findById(id);
-        return allocationRepository.getPast(resourceToDTO.vmFromDTO(resource));
+        VirtualMachine resource = resourceService.findById(id);
+        return allocationRepository.getPast(resource);
     }
 
     @Override
     public List<VMAllocation> getActiveVm(String id) throws ResourceIdException, ResourceNotFoundException {
-        ResourceDTO resource = resourceService.findById(id);
-        return allocationRepository.getActive(resourceToDTO.vmFromDTO(resource));
+        VirtualMachine resource = resourceService.findById(id);
+        return allocationRepository.getActive(resource);
     }
 
     @Override
     public List<VMAllocation> getActiveClient(String id) throws UserTypeException, UserNotFoundException, UserIdException {
-        UserDTO clientDTO = userService.findById(id);
-        if (clientDTO.type() != UserType.CLIENT) {
-            throw new UserTypeException("Client must be of UserType CLIENT");
+        User user = userService.findById(id);
+        if (user.getClass() != Client.class) {
+            throw new UserTypeException("Client must be of Type CLIENT");
         }
 
-        Client client = userToDTO.clientFromClientDTO(clientDTO);
+        Client client = (Client) user;
         return allocationRepository.getActive(client);
     }
 
     @Override
     public List<VMAllocation> getPastClient(String id) throws UserTypeException, UserNotFoundException, UserIdException {
-        UserDTO clientDTO = userService.findById(id);
-        if (clientDTO.type() != UserType.CLIENT) {
-            throw new UserTypeException("Client must be of UserType CLIENT");
+        User user = userService.findById(id);
+        if (user.getClass() != Client.class) {
+            throw new UserTypeException("Client must be of Type CLIENT");
         }
-        Client client = userToDTO.clientFromClientDTO(clientDTO);
+
+        Client client = (Client) user;
         return allocationRepository.getPast(client);
     }
 

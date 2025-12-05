@@ -19,8 +19,9 @@ import team.four.pas.exceptions.user.UserDataException;
 import team.four.pas.exceptions.user.UserException;
 import team.four.pas.exceptions.user.UserLoginException;
 import team.four.pas.repositories.UserRepository;
+import team.four.pas.services.data.users.Admin;
 import team.four.pas.services.implementation.UserServiceImpl;
-import team.four.pas.services.mappers.UserToDTO;
+import team.four.pas.controllers.DTOs.mappers.UserToDTO;
 
 import java.io.File;
 
@@ -51,7 +52,7 @@ public class UserServiceTest {
         context = new AnnotationConfigApplicationContext(Config.class);
         UserRepository userRepository = context.getBean(UserRepository.class);
 
-        userService = new UserServiceImpl(userRepository, context.getBean(UserToDTO.class));
+        userService = new UserServiceImpl(userRepository);
         database = context.getBean(MongoClient.class).getDatabase("pas");
     }
 
@@ -70,7 +71,7 @@ public class UserServiceTest {
     @Test
     void addPassWhenFreeLogin() {
         try {
-            assertNotNull(userService.add(new UserAddDTO("BLis2", "Bartosz", "Lis", UserType.ADMIN)));
+            assertNotNull(userService.add(new Admin("BLis2", "Bartosz", "Lis")));
         } catch (UserException ue) {
             fail(ue.getMessage());
         }
@@ -146,7 +147,7 @@ public class UserServiceTest {
     @Test
     void updatePass() {
         try {
-            assertNotNull(userService.add(new UserAddDTO("BLis", "Bartosz", "Lis", UserType.ADMIN)));
+            assertNotNull(userService.add(new Admin("BLis", "Bartosz", "Lis",)));
             assertEquals("Lis", userService.findByLogin("BLis").surname());
             assertNotNull(userService.update(userService.findByLogin("BLis").id(), "Lis-Nowak"));
             assertEquals("Lis-Nowak", userService.findByLogin("BLis").surname());

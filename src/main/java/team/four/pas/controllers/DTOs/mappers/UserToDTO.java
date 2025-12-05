@@ -1,4 +1,4 @@
-package team.four.pas.services.mappers;
+package team.four.pas.controllers.DTOs.mappers;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

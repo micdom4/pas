@@ -22,8 +22,8 @@ import team.four.pas.repositories.mappers.StringToObjectId;
 import team.four.pas.repositories.mappers.UserMapper;
 import team.four.pas.repositories.mappers.VMAllocationMapper;
 import team.four.pas.repositories.mappers.VirtualMachineMapper;
-import team.four.pas.services.mappers.ResourceToDTO;
-import team.four.pas.services.mappers.UserToDTO;
+import team.four.pas.controllers.DTOs.mappers.ResourceToDTO;
+import team.four.pas.controllers.DTOs.mappers.UserToDTO;
 
 @Configuration
 public class Config {

@@ -1,8 +1,6 @@
 package team.four.pas.repositories.mappers;
 
-import org.bson.types.ObjectId;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import team.four.pas.repositories.entities.VirtualMachineEntity;
 import team.four.pas.services.data.resources.VirtualMachine;
 
