@@ -5,11 +5,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import team.four.pas.controllers.DTOs.UserAddDTO;
 import team.four.pas.controllers.DTOs.UserDTO;
 import team.four.pas.controllers.DTOs.UserModDTO;
 import team.four.pas.exceptions.user.*;
 import team.four.pas.services.UserService;
+import team.four.pas.controllers.DTOs.mappers.UserToDTO;
+import team.four.pas.services.data.users.User;
 
 import java.util.List;
 
@@ -24,13 +27,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserControllerImpl {
     private final @NonNull UserService userService;
+    private final @NonNull UserToDTO userToDTO;
 
     @GetMapping({""})
     public ResponseEntity<List<UserDTO>> getAll() {
         try {
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(userService.getAll());
+                    .body(userToDTO.toDataList(userService.getAll()));
         } catch (RuntimeException ex) {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -43,7 +47,7 @@ public class UserControllerImpl {
         try {
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(userService.findById(id));
+                    .body(userToDTO.toDTO(userService.findById(id)));
         } catch (UserNotFoundException e) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
@@ -64,7 +68,7 @@ public class UserControllerImpl {
         try {
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(userService.findByLogin(login));
+                    .body(userToDTO.toDTO(userService.findByLogin(login)));
         } catch (UserNotFoundException e) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
@@ -84,7 +88,7 @@ public class UserControllerImpl {
     public ResponseEntity<List<UserDTO>> searchByLogin(@PathVariable String login) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(userService.findByMatchingLogin(login));
+                .body(userToDTO.toDataList(userService.findByMatchingLogin(login)));
     }
 
     @PostMapping({"/{id}/activate"})
@@ -95,9 +99,7 @@ public class UserControllerImpl {
                     .status(HttpStatus.OK)
                     .build();
         } catch (UserNotFoundException e) {
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body(null);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         } catch (UserIdException e) {
             return ResponseEntity
                     .status(HttpStatus.UNPROCESSABLE_ENTITY)

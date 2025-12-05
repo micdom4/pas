@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import team.four.pas.controllers.DTOs.ResourceAddDTO;
 import team.four.pas.controllers.DTOs.ResourceDTO;
+import team.four.pas.controllers.DTOs.mappers.ResourceToDTO;
 import team.four.pas.exceptions.resource.ResourceDataException;
 import team.four.pas.exceptions.resource.ResourceIdException;
 import team.four.pas.exceptions.resource.ResourceNotFoundException;
@@ -27,13 +28,15 @@ import java.util.List;
 public class ResourceControllerImpl {
     @NonNull
     private final ResourceService resourceService;
+    @NonNull
+    private final ResourceToDTO resourceToDTO;
 
     @GetMapping({""})
     public ResponseEntity<List<ResourceDTO>> getAll() {
         try {
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(resourceService.getAll());
+                    .body(resourceToDTO.toDataList(resourceService.getAll()));
         } catch (RuntimeException ex) {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -46,7 +49,7 @@ public class ResourceControllerImpl {
         try {
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(resourceService.findById(id));
+                    .body(resourceToDTO.toDTO(resourceService.findById(id)));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
@@ -70,7 +73,7 @@ public class ResourceControllerImpl {
         try {
             return ResponseEntity
                     .status(HttpStatus.CREATED)
-                    .body(resourceService.addVM(vmDto));
+                    .body(resourceToDTO.dtoFromVM(resourceService.addVM(resourceToDTO.vmFromAddDTO(vmDto))));
         } catch (ResourceDataException e) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
@@ -90,7 +93,7 @@ public class ResourceControllerImpl {
         try {
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(resourceService.updateVM(id, vmDto));
+                    .body(resourceToDTO.toDTO(resourceService.updateVM(id, vmDto.cpuNumber(), vmDto.ramGiB(), vmDto.storageGiB())));
         } catch (ResourceIdException e) {
             return ResponseEntity
                     .status(HttpStatus.UNPROCESSABLE_ENTITY)

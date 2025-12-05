@@ -2,8 +2,6 @@ package team.four.pas.services.implementation;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import team.four.pas.controllers.DTOs.ResourceAddDTO;
-import team.four.pas.controllers.DTOs.ResourceDTO;
 import team.four.pas.exceptions.resource.ResourceDataException;
 import team.four.pas.exceptions.resource.ResourceIdException;
 import team.four.pas.exceptions.resource.ResourceNotFoundException;
@@ -11,7 +9,7 @@ import team.four.pas.exceptions.resource.ResourceStillAllocatedException;
 import team.four.pas.repositories.AllocationRepository;
 import team.four.pas.repositories.ResourceRepository;
 import team.four.pas.services.ResourceService;
-import team.four.pas.services.mappers.ResourceToDTO;
+import team.four.pas.services.data.resources.VirtualMachine;
 
 import java.util.List;
 
@@ -20,40 +18,39 @@ import java.util.List;
 public class ResourceServiceImpl implements ResourceService {
     private final ResourceRepository resourceRepository;
     private final AllocationRepository allocationRepository;
-    private final ResourceToDTO resourceToDTO;
 
     @Override
-    public List<ResourceDTO> getAll() {
-        return resourceToDTO.toDataList(resourceRepository.getAll());
+    public List<VirtualMachine> getAll() {
+        return resourceRepository.getAll();
     }
 
     @Override
-    public ResourceDTO findById(String id) throws ResourceIdException, ResourceNotFoundException {
-        return resourceToDTO.toDTO(resourceRepository.findById(id));
+    public VirtualMachine findById(String id) throws ResourceIdException, ResourceNotFoundException {
+        return resourceRepository.findById(id);
     }
 
     @Override
-    public ResourceDTO addVM(ResourceAddDTO vmDTO) throws ResourceDataException {
-        validateCPUs(vmDTO.cpuNumber());
-        validateRAM(vmDTO.ramGiB());
-        validateMemory(vmDTO.storageGiB());
+    public VirtualMachine addVM(VirtualMachine vm) throws ResourceDataException {
+        validateCPUs(vm.getCpuNumber());
+        validateRAM(vm.getRamGiB());
+        validateMemory(vm.getStorageGiB());
 
-        return resourceToDTO.toDTO(resourceRepository.addVM(vmDTO.cpuNumber(), vmDTO.ramGiB(), vmDTO.storageGiB()));
+        return resourceRepository.addVM(vm.getCpuNumber(), vm.getRamGiB(), vm.getStorageGiB());
     }
 
     @Override
-    public ResourceDTO updateVM(String id, ResourceAddDTO vmDTO) throws ResourceIdException, ResourceNotFoundException, ResourceDataException {
-        validateCPUs(vmDTO.cpuNumber());
-        validateRAM(vmDTO.ramGiB());
-        validateMemory(vmDTO.storageGiB());
+    public VirtualMachine updateVM(String id, int cpuNumber, int ramGiB, int storageGiB) throws ResourceIdException, ResourceNotFoundException, ResourceDataException {
+        validateCPUs(cpuNumber);
+        validateRAM(ramGiB);
+        validateMemory(storageGiB);
 
-        return resourceToDTO.toDTO(resourceRepository.updateVM(id,vmDTO.cpuNumber(), vmDTO.ramGiB(), vmDTO.storageGiB()));
+        return resourceRepository.updateVM(id, cpuNumber, ramGiB, storageGiB);
     }
 
     @Override
     public void deleteVM(String id) throws ResourceIdException, ResourceNotFoundException, ResourceStillAllocatedException {
-        if (allocationRepository.getActive(resourceToDTO.vmFromDTO(findById(id))).isEmpty()
-                && allocationRepository.getPast(resourceToDTO.vmFromDTO(findById(id))).isEmpty()) {
+        if (allocationRepository.getActive(findById(id)).isEmpty()
+                && allocationRepository.getPast(findById(id)).isEmpty()) {
             resourceRepository.delete(id);
         } else {
             throw new ResourceStillAllocatedException("VM with ID: " + id + " is still allocated");

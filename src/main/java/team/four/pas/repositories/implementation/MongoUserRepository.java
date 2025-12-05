@@ -78,19 +78,14 @@ public class MongoUserRepository implements UserRepository {
             throw new UserTypeException("Invalid type");
         }
 
+
+        userCollection.insertOne(new UserEntity(null, login, name, surname, type, false));
+
         try {
-            findByLogin(login);
-        } catch (UserNotFoundException e) {
-            InsertOneResult result = userCollection.insertOne(new UserEntity(null, login, name, surname, type, false));
-
-            try {
-                return findByLogin(login);
-            } catch (UserNotFoundException ex) {
-                throw new MongoException("Error while adding new User");
-            }
+            return findByLogin(login);
+        } catch (UserNotFoundException ex) {
+            throw new MongoException("Error while adding new User");
         }
-
-        throw new UserAlreadyExistsException("User with login: " + login + " already exists");
     }
 
     @Override

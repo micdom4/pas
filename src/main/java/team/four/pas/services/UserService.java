@@ -3,21 +3,22 @@ package team.four.pas.services;
 import team.four.pas.controllers.DTOs.UserAddDTO;
 import team.four.pas.controllers.DTOs.UserDTO;
 import team.four.pas.exceptions.user.*;
+import team.four.pas.services.data.users.User;
 
 import java.util.List;
 
 public interface UserService {
-    List<UserDTO> getAll();
+    List<User> getAll();
 
-    UserDTO findById(String id) throws UserNotFoundException, UserIdException;
+    User findById(String id) throws UserNotFoundException, UserIdException;
 
-    UserDTO findByLogin(String login) throws UserNotFoundException, UserLoginException;
+    User findByLogin(String login) throws UserNotFoundException, UserLoginException;
 
-    List<UserDTO> findByMatchingLogin(String login);
+    List<User> findByMatchingLogin(String login);
 
-    UserDTO add(UserAddDTO addDTO) throws UserDataException, UserTypeException, UserAlreadyExistsException, UserLoginException;
+    User add(User user) throws UserDataException, UserTypeException, UserAlreadyExistsException, UserLoginException;
 
-    UserDTO update(String id, String surname) throws UserDataException, UserNotFoundException, UserIdException;
+    User update(String id, String surname) throws UserDataException, UserNotFoundException, UserIdException;
 
     void activate(String id) throws UserNotFoundException, UserIdException;
 
