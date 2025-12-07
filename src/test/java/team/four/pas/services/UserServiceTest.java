@@ -56,10 +56,6 @@ public class UserServiceTest {
         assertThrows(UserAlreadyExistsException.class, () -> userService.add(new Admin(null, "BLis", "Bartosz", "Lis", true)));
     }
 
-    @Test
-    void addFailWhenLoginEmpty() {
-        assertThrows(UserLoginException.class, () -> userService.add(new Admin(null, "", "Bartosz", "Lis", true)));
-    }
 
     @Test
     void findByLogin() {

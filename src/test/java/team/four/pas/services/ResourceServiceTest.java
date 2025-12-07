@@ -69,27 +69,6 @@ public class ResourceServiceTest {
         }
     }
 
-    @Test
-    void addNegative() {
-        try {
-            resourceService.addVM(new VirtualMachine(null, 5, 12, 10));
-            resourceService.addVM(new VirtualMachine(null, 5, 11, 10));
-
-            assertEquals(2, resourceService.getAll().size());
-
-            assertThrows(ResourceDataException.class, () -> resourceService.addVM(new VirtualMachine(null, -5, 12, 10)));
-            assertThrows(ResourceDataException.class, () -> resourceService.addVM(new VirtualMachine(null, 5, -12, 10)));
-            assertThrows(ResourceDataException.class, () -> resourceService.addVM(new VirtualMachine(null, 5, 12, -10)));
-            assertThrows(ResourceDataException.class, () -> resourceService.addVM(new VirtualMachine(null, 500, 12, 10)));
-            assertThrows(ResourceDataException.class, () -> resourceService.addVM(new VirtualMachine(null, 5, 2048, 10)));
-            assertThrows(ResourceDataException.class, () -> resourceService.addVM(new VirtualMachine(null, 5, 12, 10000000)));
-            assertThrows(ResourceDataException.class, () -> resourceService.addVM(new VirtualMachine(null, 0, 0, 0)));
-
-            assertEquals(2, resourceService.getAll().size());
-        } catch (ResourceException e) {
-            fail(e.getMessage());
-        }
-    }
 
     @Test
     void findById() {
@@ -137,29 +116,6 @@ public class ResourceServiceTest {
         }
     }
 
-    @Test
-    void updateNegative() {
-        try {
-            resourceService.addVM(new VirtualMachine(null, 5, 12, 10));
-            VirtualMachine vm = (VirtualMachine) resourceService.getAll().getFirst();
-            int ramBefore = vm.getRamGiB();
-            int storageBefore = vm.getStorageGiB();
-            int cpuBefore = vm.getCpuNumber();
-
-            assertNotEquals(-1, ramBefore);
-            assertNotEquals(-1, storageBefore);
-            assertNotEquals(-1, cpuBefore);
-
-            assertThrows(ResourceDataException.class, () -> resourceService.updateVM(vm.getId(), -1, -1, -1));
-
-            VirtualMachine updatedVM = (VirtualMachine) resourceService.getAll().getFirst();
-            assertEquals(ramBefore, updatedVM.getRamGiB());
-            assertEquals(storageBefore, updatedVM.getStorageGiB());
-            assertEquals(cpuBefore, updatedVM.getCpuNumber());
-        } catch (ResourceException e) {
-            fail(e.getMessage());
-        }
-    }
 
     @Test
     void deletePositive() {

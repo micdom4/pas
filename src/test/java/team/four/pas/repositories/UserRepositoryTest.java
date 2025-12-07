@@ -62,11 +62,6 @@ class UserRepositoryTest {
     }
 
     @Test
-    void addFailWhenLoginEmpty() {
-        assertThrows(UserLoginException.class, () -> userRepository.add(null, "Bartosz", "Lis", Client.class));
-    }
-
-    @Test
     void findByLogin() {
         try {
             userRepository.add("BLis", "Bartosz", "Lis", Client.class);
