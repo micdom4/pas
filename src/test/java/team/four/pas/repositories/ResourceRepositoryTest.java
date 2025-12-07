@@ -2,16 +2,16 @@ package team.four.pas.repositories;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
+import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import team.four.pas.Config;
 import team.four.pas.exceptions.resource.ResourceException;
 import team.four.pas.exceptions.resource.ResourceIdException;
 import team.four.pas.exceptions.resource.ResourceNotFoundException;
@@ -23,6 +23,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@QuarkusTest
 @Testcontainers
 class ResourceRepositoryTest {
 
@@ -31,44 +32,31 @@ class ResourceRepositoryTest {
             new DockerComposeContainer<>(new File("src/test/resources/docker-compose.yml"))
                     .withExposedService("mongo", 27017);
 
-    private static ResourceRepository resourceRepository;
-    private static MongoDatabase database;
+    @Inject
+    ResourceRepository resourceRepository;
+    @Inject
+    MongoClient mongoClient;
+
+    private MongoDatabase database;
 
     @BeforeAll
     static void beforeAll() {
         String host = compose.getServiceHost("mongo", 27017);
         Integer port = compose.getServicePort("mongo", 27017);
         String dynamicUri = "mongodb://" + host + ":" + port + "/pas";
-
         System.setProperty("pas.data.mongodb.uri", dynamicUri);
-
-        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Config.class);
-        resourceRepository = context.getBean(ResourceRepository.class);
-        database = context.getBean(MongoClient.class).getDatabase("pas");
     }
 
     @AfterEach
     void afterEach() {
+        database = mongoClient.getDatabase("pas");
         database.getCollection("virtualMachines").deleteMany(new Document());
     }
-
-
-  /* CCC
-    C
-    C
-    C
-     CCC  */
 
     @Test
     void add() {
         assertNotNull(resourceRepository.addVM(5, 12, 10));
     }
-
-    /* RRR
-       R  R
-       RRR
-       R  R
-       R   R */
 
     @Test
     void findByIdPass() {
@@ -104,12 +92,6 @@ class ResourceRepositoryTest {
         assertEquals(0, resourceRepository.getAll().size());
     }
 
-    /* U   U
-       U   U
-       U   U
-       U   U
-        UUU  */
-
     @Test
     void updatePass() {
         try {
@@ -134,7 +116,6 @@ class ResourceRepositoryTest {
         }
     }
 
-
     @Test
     void updateFailEmptyId() {
         assertThrows(ResourceIdException.class, () -> resourceRepository.updateVM("", 2, 2, 2));
@@ -145,11 +126,6 @@ class ResourceRepositoryTest {
         String id = new ObjectId().toHexString();
         assertThrows(ResourceNotFoundException.class, () -> resourceRepository.updateVM(id, 2, 2, 2));
     }
-    /* DDD
-       D  D
-       D  D
-       D  D
-       DDD  */
 
     @Test
     void deletePass() {

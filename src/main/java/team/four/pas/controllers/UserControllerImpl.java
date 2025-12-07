@@ -3,103 +3,97 @@ package team.four.pas.controllers;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 import team.four.pas.controllers.DTOs.UserAddDTO;
-import team.four.pas.controllers.DTOs.UserDTO;
 import team.four.pas.controllers.DTOs.UserModDTO;
 import team.four.pas.controllers.DTOs.mappers.UserToDTO;
 import team.four.pas.services.UserService;
 import team.four.pas.services.data.users.User;
 
-import java.util.List;
 
-@RestController
-@CrossOrigin(
-        originPatterns = {"http://localhost:[*]"}
-)
-@RequestMapping(
-        value = {"/users"},
-        produces = {"application/json"}
-)
+@Path("/users")
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
 @RequiredArgsConstructor
 public class UserControllerImpl {
     private final UserService userService;
     private final UserToDTO userToDTO;
 
-    @GetMapping({""})
-    public ResponseEntity<List<UserDTO>> getAll() {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(userToDTO.toDataList(userService.getAll()));
+    @GET
+    public Response getAll() {
+        return Response
+                .status(Response.Status.OK)
+                .entity(userToDTO.toDataList(userService.getAll()))
+                .build();
     }
 
-    @GetMapping({"/{id}"})
-    public ResponseEntity<UserDTO> getUser(@PathVariable String id) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(userToDTO.toDTO(userService.findById(id)));
+    @GET
+    @Path("/{id}")
+    public Response getUser(@PathParam("id") String id) {
+        return Response
+                .status(Response.Status.OK)
+                .entity(userToDTO.toDTO(userService.findById(id)))
+                .build();
     }
 
-    @GetMapping({"/login/{login}"})
-    public ResponseEntity<UserDTO> findPersonByLogin(@PathVariable
-                                                      @NotNull(message = "login can't be null")
-                                                      @Pattern(regexp = "^[A-Z][A-Z][a-z]{1,18}[0-9]{0,5}$",
-                                                              message = "Wrong format of login")
-                                                      String login) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(userToDTO.toDTO(userService.findByLogin(login)));
+    @GET
+    @Path("/login/{login}")
+    public Response findPersonByLogin(@PathParam("login")
+                                      @NotNull(message = "login can't be null")
+                                      @Pattern(regexp = "^[A-Z][A-Z][a-z]{1,18}[0-9]{0,5}$",
+                                              message = "Wrong format of login")
+                                      String login) {
+        return Response
+                .status(Response.Status.OK)
+                .entity(userToDTO.toDTO(userService.findByLogin(login)))
+                .build();
     }
 
-    @GetMapping({"/search/{login}"})
-    public ResponseEntity<List<UserDTO>> searchByLogin(@PathVariable
-                                                               String login) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(userToDTO.toDataList(userService.findByMatchingLogin(login)));
+    @GET
+    @Path("/search/{login}")
+    public Response searchByLogin(@PathParam("login") String login) {
+        return Response
+                .status(Response.Status.OK)
+                .entity(userToDTO.toDataList(userService.findByMatchingLogin(login)))
+                .build();
     }
 
-    @PutMapping({"/{id}/activate"})
-    public ResponseEntity<?> activateUser(@PathVariable String id) {
+    @PUT
+    @Path("/{id}/activate")
+    public Response activateUser(@PathParam("id") String id) {
         userService.activate(id);
-
-        return ResponseEntity
-                .status(HttpStatus.OK)
+        return Response
+                .status(Response.Status.OK)
                 .build();
     }
 
-    @PutMapping({"/{id}/deactivate"})
-    public ResponseEntity<?> deactivateUser(@PathVariable String id) {
+    @PUT
+    @Path("/{id}/deactivate")
+    public Response deactivateUser(@PathParam("id") String id) {
         userService.deactivate(id);
-
-        return ResponseEntity
-                .status(HttpStatus.OK)
+        return Response
+                .status(Response.Status.OK)
                 .build();
     }
 
-    @PostMapping(
-            value = {""},
-            consumes = {"application/json"}
-    )
-    public ResponseEntity<UserDTO> createUser(@Valid @RequestBody UserAddDTO addDTO) {
+    @POST
+    public Response createUser(@Valid UserAddDTO addDTO) {
         User user = userToDTO.toData(addDTO);
-
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(userToDTO.toDTO(userService.add(user)));
+        return Response
+                .status(Response.Status.CREATED)
+                .entity(userToDTO.toDTO(userService.add(user)))
+                .build();
     }
 
-    @PutMapping(
-            value = {"/{id}"},
-            consumes = {"application/json"}
-    )
-    public ResponseEntity<?> editUser(@PathVariable String id, @Valid @RequestBody UserModDTO modDTO) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(userService.update(id, modDTO.surname()));
+    @PUT
+    @Path("/{id}")
+    public Response editUser(@PathParam("id") String id, @Valid UserModDTO modDTO) {
+        return Response
+                .status(Response.Status.OK)
+                .entity(userService.update(id, modDTO.surname()))
+                .build();
     }
-
 }

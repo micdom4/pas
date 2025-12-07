@@ -1,73 +1,63 @@
 package team.four.pas.controllers;
 
+import jakarta.inject.Inject;
 import jakarta.validation.Valid;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 import team.four.pas.controllers.DTOs.ResourceAddDTO;
-import team.four.pas.controllers.DTOs.ResourceDTO;
 import team.four.pas.controllers.DTOs.mappers.ResourceToDTO;
 import team.four.pas.services.ResourceService;
 
-import java.util.List;
-
-@RestController
-@CrossOrigin(
-        originPatterns = {"http://localhost:[*]"}
-)
-@RequestMapping(
-        value = {"/resources"},
-        produces = {"application/json"}
-)
+@Path("/resources")
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
 @RequiredArgsConstructor
 public class ResourceControllerImpl {
     private final ResourceService resourceService;
     private final ResourceToDTO resourceToDTO;
 
-    @GetMapping({""})
-    public ResponseEntity<List<ResourceDTO>> getAll() {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(resourceToDTO.toDataList(resourceService.getAll()));
-
+    @GET
+    public Response getAll() {
+        return Response
+                .status(Response.Status.OK)
+                .entity(resourceToDTO.toDataList(resourceService.getAll()))
+                .build();
     }
 
-    @GetMapping({"/{id}"})
-    public ResponseEntity<ResourceDTO> getResource(@PathVariable String id) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(resourceToDTO.toDTO(resourceService.findById(id)));
+    @GET
+    @Path("/{id}")
+    public Response getResource(@PathParam("id") String id) {
+        return Response
+                .status(Response.Status.OK)
+                .entity(resourceToDTO.toDTO(resourceService.findById(id)))
+                .build();
     }
 
-    @PostMapping(
-            value = {""},
-            consumes = {"application/json"}
-    )
-    public ResponseEntity<ResourceDTO> createVM(@Valid @RequestBody ResourceAddDTO vmDto) {
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(resourceToDTO.dtoFromVM(resourceService.addVM(resourceToDTO.vmFromAddDTO(vmDto))));
+    @POST
+    public Response createVM(@Valid ResourceAddDTO vmDto) {
+        return Response
+                .status(Response.Status.CREATED)
+                .entity(resourceToDTO.dtoFromVM(resourceService.addVM(resourceToDTO.vmFromAddDTO(vmDto))))
+                .build();
     }
 
-    @PutMapping(
-            value = {"/{id}"},
-            consumes = {"application/json"}
-    )
-    public ResponseEntity<ResourceDTO> updateVM(@PathVariable String id, @Valid @RequestBody ResourceAddDTO vmDto) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(resourceToDTO.toDTO(resourceService.updateVM(id, vmDto.cpuNumber(), vmDto.ramGiB(), vmDto.storageGiB())));
+    @PUT
+    @Path("/{id}")
+    public Response updateVM(@PathParam("id") String id, @Valid ResourceAddDTO vmDto) {
+        return Response
+                .status(Response.Status.OK)
+                .entity(resourceToDTO.toDTO(resourceService.updateVM(id, vmDto.cpuNumber(), vmDto.ramGiB(), vmDto.storageGiB())))
+                .build();
     }
 
-    @DeleteMapping(
-            value = {"/{id}"}
-    )
-    public ResponseEntity<?> deleteVM(@PathVariable String id) {
+    @DELETE
+    @Path("/{id}")
+    public Response deleteVM(@PathParam("id") String id) {
         resourceService.deleteVM(id);
-
-        return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
-                .body(null);
+        return Response
+                .status(Response.Status.NO_CONTENT)
+                .build();
     }
 }

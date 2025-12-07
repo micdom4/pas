@@ -2,19 +2,17 @@ package team.four.pas.controllers;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
+import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Response.Status;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.http.HttpStatus;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -37,7 +35,7 @@ import java.time.Instant;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@QuarkusTest
 @Testcontainers
 public class AllocationControllerTest {
 
@@ -46,23 +44,20 @@ public class AllocationControllerTest {
             new DockerComposeContainer<>(new File("src/test/resources/docker-compose.yml"))
                     .withExposedService("mongo", 27017);
 
-    @LocalServerPort
-    private int port;
+    @Inject
+    UserService userService;
+    @Inject
+    AllocationService allocationService;
+    @Inject
+    ResourceService resourceService;
 
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private AllocationService allocationService;
-    @Autowired
-    private ResourceService resourceService;
-
-    @Autowired
-    private MongoClient mongoClient;
+    @Inject
+    MongoClient mongoClient;
 
     private MongoDatabase database;
 
-    @DynamicPropertySource
-    static void setProperties(DynamicPropertyRegistry registry) {
+    @BeforeAll
+    static void setProperties()  {
         String host = compose.getServiceHost("mongo", 27017);
         Integer port = compose.getServicePort("mongo", 27017);
         String dynamicUri = "mongodb://" + host + ":" + port + "/pas";
@@ -71,8 +66,6 @@ public class AllocationControllerTest {
 
     @BeforeEach
     void beforeEach() {
-        RestAssured.port = port;
-
         this.database = mongoClient.getDatabase("pas");
         try {
             userService.add(new Client(null, "MCorleone", "Michael", "Corleone", true));
@@ -107,7 +100,7 @@ public class AllocationControllerTest {
                 .get("/allocations")
                 .then()
                 .log().body()
-                .statusCode(HttpStatus.OK.value())
+                .statusCode(Status.OK.getStatusCode())
                 .body("client.login", hasItem("MCorleone"));
     }
 
@@ -124,7 +117,7 @@ public class AllocationControllerTest {
                 .when()
                 .get("/allocations/{id}", allocation.getId())
                 .then()
-                .statusCode(HttpStatus.OK.value())
+                .statusCode(Status.OK.getStatusCode())
                 .log().body()
                 .body("client.login", equalTo("MCorleone"))
                 .body("startTime", equalTo(allocation.getStartTime().toString()));
@@ -138,7 +131,7 @@ public class AllocationControllerTest {
                 .when()
                 .get("/allocations/{id}", fakeId)
                 .then()
-                .statusCode(HttpStatus.NOT_FOUND.value());
+                .statusCode(Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
@@ -155,7 +148,7 @@ public class AllocationControllerTest {
                 .when()
                 .post("/allocations")
                 .then()
-                .statusCode(HttpStatus.CREATED.value())
+                .statusCode(Status.CREATED.getStatusCode())
                 .log().body()
                 .body("client.login", equalTo("MCorleone"));
     }
@@ -177,7 +170,7 @@ public class AllocationControllerTest {
                 .when()
                 .post("/allocations")
                 .then()
-                .statusCode(HttpStatus.FORBIDDEN.value());
+                .statusCode(Status.FORBIDDEN.getStatusCode());
     }
 
     @Test
@@ -199,7 +192,7 @@ public class AllocationControllerTest {
                 .when()
                 .post("/allocations")
                 .then()
-                .statusCode(HttpStatus.UNPROCESSABLE_ENTITY.value());
+                .statusCode(Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
@@ -219,7 +212,7 @@ public class AllocationControllerTest {
                 .when()
                 .post("/allocations")
                 .then()
-                .statusCode(HttpStatus.CONFLICT.value());
+                .statusCode(Status.CONFLICT.getStatusCode());
     }
 
     @Test
@@ -234,7 +227,7 @@ public class AllocationControllerTest {
                 .get("/allocations/active/vm/{id}", vm.getId())
                 .then()
                 .log().body()
-                .statusCode(HttpStatus.OK.value())
+                .statusCode(Status.OK.getStatusCode())
                 .body("vm.id", hasItem(vm.getId()))
                 .body("endTime", hasItem(nullValue()));
 
@@ -243,7 +236,7 @@ public class AllocationControllerTest {
                 .get("/allocations/past/vm/{id}", vm.getId())
                 .then()
                 .log().body()
-                .statusCode(HttpStatus.OK.value())
+                .statusCode(Status.OK.getStatusCode())
                 .body("", empty());
 
         assertDoesNotThrow(() -> allocationService.finishAllocation(allocationService.getAll().getLast().getId()));
@@ -253,7 +246,7 @@ public class AllocationControllerTest {
                 .get("/allocations/active/vm/{id}", vm.getId())
                 .then()
                 .log().body()
-                .statusCode(HttpStatus.OK.value())
+                .statusCode(Status.OK.getStatusCode())
                 .body("", empty());
 
         RestAssured.given()
@@ -261,7 +254,7 @@ public class AllocationControllerTest {
                 .get("/allocations/past/vm/{id}", vm.getId())
                 .then()
                 .log().body()
-                .statusCode(HttpStatus.OK.value())
+                .statusCode(Status.OK.getStatusCode())
                 .body("vm.id", hasItem(vm.getId()))
                 .body("endTime", hasItem(notNullValue()));
     }
@@ -278,7 +271,7 @@ public class AllocationControllerTest {
                 .get("/allocations/active/client/{id}", client.getId())
                 .then()
                 .log().body()
-                .statusCode(HttpStatus.OK.value())
+                .statusCode(Status.OK.getStatusCode())
                 .body("client.id", hasItem(client.getId()))
                 .body("endTime", hasItem(nullValue()));
 
@@ -287,7 +280,7 @@ public class AllocationControllerTest {
                 .get("/allocations/past/client/{id}", client.getId())
                 .then()
                 .log().body()
-                .statusCode(HttpStatus.OK.value())
+                .statusCode(Status.OK.getStatusCode())
                 .body("", empty());
 
         assertDoesNotThrow(() -> allocationService.finishAllocation(allocationService.getAll().getLast().getId()));
@@ -297,7 +290,7 @@ public class AllocationControllerTest {
                 .get("/allocations/active/client/{id}", client.getId())
                 .then()
                 .log().body()
-                .statusCode(HttpStatus.OK.value())
+                .statusCode(Status.OK.getStatusCode())
                 .body("", empty());
 
         RestAssured.given()
@@ -305,7 +298,7 @@ public class AllocationControllerTest {
                 .get("/allocations/past/client/{id}", client.getId())
                 .then()
                 .log().body()
-                .statusCode(HttpStatus.OK.value())
+                .statusCode(Status.OK.getStatusCode())
                 .body("client.id", hasItem(client.getId()))
                 .body("endTime", hasItem(notNullValue()));
     }
@@ -319,14 +312,14 @@ public class AllocationControllerTest {
                 .get("/allocations/active/vm/{id}", fakeId)
                 .then()
                 .log().body()
-                .statusCode(HttpStatus.NOT_FOUND.value());
+                .statusCode(Status.NOT_FOUND.getStatusCode());
 
         RestAssured.given()
                 .when()
                 .get("/allocations/past/vm/{id}", fakeId)
                 .then()
                 .log().body()
-                .statusCode(HttpStatus.NOT_FOUND.value());
+                .statusCode(Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
@@ -338,14 +331,14 @@ public class AllocationControllerTest {
                 .get("/allocations/active/client/{id}", fakeId)
                 .then()
                 .log().body()
-                .statusCode(HttpStatus.NOT_FOUND.value());
+                .statusCode(Status.NOT_FOUND.getStatusCode());
 
         RestAssured.given()
                 .when()
                 .get("/allocations/past/client/{id}", fakeId)
                 .then()
                 .log().body()
-                .statusCode(HttpStatus.NOT_FOUND.value());
+                .statusCode(Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
@@ -365,7 +358,7 @@ public class AllocationControllerTest {
                     .when()
                     .put("/allocations/{id}/finish", allocation.getId())
                     .then()
-                    .statusCode(HttpStatus.OK.value());
+                    .statusCode(Status.OK.getStatusCode());
 
             assertEquals(0, allocationService.getActiveVm(vm.getId()).size());
             assertEquals(1, allocationService.getPastVm(vm.getId()).size());
@@ -383,7 +376,7 @@ public class AllocationControllerTest {
                 .when()
                 .put("/allocations/{id}/finish", fakeId)
                 .then()
-                .statusCode(HttpStatus.NOT_FOUND.value());
+                .statusCode(Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
@@ -395,7 +388,7 @@ public class AllocationControllerTest {
                 .when()
                 .put("/allocations/{id}/finish", fakeId)
                 .then()
-                .statusCode(HttpStatus.UNPROCESSABLE_ENTITY.value());
+                .statusCode(Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
@@ -411,7 +404,7 @@ public class AllocationControllerTest {
                 .when()
                 .delete("/allocations/{id}", allocation.getId())
                 .then()
-                .statusCode(HttpStatus.NO_CONTENT.value());
+                .statusCode(Status.NO_CONTENT.getStatusCode());
     }
 
     @Test
@@ -422,7 +415,7 @@ public class AllocationControllerTest {
                 .when()
                 .delete("/allocations/{id}", fakeId)
                 .then()
-                .statusCode(HttpStatus.NOT_FOUND.value());
+                .statusCode(Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
@@ -441,6 +434,6 @@ public class AllocationControllerTest {
                 .when()
                 .delete("/allocations/{id}", allocation.getId())
                 .then()
-                .statusCode(HttpStatus.CONFLICT.value());
+                .statusCode(Status.CONFLICT.getStatusCode());
     }
 }

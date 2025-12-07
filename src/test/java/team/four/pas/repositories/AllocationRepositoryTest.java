@@ -2,22 +2,21 @@ package team.four.pas.repositories;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
+import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import team.four.pas.Config;
 import team.four.pas.exceptions.allocation.AllocationException;
 import team.four.pas.exceptions.allocation.AllocationIdException;
 import team.four.pas.exceptions.allocation.AllocationNotFoundException;
 import team.four.pas.exceptions.user.UserException;
-import team.four.pas.repositories.implementation.MongoAllocationRepository;
 import team.four.pas.services.data.allocations.VMAllocation;
 import team.four.pas.services.data.users.Client;
 
@@ -26,6 +25,7 @@ import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@QuarkusTest
 @Testcontainers
 class AllocationRepositoryTest {
     @Container
@@ -33,10 +33,16 @@ class AllocationRepositoryTest {
             new DockerComposeContainer<>(new File("src/test/resources/docker-compose.yml"))
                     .withExposedService("mongo", 27017);
 
-    private static MongoAllocationRepository allocationRepository;
-    private static ResourceRepository resourceRepository;
-    private static UserRepository userRepository;
-    private static MongoDatabase database;
+    @Inject
+    AllocationRepository allocationRepository;
+    @Inject
+    ResourceRepository resourceRepository;
+    @Inject
+    UserRepository userRepository;
+    @Inject
+    MongoClient mongoClient;
+
+    private MongoDatabase database;
 
     @BeforeAll
     static void beforeAll() {
@@ -45,17 +51,11 @@ class AllocationRepositoryTest {
         String dynamicUri = "mongodb://" + host + ":" + port + "/pas";
 
         System.setProperty("pas.data.mongodb.uri", dynamicUri);
-
-        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Config.class);
-
-        allocationRepository = context.getBean(MongoAllocationRepository.class);
-        resourceRepository = context.getBean(ResourceRepository.class);
-        userRepository = context.getBean(UserRepository.class);
-        database = context.getBean(MongoClient.class).getDatabase("pas");
     }
 
     @AfterEach
     void afterEach() {
+        database = mongoClient.getDatabase("pas");
         database.getCollection("users").deleteMany(new Document());
         database.getCollection("virtualMachines").deleteMany(new Document());
         database.getCollection("vmAllocations").deleteMany(new Document());

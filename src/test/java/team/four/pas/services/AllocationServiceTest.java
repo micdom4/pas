@@ -2,37 +2,31 @@ package team.four.pas.services;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
+import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import team.four.pas.Config;
 import team.four.pas.exceptions.allocation.*;
 import team.four.pas.exceptions.resource.ResourceException;
 import team.four.pas.exceptions.user.UserException;
 import team.four.pas.exceptions.user.UserTypeException;
-import team.four.pas.repositories.AllocationRepository;
-import team.four.pas.repositories.ResourceRepository;
-import team.four.pas.repositories.UserRepository;
-import team.four.pas.repositories.implementation.MongoAllocationRepository;
 import team.four.pas.services.data.allocations.VMAllocation;
 import team.four.pas.services.data.resources.VirtualMachine;
 import team.four.pas.services.data.users.Client;
 import team.four.pas.services.data.users.Manager;
-import team.four.pas.services.implementation.AllocationServiceImpl;
-import team.four.pas.services.implementation.ResourceServiceImpl;
-import team.four.pas.services.implementation.UserServiceImpl;
 
 import java.io.File;
 import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@QuarkusTest
 @Testcontainers
 class AllocationServiceTest {
     @Container
@@ -40,30 +34,27 @@ class AllocationServiceTest {
             new DockerComposeContainer<>(new File("src/test/resources/docker-compose.yml"))
                     .withExposedService("mongo", 27017);
 
-    private static AllocationService allocationService;
-    private static ResourceService resourceService;
-    private static UserService userService;
-    private static MongoDatabase database;
+    @Inject
+    AllocationService allocationService;
+    @Inject
+    ResourceService resourceService;
+    @Inject
+    UserService userService;
+    @Inject
+    MongoClient mongoClient;
+
+    private MongoDatabase database;
 
     @BeforeAll
     static void beforeAll() {
         String host = compose.getServiceHost("mongo", 27017);
         Integer port = compose.getServicePort("mongo", 27017);
         System.setProperty("pas.data.mongodb.uri", "mongodb://" + host + ":" + port + "/pas");
-
-        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Config.class);
-        AllocationRepository allocationRepository = context.getBean(MongoAllocationRepository.class);
-        ResourceRepository resourceRepository = context.getBean(ResourceRepository.class);
-        UserRepository userRepository = context.getBean(UserRepository.class);
-
-        resourceService = new ResourceServiceImpl(resourceRepository, allocationRepository);
-        userService = new UserServiceImpl(userRepository);
-        allocationService = new AllocationServiceImpl(allocationRepository, userService, resourceService);
-        database = context.getBean(MongoClient.class).getDatabase("pas");
     }
 
     @AfterEach
     void afterEach() {
+        database = mongoClient.getDatabase("pas");
         database.getCollection("users").deleteMany(new Document());
         database.getCollection("virtualMachines").deleteMany(new Document());
         database.getCollection("vmAllocations").deleteMany(new Document());

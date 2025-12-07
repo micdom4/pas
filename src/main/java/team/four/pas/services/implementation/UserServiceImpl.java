@@ -1,16 +1,15 @@
 package team.four.pas.services.implementation;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 import team.four.pas.exceptions.user.*;
 import team.four.pas.repositories.UserRepository;
 import team.four.pas.services.UserService;
 import team.four.pas.services.data.users.User;
 
 import java.util.List;
-import java.util.regex.Pattern;
 
-@Service
+@ApplicationScoped
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
@@ -37,15 +36,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User add(User user) throws UserDataException, UserTypeException, UserAlreadyExistsException, UserLoginException {
-//        return switch (user.getClass()) {
-//            case Client.class ->
-//                    userRepository.add(user.getlogin(), user.getname(), user.getsurname(), Client.class);
-//            case MANAGER ->
-//                    userRepository.add(user.getlogin(), user.getname(), user.getsurname(), Manager.class);
-//            case ADMIN ->
-//                    userRepository.add(user.getlogin(), user.getname(), user.getsurname(), Admin.class);
-//        };
-
         return userRepository.add(user.getLogin(), user.getName(), user.getSurname(), user.getClass());
     }
 

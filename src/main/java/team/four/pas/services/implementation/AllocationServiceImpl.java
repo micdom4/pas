@@ -1,8 +1,7 @@
 package team.four.pas.services.implementation;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import team.four.pas.controllers.DTOs.ResourceAddDTO;
 import team.four.pas.exceptions.allocation.*;
 import team.four.pas.exceptions.resource.ResourceIdException;
 import team.four.pas.exceptions.resource.ResourceNotFoundException;
@@ -21,7 +20,7 @@ import team.four.pas.services.data.users.User;
 import java.time.Instant;
 import java.util.List;
 
-@Service
+@ApplicationScoped
 @RequiredArgsConstructor
 public class AllocationServiceImpl implements AllocationService {
     private final AllocationRepository allocationRepository;

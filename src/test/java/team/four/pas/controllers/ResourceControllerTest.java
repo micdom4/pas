@@ -2,18 +2,16 @@ package team.four.pas.controllers;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
+import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Response.Status;
 import org.bson.Document;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.http.HttpStatus;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -36,7 +34,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.junit.Assert.*;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@QuarkusTest
 @Testcontainers
 public class ResourceControllerTest {
 
@@ -45,22 +43,19 @@ public class ResourceControllerTest {
             new DockerComposeContainer<>(new File("src/test/resources/docker-compose.yml"))
                     .withExposedService("mongo", 27017);
 
-    @LocalServerPort
-    private int port;
-
-    @Autowired
-    private ResourceService resourceService;
-    @Autowired
-    private AllocationService allocationService;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private MongoClient mongoClient;
+    @Inject
+    ResourceService resourceService;
+    @Inject
+    AllocationService allocationService;
+    @Inject
+    UserService userService;
+    @Inject
+    MongoClient mongoClient;
 
     private MongoDatabase database;
 
-    @DynamicPropertySource
-    static void setProperties(DynamicPropertyRegistry registry) {
+    @BeforeAll
+    static void setProperties() {
         String host = compose.getServiceHost("mongo", 27017);
         Integer port = compose.getServicePort("mongo", 27017);
         String dynamicUri = "mongodb://" + host + ":" + port + "/pas";
@@ -69,8 +64,6 @@ public class ResourceControllerTest {
 
     @BeforeEach
     void beforeEach() {
-        RestAssured.port = port;
-
         this.database = mongoClient.getDatabase("pas");
     }
 
@@ -94,7 +87,7 @@ public class ResourceControllerTest {
                 .get("/resources")
                 .then()
                 .log().body()
-                .statusCode(HttpStatus.OK.value())
+                .statusCode(Status.OK.getStatusCode())
                 .body("cpuNumber", hasItem(2));
     }
 
@@ -112,7 +105,7 @@ public class ResourceControllerTest {
                 .when()
                 .post("/resources")
                 .then()
-                .statusCode(HttpStatus.CREATED.value())
+                .statusCode(Status.CREATED.getStatusCode())
                 .log().body()
                 .body("cpuNumber", equalTo(2))
                 .body("ramGiB", equalTo(4))
@@ -133,7 +126,7 @@ public class ResourceControllerTest {
                 .when()
                 .post("/resources")
                 .then()
-                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .statusCode(Status.BAD_REQUEST.getStatusCode())
                 .log().body();
     }
 
@@ -148,7 +141,7 @@ public class ResourceControllerTest {
                     .get("/resources/{vm}", vm.getId())
                     .then()
                     .log().body()
-                    .statusCode(HttpStatus.OK.value())
+                    .statusCode(Status.OK.getStatusCode())
                     .body("cpuNumber", equalTo(2));
 
             Map<String, Integer> requestBody = new HashMap<>();
@@ -163,7 +156,7 @@ public class ResourceControllerTest {
                     .when()
                     .put("/resources/{vm}", vm.getId())
                     .then()
-                    .statusCode(HttpStatus.OK.value())
+                    .statusCode(Status.OK.getStatusCode())
                     .log().body()
                     .body("cpuNumber", equalTo(10));
 
@@ -172,7 +165,7 @@ public class ResourceControllerTest {
                     .get("/resources/{vm}", vm.getId())
                     .then()
                     .log().body()
-                    .statusCode(HttpStatus.OK.value())
+                    .statusCode(Status.OK.getStatusCode())
                     .body("cpuNumber", equalTo(10));
         } catch (ResourceException e) {
             fail(e.getMessage());
@@ -190,7 +183,7 @@ public class ResourceControllerTest {
                     .get("/resources/{vm}", vm.getId())
                     .then()
                     .log().body()
-                    .statusCode(HttpStatus.OK.value())
+                    .statusCode(Status.OK.getStatusCode())
                     .body("cpuNumber", equalTo(2));
 
             Map<String, Integer> requestBody = new HashMap<>();
@@ -205,14 +198,14 @@ public class ResourceControllerTest {
                     .when()
                     .put("/resources/{vm}", vm.getId())
                     .then()
-                    .statusCode(HttpStatus.BAD_REQUEST.value());
+                    .statusCode(Status.BAD_REQUEST.getStatusCode());
 
             RestAssured.given()
                     .when()
                     .get("/resources/{vm}", vm.getId())
                     .then()
                     .log().body()
-                    .statusCode(HttpStatus.OK.value())
+                    .statusCode(Status.OK.getStatusCode())
                     .body("cpuNumber", equalTo(2));
         } catch (ResourceException e) {
             fail(e.getMessage());
@@ -229,7 +222,7 @@ public class ResourceControllerTest {
                     .when()
                     .delete("/resources/{vm}", vm.getId())
                     .then()
-                    .statusCode(HttpStatus.NO_CONTENT.value());
+                    .statusCode(Status.NO_CONTENT.getStatusCode());
 
             assertTrue(resourceService.getAll().isEmpty());
         } catch (ResourceException e) {
@@ -254,7 +247,7 @@ public class ResourceControllerTest {
                     .when()
                     .delete("/resources/{vm}", vm.getId())
                     .then()
-                    .statusCode(HttpStatus.CONFLICT.value());
+                    .statusCode(Status.CONFLICT.getStatusCode());
 
             assertFalse(resourceService.getAll().isEmpty());
         } catch (ResourceException | UserException | AllocationException e) {
@@ -262,4 +255,3 @@ public class ResourceControllerTest {
         }
     }
 }
-

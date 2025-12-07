@@ -1,20 +1,19 @@
-package team.four.pas.repositories;
+package team.four.pas.services;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
+import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import team.four.pas.Config;
-import team.four.pas.exceptions.AppBaseException;
-import team.four.pas.exceptions.resource.ResourceException;
 import team.four.pas.exceptions.user.*;
+import team.four.pas.repositories.UserRepository;
 import team.four.pas.services.data.users.Admin;
 import team.four.pas.services.data.users.Client;
 import team.four.pas.services.data.users.User;
@@ -23,7 +22,7 @@ import java.io.File;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-
+@QuarkusTest
 @Testcontainers
 class UserRepositoryTest {
 
@@ -32,33 +31,27 @@ class UserRepositoryTest {
             new DockerComposeContainer<>(new File("src/test/resources/docker-compose.yml"))
                     .withExposedService("mongo", 27017);
 
-    private static UserRepository userRepository;
-    private static AnnotationConfigApplicationContext context;
-    private static MongoDatabase database;
+    @Inject
+    UserRepository userRepository;
+
+    @Inject
+    MongoClient mongoClient;
+
+    MongoDatabase database;
 
     @BeforeAll
     static void each() {
         String host = compose.getServiceHost("mongo", 27017);
         Integer port = compose.getServicePort("mongo", 27017);
         String dynamicUri = "mongodb://" + host + ":" + port + "/pas";
-
         System.setProperty("pas.data.mongodb.uri", dynamicUri);
-
-        context = new AnnotationConfigApplicationContext(Config.class);
-        userRepository = context.getBean(UserRepository.class);
-        database = context.getBean(MongoClient.class).getDatabase("pas");
     }
 
     @AfterEach
     void afterEach() {
+        database = mongoClient.getDatabase("pas");
         database.getCollection("users").deleteMany(new Document());
     }
-
-  /* CCC
-    C
-    C
-    C
-     CCC  */
 
     @Test
     void addPassWhenFreeLogin() {
@@ -84,12 +77,6 @@ class UserRepositoryTest {
         assertThrows(UserLoginException.class, () -> userRepository.add(null, "Bartosz", "Lis", Client.class));
     }
 
-    /* RRR
-       R  R
-       RRR
-       R  R
-       R   R */
-
     @Test
     void findByLogin() {
         try {
@@ -105,7 +92,7 @@ class UserRepositoryTest {
         try {
             User user = userRepository.add("BLis", "Bartosz", "Lis", Client.class);
             assertEquals("Bartosz", userRepository.findById(user.getId()).getName());
-        } catch (AppBaseException e) {
+        } catch (Exception e) {
             fail(e.getMessage());
         }
     }
@@ -146,13 +133,6 @@ class UserRepositoryTest {
             fail(e.getMessage());
         }
     }
-
-
-    /* U   U
-       U   U
-       U   U
-       U   U
-        UUU  */
 
     @Test
     void updatePass() {
@@ -210,6 +190,4 @@ class UserRepositoryTest {
         assertThrows(UserIdException.class, () -> userRepository.activate(id));
         assertThrows(UserIdException.class, () -> userRepository.deactivate(id));
     }
-
-
 }

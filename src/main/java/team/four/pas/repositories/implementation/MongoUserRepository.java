@@ -62,9 +62,6 @@ public class MongoUserRepository implements UserRepository {
 
     @Override
     public <T extends User> User add(String login, String name, String surname, Class<T> userClass) throws UserTypeException, UserLoginException, UserAlreadyExistsException {
-        if (login == null || login.isEmpty()) {
-            throw new UserLoginException("User login may not be empty");
-        }
 
         UserEntity.Type type;
 

@@ -2,29 +2,23 @@ package team.four.pas.services;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
+import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
 import org.bson.Document;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import team.four.pas.Config;
 import team.four.pas.exceptions.allocation.AllocationException;
 import team.four.pas.exceptions.resource.ResourceDataException;
 import team.four.pas.exceptions.resource.ResourceException;
 import team.four.pas.exceptions.resource.ResourceNotFoundException;
 import team.four.pas.exceptions.resource.ResourceStillAllocatedException;
 import team.four.pas.exceptions.user.UserException;
-import team.four.pas.repositories.AllocationRepository;
-import team.four.pas.repositories.ResourceRepository;
-import team.four.pas.repositories.UserRepository;
 import team.four.pas.services.data.resources.VirtualMachine;
 import team.four.pas.services.data.users.Client;
-import team.four.pas.services.implementation.AllocationServiceImpl;
-import team.four.pas.services.implementation.ResourceServiceImpl;
-import team.four.pas.services.implementation.UserServiceImpl;
 
 import java.io.File;
 import java.time.Instant;
@@ -33,6 +27,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@QuarkusTest
 @Testcontainers
 public class ResourceServiceTest {
     @Container
@@ -40,32 +35,27 @@ public class ResourceServiceTest {
             new DockerComposeContainer<>(new File("src/test/resources/docker-compose.yml"))
                     .withExposedService("mongo", 27017);
 
-    private static ResourceService resourceService;
-    private static AllocationService allocationService;
-    private static UserService userService;
-    private static MongoDatabase database;
+    @Inject
+    ResourceService resourceService;
+    @Inject
+    AllocationService allocationService;
+    @Inject
+    UserService userService;
+    @Inject
+    MongoClient mongoClient;
+
+    private MongoDatabase database;
 
     @BeforeAll
     static void before() {
         String host = compose.getServiceHost("mongo", 27017);
         Integer port = compose.getServicePort("mongo", 27017);
         System.setProperty("pas.data.mongodb.uri", "mongodb://" + host + ":" + port + "/pas");
-
-        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Config.class);
-
-        ResourceRepository resourceRepository = context.getBean(ResourceRepository.class);
-        AllocationRepository allocationRepository = context.getBean(AllocationRepository.class);
-        UserRepository userRepository = context.getBean(UserRepository.class);
-
-        resourceService = new ResourceServiceImpl(resourceRepository, allocationRepository);
-        userService = new UserServiceImpl(userRepository);
-        allocationService = new AllocationServiceImpl(allocationRepository, userService, resourceService);
-
-        database = context.getBean(MongoClient.class).getDatabase("pas");
     }
 
     @AfterEach
     void after() {
+        database = mongoClient.getDatabase("pas");
         database.getCollection("users").deleteMany(new Document());
         database.getCollection("virtualMachines").deleteMany(new Document());
         database.getCollection("vmAllocations").deleteMany(new Document());
@@ -144,7 +134,7 @@ public class ResourceServiceTest {
             assertNotEquals(16, ramBefore);
             assertNotEquals(50, storageBefore);
 
-            assertNotNull(resourceService.updateVM(vm.getId(),  10, 16, 50));
+            assertNotNull(resourceService.updateVM(vm.getId(), 10, 16, 50));
 
             VirtualMachine updatedVM = (VirtualMachine) resourceService.getAll().getFirst();
             assertEquals(10, updatedVM.getCpuNumber());

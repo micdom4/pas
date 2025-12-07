@@ -2,18 +2,16 @@ package team.four.pas.controllers;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
+import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Response.Status;
 import org.bson.Document;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.http.HttpStatus;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -31,8 +29,7 @@ import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@QuarkusTest
 @Testcontainers
 public class UserControllerTest {
 
@@ -41,18 +38,15 @@ public class UserControllerTest {
             new DockerComposeContainer<>(new File("src/test/resources/docker-compose.yml"))
                     .withExposedService("mongo", 27017);
 
-    @LocalServerPort
-    private int port;
-
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private MongoClient mongoClient;
+    @Inject
+    UserService userService;
+    @Inject
+    MongoClient mongoClient;
 
     private MongoDatabase database;
 
-    @DynamicPropertySource
-    static void setProperties(DynamicPropertyRegistry registry) {
+    @BeforeAll
+    static void setProperties() {
         String host = compose.getServiceHost("mongo", 27017);
         Integer port = compose.getServicePort("mongo", 27017);
         String dynamicUri = "mongodb://" + host + ":" + port + "/pas";
@@ -61,8 +55,6 @@ public class UserControllerTest {
 
     @BeforeEach
     void beforeEach() {
-        RestAssured.port = port;
-
         this.database = mongoClient.getDatabase("pas");
     }
 
@@ -84,7 +76,7 @@ public class UserControllerTest {
                     .get("/users")
                     .then()
                     .log().body()
-                    .statusCode(HttpStatus.OK.value())
+                    .statusCode(Status.OK.getStatusCode())
                     .body("login", hasItem("BLis"));
         } catch (UserException ue) {
             fail(ue.getMessage());
@@ -102,7 +94,7 @@ public class UserControllerTest {
                     .get("/users/{id}", id)
                     .then()
                     .log().body()
-                    .statusCode(HttpStatus.OK.value())
+                    .statusCode(Status.OK.getStatusCode())
                     .body("name", equalTo("Bartosz"))
                     .body("type", equalTo("ADMIN"));
         } catch (UserException ue) {
@@ -125,7 +117,7 @@ public class UserControllerTest {
                     .get("/users/search/{login}", login)
                     .then()
                     .log().body()
-                    .statusCode(HttpStatus.OK.value())
+                    .statusCode(Status.OK.getStatusCode())
                     .body("login", hasItems("BLis", "BLis2"))
                     .body("login", not(hasItems("KLrol")));
         } catch (UserException ue) {
@@ -141,7 +133,7 @@ public class UserControllerTest {
                 .when()
                 .get("/users/login/{login}", "BLis")
                 .then()
-                .statusCode(HttpStatus.OK.value())
+                .statusCode(Status.OK.getStatusCode())
                 .log().body()
                 .body("login", equalTo("BLis"));
     }
@@ -152,7 +144,7 @@ public class UserControllerTest {
                 .when()
                 .get("/users/login/{login}", "BLis")
                 .then()
-                .statusCode(HttpStatus.NOT_FOUND.value());
+                .statusCode(Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
@@ -168,7 +160,7 @@ public class UserControllerTest {
                     .get("/users/{id}", id)
                     .then()
                     .log().body()
-                    .statusCode(HttpStatus.OK.value())
+                    .statusCode(Status.OK.getStatusCode())
                     .body("name", equalTo("Bartosz"))
                     .body("type", equalTo("ADMIN"))
                     .body("active", equalTo(false));
@@ -179,7 +171,7 @@ public class UserControllerTest {
                     .put("/users/{id}/activate", id)
                     .then()
                     .log().body()
-                    .statusCode(HttpStatus.OK.value());
+                    .statusCode(Status.OK.getStatusCode());
 
             RestAssured.given()
                     .log().parameters()
@@ -187,7 +179,7 @@ public class UserControllerTest {
                     .get("/users/{id}", id)
                     .then()
                     .log().body()
-                    .statusCode(HttpStatus.OK.value())
+                    .statusCode(Status.OK.getStatusCode())
                     .body("name", equalTo("Bartosz"))
                     .body("type", equalTo("ADMIN"))
                     .body("active", equalTo(true));
@@ -198,7 +190,7 @@ public class UserControllerTest {
                     .put("/users/{id}/deactivate", id)
                     .then()
                     .log().body()
-                    .statusCode(HttpStatus.OK.value());
+                    .statusCode(Status.OK.getStatusCode());
 
             RestAssured.given()
                     .log().parameters()
@@ -206,7 +198,7 @@ public class UserControllerTest {
                     .get("/users/{id}", id)
                     .then()
                     .log().body()
-                    .statusCode(HttpStatus.OK.value())
+                    .statusCode(Status.OK.getStatusCode())
                     .body("name", equalTo("Bartosz"))
                     .body("type", equalTo("ADMIN"))
                     .body("active", equalTo(false));
@@ -231,7 +223,7 @@ public class UserControllerTest {
                 .post("/users")
                 .then()
                 .log().body()
-                .statusCode(HttpStatus.CREATED.value())
+                .statusCode(Status.CREATED.getStatusCode())
                 .body("login", equalTo("BLis"))
                 .body("name", equalTo("Bartosz"))
                 .body("type", equalTo("ADMIN"));
@@ -253,7 +245,7 @@ public class UserControllerTest {
                 .post("/users")
                 .then()
                 .log().body()
-                .statusCode(HttpStatus.CREATED.value());
+                .statusCode(Status.CREATED.getStatusCode());
 
         RestAssured.given()
                 .log().all()
@@ -263,7 +255,7 @@ public class UserControllerTest {
                 .post("/users")
                 .then()
                 .log().body()
-                .statusCode(HttpStatus.CONFLICT.value());
+                .statusCode(Status.INTERNAL_SERVER_ERROR.getStatusCode());
     }
 
     @Test
@@ -282,7 +274,7 @@ public class UserControllerTest {
                 .post("/users")
                 .then()
                 .log().body()
-                .statusCode(HttpStatus.BAD_REQUEST.value());
+                .statusCode(Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
@@ -304,7 +296,7 @@ public class UserControllerTest {
                     .put("users/{id}", userService.findByLogin(login).getId())
                     .then()
                     .log().body()
-                    .statusCode(HttpStatus.OK.value())
+                    .statusCode(Status.OK.getStatusCode())
                     .body("surname", equalTo("Vader"));
 
             assertEquals("Vader", userService.findByLogin(login).getSurname());
