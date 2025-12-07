@@ -5,16 +5,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import team.four.pas.controllers.DTOs.AllocationAddDTO;
-import team.four.pas.controllers.DTOs.ResourceDTO;
-import team.four.pas.controllers.DTOs.UserDTO;
-import team.four.pas.controllers.DTOs.mappers.ResourceToDTO;
-import team.four.pas.controllers.DTOs.mappers.UserToDTO;
-import team.four.pas.exceptions.allocation.AllocationIdException;
-import team.four.pas.exceptions.allocation.AllocationNotFoundException;
 import team.four.pas.services.AllocationService;
 import team.four.pas.services.data.allocations.VMAllocation;
-import team.four.pas.services.data.resources.VirtualMachine;
-import team.four.pas.services.data.users.User;
 
 import java.time.Instant;
 import java.util.List;
@@ -25,46 +17,33 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AllocationControllerImpl {
     private final AllocationService allocationService;
-    private final UserToDTO userToDTO;
-    private final ResourceToDTO resourceToDTO;
 
     @GetMapping(
             {""}
     )
     public ResponseEntity<List<VMAllocation>> getAll() {
-        try {
-            return ResponseEntity.status(HttpStatus.OK).body(allocationService.getAll());
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(allocationService.getAll());
     }
 
     @GetMapping(
             {"/{id}"}
     )
     public ResponseEntity<VMAllocation> getById(@PathVariable String id) {
-        try {
-            return ResponseEntity.status(HttpStatus.OK).body(allocationService.findById(id));
-        } catch (AllocationIdException e) {
-            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(null);
-        } catch (AllocationNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(allocationService.findById(id));
     }
 
     @PostMapping(
             value = {""},
             consumes = {"application/json"}
     )
-    public ResponseEntity<VMAllocation> createAllocation(@RequestBody AllocationAddDTO addDTO) {
-        UserDTO userDTO = addDTO.client();
-        ResourceDTO resourceDTO = addDTO.vm();
-
-        User client = userToDTO.clientFromClientDTO(userDTO);
-        VirtualMachine resource = resourceToDTO.vmFromDTO(resourceDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(allocationService.add(client, resource, Instant.now()));
+    public ResponseEntity<VMAllocation> createAllocation(@RequestBody AllocationAddDTO allocationAddDTO) {
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(allocationService.add(allocationAddDTO.clientId(), allocationAddDTO.resourceId(), Instant.now()));
     }
 
     @GetMapping(

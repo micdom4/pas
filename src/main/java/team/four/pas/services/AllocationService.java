@@ -18,7 +18,7 @@ public interface AllocationService {
 
     VMAllocation findById(String id) throws AllocationIdException, AllocationNotFoundException;
 
-    VMAllocation add(User client, VirtualMachine resource, Instant startTime) throws UserTypeException, InactiveClientException, ResourceAlreadyAllocatedException, ResourceIdException;
+    VMAllocation add(String clientId, String resourceId, Instant startTime) throws UserTypeException, InactiveClientException, ResourceAlreadyAllocatedException, ResourceIdException;
 
     List<VMAllocation> getPastVm(String id) throws ResourceIdException, ResourceNotFoundException;
 

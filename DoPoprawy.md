@@ -6,7 +6,7 @@
 
 [ ] dto z beanvalidation
 
-[ ] obiekty zamiast kilku pól przekazywać jako parametry
+[x] obiekty zamiast kilku pól przekazywać jako parametry
 
 [ ] UserEntity tworzone w serwisach
 

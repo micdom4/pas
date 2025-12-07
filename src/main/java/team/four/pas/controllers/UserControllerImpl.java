@@ -54,7 +54,7 @@ public class UserControllerImpl {
                 .body(userToDTO.toDataList(userService.findByMatchingLogin(login)));
     }
 
-    @PostMapping({"/{id}/activate"})
+    @PutMapping({"/{id}/activate"})
     public ResponseEntity<?> activateUser(@PathVariable String id) {
         userService.activate(id);
 
@@ -63,7 +63,7 @@ public class UserControllerImpl {
                 .build();
     }
 
-    @PostMapping({"/{id}/deactivate"})
+    @PutMapping({"/{id}/deactivate"})
     public ResponseEntity<?> deactivateUser(@PathVariable String id) {
         userService.deactivate(id);
 

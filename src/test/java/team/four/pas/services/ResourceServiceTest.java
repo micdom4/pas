@@ -11,10 +11,6 @@ import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import team.four.pas.Config;
-import team.four.pas.controllers.DTOs.ResourceAddDTO;
-import team.four.pas.controllers.DTOs.ResourceDTO;
-import team.four.pas.controllers.DTOs.UserAddDTO;
-import team.four.pas.controllers.DTOs.UserType;
 import team.four.pas.exceptions.allocation.AllocationException;
 import team.four.pas.exceptions.resource.ResourceDataException;
 import team.four.pas.exceptions.resource.ResourceException;
@@ -29,8 +25,6 @@ import team.four.pas.services.data.users.Client;
 import team.four.pas.services.implementation.AllocationServiceImpl;
 import team.four.pas.services.implementation.ResourceServiceImpl;
 import team.four.pas.services.implementation.UserServiceImpl;
-import team.four.pas.controllers.DTOs.mappers.ResourceToDTO;
-import team.four.pas.controllers.DTOs.mappers.UserToDTO;
 
 import java.io.File;
 import java.time.Instant;
@@ -210,12 +204,12 @@ public class ResourceServiceTest {
             resourceService.addVM(new VirtualMachine(null, 12, 16, 256));
 
             userService.activate(userService.findByLogin(login).getId());
-            allocationService.add(userService.findByLogin(login), (VirtualMachine) resourceService.getAll().getFirst(), Instant.now());
+            allocationService.add(userService.findByLogin(login).getId(), resourceService.getAll().getFirst().getId(), Instant.now());
 
-            List<VirtualMachine> resources = (List) resourceService.getAll();
+            List<VirtualMachine> resources = resourceService.getAll();
             assertNotEquals(Collections.emptyList(), resources);
 
-            VirtualMachine resource = (VirtualMachine) resourceService.getAll().getFirst();
+            VirtualMachine resource = resourceService.getAll().getFirst();
 
             assertThrows(ResourceStillAllocatedException.class, () -> resourceService.deleteVM(resource.getId()));
             assertNotNull(resourceService.findById(resource.getId()));

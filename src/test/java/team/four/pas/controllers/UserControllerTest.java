@@ -17,9 +17,6 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import team.four.pas.controllers.DTOs.UserAddDTO;
-import team.four.pas.controllers.DTOs.UserModDTO;
-import team.four.pas.controllers.DTOs.UserType;
 import team.four.pas.exceptions.user.UserException;
 import team.four.pas.services.UserService;
 import team.four.pas.services.data.users.Admin;
@@ -179,7 +176,7 @@ public class UserControllerTest {
             RestAssured.given()
                     .log().parameters()
                     .when()
-                    .post("/users/{id}/activate", id)
+                    .put("/users/{id}/activate", id)
                     .then()
                     .log().body()
                     .statusCode(HttpStatus.OK.value());
@@ -198,7 +195,7 @@ public class UserControllerTest {
             RestAssured.given()
                     .log().parameters()
                     .when()
-                    .post("/users/{id}/deactivate", id)
+                    .put("/users/{id}/deactivate", id)
                     .then()
                     .log().body()
                     .statusCode(HttpStatus.OK.value());

@@ -12,10 +12,6 @@ import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import team.four.pas.Config;
-import team.four.pas.controllers.DTOs.ResourceAddDTO;
-import team.four.pas.controllers.DTOs.ResourceDTO;
-import team.four.pas.controllers.DTOs.UserAddDTO;
-import team.four.pas.controllers.DTOs.UserType;
 import team.four.pas.exceptions.allocation.*;
 import team.four.pas.exceptions.resource.ResourceException;
 import team.four.pas.exceptions.user.UserException;
@@ -83,7 +79,7 @@ class AllocationServiceTest {
             int initialSize = allocationService.getAll().size();
 
             userService.activate(userService.findByLogin(login).getId());
-            assertNotNull(allocationService.add(userService.findByLogin(login), virtualMachine, Instant.now()));
+            assertNotNull(allocationService.add(userService.findByLogin(login).getId(), virtualMachine.getId(), Instant.now()));
 
             assertEquals(initialSize + 1, allocationService.getAll().size());
         } catch (ResourceException | AllocationException | UserException e) {
@@ -101,23 +97,23 @@ class AllocationServiceTest {
 
             int initialSize = allocationService.getAll().size();
 
-            assertThrows(InactiveClientException.class, () -> allocationService.add(userService.findByLogin(login), virtualMachine, Instant.now()));
+            assertThrows(InactiveClientException.class, () -> allocationService.add(userService.findByLogin(login).getId(), virtualMachine.getId(), Instant.now()));
 
             userService.activate(userService.findByLogin(login).getId());
 
-            allocationService.add(userService.findByLogin(login), virtualMachine, Instant.now());
+            allocationService.add(userService.findByLogin(login).getId(), virtualMachine.getId(), Instant.now());
 
             String login2 = "PBateman";
             assertNotNull(userService.add(new Manager(null, login2, "Patrick", "Bateman", true)));
             userService.activate(userService.findByLogin(login2).getId());
 
-            assertThrows(UserTypeException.class, () -> allocationService.add(userService.findByLogin(login2), virtualMachine, Instant.now()));
+            assertThrows(UserTypeException.class, () -> allocationService.add(userService.findByLogin(login2).getId(), virtualMachine.getId(), Instant.now()));
 
             String login3 = "WWhite";
             assertNotNull(userService.add(new Client(null, login3, "Walter", "White", false)));
             userService.activate(userService.findByLogin(login3).getId());
 
-            assertThrows(ResourceAlreadyAllocatedException.class, () -> allocationService.add(userService.findByLogin(login3), virtualMachine, Instant.now()));
+            assertThrows(ResourceAlreadyAllocatedException.class, () -> allocationService.add(userService.findByLogin(login3).getId(), virtualMachine.getId(), Instant.now()));
 
             assertEquals(initialSize + 1, allocationService.getAll().size());
         } catch (ResourceException | UserException | AllocationException e) {
@@ -134,7 +130,7 @@ class AllocationServiceTest {
             assertNotNull(resourceService.addVM(new VirtualMachine(null, 12, 16, 256)));
 
             userService.activate(userService.findByLogin(login).getId());
-            assertNotNull(allocationService.add(userService.findByLogin(login), (VirtualMachine) resourceService.getAll().getFirst(), Instant.now()));
+            assertNotNull(allocationService.add(userService.findByLogin(login).getId(), resourceService.getAll().getFirst().getId(), Instant.now()));
 
             assertEquals(1, allocationService.getAll().size());
             System.out.println(allocationService.getAll());
@@ -153,7 +149,7 @@ class AllocationServiceTest {
 
             userService.activate(userService.findByLogin(login).getId());
 
-            VMAllocation vmAllocation = allocationService.add(userService.findByLogin(login), (VirtualMachine) resourceService.getAll().getLast(), Instant.now());
+            VMAllocation vmAllocation = allocationService.add(userService.findByLogin(login).getId(), resourceService.getAll().getLast().getId(), Instant.now());
             assertNotNull(vmAllocation);
 
             assertEquals(vmAllocation, allocationService.findById(vmAllocation.getId()));
@@ -183,7 +179,7 @@ class AllocationServiceTest {
 
             userService.activate(userService.findByLogin(login).getId());
 
-            VMAllocation vmAllocation = allocationService.add(userService.findByLogin(login), vm, Instant.now());
+            VMAllocation vmAllocation = allocationService.add(userService.findByLogin(login).getId(), vm.getId(), Instant.now());
 
             assertNotNull(vmAllocation);
 
@@ -206,7 +202,7 @@ class AllocationServiceTest {
             VirtualMachine vm = (VirtualMachine) resourceService.addVM(new VirtualMachine(null, 12, 16, 256));
             userService.activate(userService.findByLogin("SGood").getId());
 
-            VMAllocation allocation = allocationService.add(userService.findByLogin("SGood"), vm, Instant.now());
+            VMAllocation allocation = allocationService.add(userService.findByLogin("SGood").getId(), vm.getId(), Instant.now());
 
             assertEquals(1, allocationService.getAll().size());
 
@@ -222,10 +218,10 @@ class AllocationServiceTest {
     void deleteFail() {
         try {
             userService.add(new Client(null, "SGood", "Saul", "Goodman", false));
-            VirtualMachine vm = (VirtualMachine) resourceService.addVM(new VirtualMachine(null, 12, 16, 256));
+            VirtualMachine vm = resourceService.addVM(new VirtualMachine(null, 12, 16, 256));
             userService.activate(userService.findByLogin("SGood").getId());
 
-            VMAllocation allocation = allocationService.add(userService.findByLogin("SGood"), vm, Instant.now());
+            VMAllocation allocation = allocationService.add(userService.findByLogin("SGood").getId(), vm.getId(), Instant.now());
 
             assertEquals(1, allocationService.getAll().size());
 

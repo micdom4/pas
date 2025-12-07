@@ -247,8 +247,8 @@ public class ResourceControllerTest {
 
             client = userService.findByLogin("BLis");
 
-            VirtualMachine vm = (VirtualMachine) resourceService.getAll().getLast();
-            allocationService.add(client, vm, Instant.now());
+            VirtualMachine vm = resourceService.getAll().getLast();
+            allocationService.add(client.getId(), vm.getId(), Instant.now());
 
             RestAssured.given()
                     .when()

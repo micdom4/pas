@@ -2,6 +2,7 @@ package team.four.pas.services.implementation;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import team.four.pas.controllers.DTOs.ResourceAddDTO;
 import team.four.pas.exceptions.allocation.*;
 import team.four.pas.exceptions.resource.ResourceIdException;
 import team.four.pas.exceptions.resource.ResourceNotFoundException;
@@ -38,7 +39,10 @@ public class AllocationServiceImpl implements AllocationService {
     }
 
     @Override
-    public VMAllocation add(User client, VirtualMachine resource, Instant startTime) throws UserTypeException, InactiveClientException, ResourceAlreadyAllocatedException, ResourceIdException {
+    public VMAllocation add(String clientId, String resourceId, Instant startTime) throws UserTypeException, InactiveClientException, ResourceAlreadyAllocatedException, ResourceIdException {
+        User client = userService.findById(clientId);
+        VirtualMachine resource = resourceService.findById(resourceId);
+
         if (client.getClass() != Client.class) {
             throw new UserTypeException("Client must be of Type CLIENT");
         }
