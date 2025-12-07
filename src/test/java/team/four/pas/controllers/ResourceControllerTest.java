@@ -7,7 +7,6 @@ import io.restassured.http.ContentType;
 import org.bson.Document;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,7 +17,6 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import team.four.pas.controllers.DTOs.*;
 import team.four.pas.exceptions.allocation.AllocationException;
 import team.four.pas.exceptions.resource.ResourceException;
 import team.four.pas.exceptions.user.UserException;
@@ -256,7 +254,7 @@ public class ResourceControllerTest {
                     .when()
                     .delete("/resources/{vm}", vm.getId())
                     .then()
-                    .statusCode(HttpStatus.FORBIDDEN.value());
+                    .statusCode(HttpStatus.CONFLICT.value());
 
             assertFalse(resourceService.getAll().isEmpty());
         } catch (ResourceException | UserException | AllocationException e) {

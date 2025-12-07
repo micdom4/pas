@@ -1,6 +1,6 @@
 package team.four.pas.exceptions;
 
-public abstract class AppBaseException extends Exception {
+public abstract class AppBaseException extends RuntimeException {
     public AppBaseException(String message) {
         super(message);
     }

@@ -1,71 +1,73 @@
-package team.four.pas.controllers;
-
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoDatabase;
-import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
-import org.bson.Document;
-import org.bson.types.ObjectId;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.http.HttpStatus;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.DockerComposeContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import team.four.pas.controllers.DTOs.*;
-import team.four.pas.exceptions.resource.ResourceDataException;
-import team.four.pas.exceptions.resource.ResourceException;
-import team.four.pas.exceptions.user.UserException;
-import team.four.pas.services.AllocationService;
-import team.four.pas.services.ResourceService;
-import team.four.pas.services.UserService;
-import team.four.pas.services.data.allocations.VMAllocation;
-
-import java.io.File;
-import java.time.Instant;
-
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.fail;
-import static org.junit.jupiter.api.Assertions.*;
-
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Testcontainers
-public class AllocationControllerTest {
-
-    @Container
-    public static DockerComposeContainer<?> compose =
-            new DockerComposeContainer<>(new File("src/test/resources/docker-compose.yml"))
-                    .withExposedService("mongo", 27017);
-
-    @LocalServerPort
-    private int port;
-
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private AllocationService allocationService;
-    @Autowired
-    private ResourceService resourceService;
-
-    @Autowired
-    private MongoClient mongoClient;
-
-    private MongoDatabase database;
-
-    @DynamicPropertySource
-    static void setProperties(DynamicPropertyRegistry registry) {
-        String host = compose.getServiceHost("mongo", 27017);
-        Integer port = compose.getServicePort("mongo", 27017);
-        String dynamicUri = "mongodb://" + host + ":" + port + "/pas";
-        System.setProperty("pas.data.mongodb.uri", dynamicUri);
-    }
-
+//package team.four.pas.controllers;
+//
+//import com.mongodb.client.MongoClient;
+//import com.mongodb.client.MongoDatabase;
+//import io.restassured.RestAssured;
+//import io.restassured.http.ContentType;
+//import org.bson.Document;
+//import org.bson.types.ObjectId;
+//import org.junit.jupiter.api.AfterEach;
+//import org.junit.jupiter.api.BeforeEach;
+//import org.junit.jupiter.api.Test;
+//import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.boot.test.context.SpringBootTest;
+//import org.springframework.boot.test.web.server.LocalServerPort;
+//import org.springframework.http.HttpStatus;
+//import org.springframework.test.context.DynamicPropertyRegistry;
+//import org.springframework.test.context.DynamicPropertySource;
+//import org.testcontainers.containers.DockerComposeContainer;
+//import org.testcontainers.junit.jupiter.Container;
+//import org.testcontainers.junit.jupiter.Testcontainers;
+//import team.four.pas.controllers.DTOs.*;
+//import team.four.pas.exceptions.resource.ResourceDataException;
+//import team.four.pas.exceptions.resource.ResourceException;
+//import team.four.pas.exceptions.user.UserException;
+//import team.four.pas.services.AllocationService;
+//import team.four.pas.services.ResourceService;
+//import team.four.pas.services.UserService;
+//import team.four.pas.services.data.allocations.VMAllocation;
+//import team.four.pas.services.data.resources.VirtualMachine;
+//import team.four.pas.services.data.users.User;
+//
+//import java.io.File;
+//import java.time.Instant;
+//
+//import static org.hamcrest.Matchers.*;
+//import static org.junit.Assert.fail;
+//import static org.junit.jupiter.api.Assertions.*;
+//
+//@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+//@Testcontainers
+//public class AllocationControllerTest {
+//
+//    @Container
+//    public static DockerComposeContainer<?> compose =
+//            new DockerComposeContainer<>(new File("src/test/resources/docker-compose.yml"))
+//                    .withExposedService("mongo", 27017);
+//
+//    @LocalServerPort
+//    private int port;
+//
+//    @Autowired
+//    private UserService userService;
+//    @Autowired
+//    private AllocationService allocationService;
+//    @Autowired
+//    private ResourceService resourceService;
+//
+//    @Autowired
+//    private MongoClient mongoClient;
+//
+//    private MongoDatabase database;
+//
+//    @DynamicPropertySource
+//    static void setProperties(DynamicPropertyRegistry registry) {
+//        String host = compose.getServiceHost("mongo", 27017);
+//        Integer port = compose.getServicePort("mongo", 27017);
+//        String dynamicUri = "mongodb://" + host + ":" + port + "/pas";
+//        System.setProperty("pas.data.mongodb.uri", dynamicUri);
+//    }
+//
 //    @BeforeEach
 //    void beforeEach() {
 //        RestAssured.port = port;
@@ -140,8 +142,8 @@ public class AllocationControllerTest {
 //
 //    @Test
 //    void createPass() {
-//        UserDTO client = userService.getAll().getFirst();
-//        ResourceDTO vm = resourceService.getAll().getLast();
+//        User client = userService.getAll().getFirst();
+//        VirtualMachine vm = resourceService.getAll().getLast();
 //        AllocationAddDTO addDTO = new AllocationAddDTO(client, vm);
 //
 //        RestAssured.given()
@@ -159,7 +161,7 @@ public class AllocationControllerTest {
 //    @Test
 //    void createFailClientInactive() {
 //        assertDoesNotThrow(() -> userService.deactivate(userService.getAll().getLast().id()));
-//        UserDTO client = userService.getAll().getFirst();
+//        User client = userService.getAll().getFirst();
 //        assertFalse(client.active());
 //
 //        ResourceDTO vm = resourceService.getAll().getLast();
@@ -200,8 +202,8 @@ public class AllocationControllerTest {
 //
 //    @Test
 //    void createFailResourceAlreadyAllocated() {
-//        ResourceDTO virtualMachine = resourceService.getAll().getLast();
-//        UserDTO userDTO = userService.getAll().getLast();
+//        VirtualMachine virtualMachine = resourceService.getAll().getLast();
+//        User userDTO = userService.getAll().getLast();
 //
 //        assertDoesNotThrow(() -> allocationService.add(userDTO, virtualMachine, Instant.now()));
 //
@@ -220,8 +222,8 @@ public class AllocationControllerTest {
 //
 //    @Test
 //    void getVmAllocationsPass() {
-//        UserDTO client = userService.getAll().getLast();
-//        ResourceDTO vm = resourceService.getAll().getLast();
+//        User client = userService.getAll().getLast();
+//        VirtualMachine vm = resourceService.getAll().getLast();
 //
 //        assertDoesNotThrow(() -> allocationService.add(client, vm, Instant.now()));
 //
@@ -264,8 +266,8 @@ public class AllocationControllerTest {
 //
 //    @Test
 //    void getClientAllocationsPass() {
-//        UserDTO client = userService.getAll().getLast();
-//        ResourceDTO vm = resourceService.getAll().getLast();
+//        User client = userService.getAll().getLast();
+//        VirtualMachine vm = resourceService.getAll().getLast();
 //
 //        assertDoesNotThrow(() -> allocationService.add(client, vm, Instant.now()));
 //
@@ -347,15 +349,15 @@ public class AllocationControllerTest {
 //    @Test
 //    void finishAllocationPass() {
 //        try {
-//            UserDTO client = userService.getAll().getLast();
-//            ResourceDTO vm = resourceService.getAll().getLast();
+//            User client = userService.getAll().getLast();
+//            VirtualMachine vm = resourceService.getAll().getLast();
 //
 //            assertDoesNotThrow(() -> allocationService.add(client, vm, Instant.now()));
 //
-//            assertEquals(1, allocationService.getActiveVm(vm.id()).size());
-//            assertEquals(0, allocationService.getPastVm(vm.id()).size());
+//            assertEquals(1, allocationService.getActiveVm(vm.getId()).size());
+//            assertEquals(0, allocationService.getPastVm(vm.getId()).size());
 //
-//            VMAllocation allocation = allocationService.getActiveVm(vm.id()).getLast();
+//            VMAllocation allocation = allocationService.getActiveVm(vm.getId()).getLast();
 //
 //            RestAssured.given()
 //                    .when()
@@ -363,8 +365,8 @@ public class AllocationControllerTest {
 //                    .then()
 //                    .statusCode(HttpStatus.OK.value());
 //
-//            assertEquals(0, allocationService.getActiveVm(vm.id()).size());
-//            assertEquals(1, allocationService.getPastVm(vm.id()).size());
+//            assertEquals(0, allocationService.getActiveVm(vm.getId()).size());
+//            assertEquals(1, allocationService.getPastVm(vm.getId()).size());
 //        } catch (ResourceException e) {
 //            fail(e.getMessage());
 //        }
@@ -396,8 +398,8 @@ public class AllocationControllerTest {
 //
 //    @Test
 //    void deleteAllocationPass() {
-//        UserDTO client = userService.getAll().getLast();
-//        ResourceDTO vm = resourceService.getAll().getLast();
+//        User client = userService.getAll().getLast();
+//        VirtualMachine vm = resourceService.getAll().getLast();
 //
 //        assertDoesNotThrow(() -> allocationService.add(client, vm, Instant.now()));
 //
@@ -423,8 +425,8 @@ public class AllocationControllerTest {
 //
 //    @Test
 //    void deleteAllocationFailNotActive() {
-//        UserDTO client = userService.getAll().getLast();
-//        ResourceDTO vm = resourceService.getAll().getLast();
+//        User client = userService.getAll().getLast();
+//        VirtualMachine vm = resourceService.getAll().getLast();
 //
 //        assertDoesNotThrow(() -> allocationService.add(client, vm, Instant.now()));
 //
@@ -439,4 +441,4 @@ public class AllocationControllerTest {
 //                .then()
 //                .statusCode(HttpStatus.CONFLICT.value());
 //    }
-}
+//}

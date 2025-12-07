@@ -1,17 +1,14 @@
 package team.four.pas.controllers;
 
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 import team.four.pas.controllers.DTOs.UserAddDTO;
 import team.four.pas.controllers.DTOs.UserDTO;
 import team.four.pas.controllers.DTOs.UserModDTO;
-import team.four.pas.exceptions.user.*;
-import team.four.pas.services.UserService;
 import team.four.pas.controllers.DTOs.mappers.UserToDTO;
+import team.four.pas.services.UserService;
 import team.four.pas.services.data.users.User;
 
 import java.util.List;
@@ -31,57 +28,23 @@ public class UserControllerImpl {
 
     @GetMapping({""})
     public ResponseEntity<List<UserDTO>> getAll() {
-        try {
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .body(userToDTO.toDataList(userService.getAll()));
-        } catch (RuntimeException ex) {
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
-        }
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(userToDTO.toDataList(userService.getAll()));
     }
 
     @GetMapping({"/{id}"})
     public ResponseEntity<UserDTO> getUser(@PathVariable String id) {
-        try {
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .body(userToDTO.toDTO(userService.findById(id)));
-        } catch (UserNotFoundException e) {
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body(null);
-        } catch (UserIdException e) {
-            return ResponseEntity
-                    .status(HttpStatus.UNPROCESSABLE_ENTITY)
-                    .body(null);
-        } catch (RuntimeException e) {
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
-        }
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(userToDTO.toDTO(userService.findById(id)));
     }
 
     @GetMapping({"/login/{login}"})
     public ResponseEntity<UserDTO> findPersonByLogin(@PathVariable String login) {
-        try {
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .body(userToDTO.toDTO(userService.findByLogin(login)));
-        } catch (UserNotFoundException e) {
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body(null);
-        } catch (UserLoginException e) {
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(null);
-        } catch (RuntimeException e) {
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
-        }
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(userToDTO.toDTO(userService.findByLogin(login)));
     }
 
     @GetMapping({"/search/{login}"})
@@ -93,73 +56,32 @@ public class UserControllerImpl {
 
     @PostMapping({"/{id}/activate"})
     public ResponseEntity<?> activateUser(@PathVariable String id) {
-        try {
-            userService.activate(id);
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .build();
-        } catch (UserNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-        } catch (UserIdException e) {
-            return ResponseEntity
-                    .status(HttpStatus.UNPROCESSABLE_ENTITY)
-                    .body(null);
-        } catch (RuntimeException e) {
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
-        }
+        userService.activate(id);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .build();
     }
 
     @PostMapping({"/{id}/deactivate"})
     public ResponseEntity<?> deactivateUser(@PathVariable String id) {
-        try {
-            userService.deactivate(id);
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .build();
-        } catch (UserNotFoundException e) {
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body(null);
-        } catch (UserIdException e) {
-            return ResponseEntity
-                    .status(HttpStatus.UNPROCESSABLE_ENTITY)
-                    .body(null);
-        } catch (RuntimeException e) {
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
-        }
+        userService.deactivate(id);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .build();
     }
 
     @PostMapping(
             value = {""},
             consumes = {"application/json"}
     )
-    public ResponseEntity<User> createUser(@RequestBody UserAddDTO addDTO) {
+    public ResponseEntity<UserDTO> createUser(@RequestBody UserAddDTO addDTO) {
         User user = userToDTO.toData(addDTO);
-        try {
-            return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .body(userService.add(user));
-        } catch (UserTypeException e) {
-            return ResponseEntity
-                    .status(HttpStatus.UNPROCESSABLE_ENTITY)
-                    .body(null);
-        } catch (UserAlreadyExistsException e) {
-            return ResponseEntity
-                    .status(HttpStatus.CONFLICT)
-                    .body(null);
-        } catch (UserDataException | UserLoginException e) {
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(null);
-        } catch (RuntimeException e) {
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
-        }
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(userToDTO.toDTO(userService.add(user)));
     }
 
     @PutMapping(
@@ -167,27 +89,9 @@ public class UserControllerImpl {
             consumes = {"application/json"}
     )
     public ResponseEntity<?> editUser(@PathVariable String id, @RequestBody UserModDTO modDTO) {
-        try {
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .body(userService.update(id, modDTO.surname()));
-        } catch (UserNotFoundException e) {
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body(null);
-        } catch (UserIdException e) {
-            return  ResponseEntity
-                    .status(HttpStatus.UNPROCESSABLE_ENTITY)
-                    .body(null);
-        } catch (UserDataException e) {
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(null);
-        } catch (RuntimeException e) {
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
-        }
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(userService.update(id, modDTO.surname()));
     }
 
 }

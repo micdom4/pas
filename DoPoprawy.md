@@ -12,4 +12,4 @@
 
 [x] sprawdzanie unikalności wywalić w repo
 
-[ ] ResponseException zamiast try catchy
+[x] ResponseException zamiast try catchy
