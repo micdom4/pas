@@ -2,6 +2,7 @@ package team.four.pas.repositories;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
+import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.bson.Document;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import team.four.pas.DockerComposeResource;
 import team.four.pas.exceptions.allocation.AllocationException;
 import team.four.pas.exceptions.allocation.AllocationIdException;
 import team.four.pas.exceptions.allocation.AllocationNotFoundException;
@@ -26,12 +28,9 @@ import java.time.Instant;
 import static org.junit.jupiter.api.Assertions.*;
 
 @QuarkusTest
+@QuarkusTestResource(DockerComposeResource.class)
 @Testcontainers
 class AllocationRepositoryTest {
-    @Container
-    public static DockerComposeContainer<?> compose =
-            new DockerComposeContainer<>(new File("src/test/resources/docker-compose.yml"))
-                    .withExposedService("mongo", 27017);
 
     @Inject
     AllocationRepository allocationRepository;
@@ -43,15 +42,6 @@ class AllocationRepositoryTest {
     MongoClient mongoClient;
 
     private MongoDatabase database;
-
-    @BeforeAll
-    static void beforeAll() {
-        String host = compose.getServiceHost("mongo", 27017);
-        Integer port = compose.getServicePort("mongo", 27017);
-        String dynamicUri = "mongodb://" + host + ":" + port + "/pas";
-
-        System.setProperty("pas.data.mongodb.uri", dynamicUri);
-    }
 
     @AfterEach
     void afterEach() {

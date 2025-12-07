@@ -2,6 +2,7 @@ package team.four.pas.services;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
+import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.bson.Document;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import team.four.pas.DockerComposeResource;
 import team.four.pas.exceptions.allocation.AllocationException;
 import team.four.pas.exceptions.resource.ResourceDataException;
 import team.four.pas.exceptions.resource.ResourceException;
@@ -28,12 +30,9 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @QuarkusTest
+@QuarkusTestResource(DockerComposeResource.class)
 @Testcontainers
 public class ResourceServiceTest {
-    @Container
-    public static DockerComposeContainer<?> compose =
-            new DockerComposeContainer<>(new File("src/test/resources/docker-compose.yml"))
-                    .withExposedService("mongo", 27017);
 
     @Inject
     ResourceService resourceService;
@@ -45,13 +44,6 @@ public class ResourceServiceTest {
     MongoClient mongoClient;
 
     private MongoDatabase database;
-
-    @BeforeAll
-    static void before() {
-        String host = compose.getServiceHost("mongo", 27017);
-        Integer port = compose.getServicePort("mongo", 27017);
-        System.setProperty("pas.data.mongodb.uri", "mongodb://" + host + ":" + port + "/pas");
-    }
 
     @AfterEach
     void after() {
