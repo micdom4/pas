@@ -7,6 +7,7 @@ import io.restassured.http.ContentType;
 import org.bson.Document;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,6 +25,9 @@ import team.four.pas.exceptions.user.UserException;
 import team.four.pas.services.AllocationService;
 import team.four.pas.services.ResourceService;
 import team.four.pas.services.UserService;
+import team.four.pas.services.data.resources.VirtualMachine;
+import team.four.pas.services.data.users.Client;
+import team.four.pas.services.data.users.User;
 
 import java.io.File;
 import java.time.Instant;
@@ -82,7 +86,7 @@ public class ResourceControllerTest {
     @Test
     void getAll() {
         try {
-            resourceService.addVM(new ResourceAddDTO(2, 4, 50));
+            resourceService.addVM(new VirtualMachine(null, 2, 4, 50));
         } catch (ResourceException e) {
             fail(e.getMessage());
         }
@@ -138,12 +142,12 @@ public class ResourceControllerTest {
     @Test
     void updatePositiveVM() {
         try {
-            resourceService.addVM(new ResourceAddDTO(2, 4, 50));
-            ResourceDTO vm = resourceService.getAll().getLast();
+            resourceService.addVM(new VirtualMachine(null, 2, 4, 50));
+            VirtualMachine vm = (VirtualMachine) resourceService.getAll().getLast();
 
             RestAssured.given()
                     .when()
-                    .get("/resources/{vm}", vm.id())
+                    .get("/resources/{vm}", vm.getId())
                     .then()
                     .log().body()
                     .statusCode(HttpStatus.OK.value())
@@ -159,7 +163,7 @@ public class ResourceControllerTest {
                     .body(requestBody)
                     .log().body()
                     .when()
-                    .put("/resources/{vm}", vm.id())
+                    .put("/resources/{vm}", vm.getId())
                     .then()
                     .statusCode(HttpStatus.OK.value())
                     .log().body()
@@ -167,7 +171,7 @@ public class ResourceControllerTest {
 
             RestAssured.given()
                     .when()
-                    .get("/resources/{vm}", vm.id())
+                    .get("/resources/{vm}", vm.getId())
                     .then()
                     .log().body()
                     .statusCode(HttpStatus.OK.value())
@@ -180,12 +184,12 @@ public class ResourceControllerTest {
     @Test
     void updateNegativeVM() {
         try {
-            resourceService.addVM(new ResourceAddDTO(2, 4, 50));
-            ResourceDTO vm = resourceService.getAll().getLast();
+            resourceService.addVM(new VirtualMachine(null, 2, 4, 50));
+            VirtualMachine vm = (VirtualMachine) resourceService.getAll().getLast();
 
             RestAssured.given()
                     .when()
-                    .get("/resources/{vm}", vm.id())
+                    .get("/resources/{vm}", vm.getId())
                     .then()
                     .log().body()
                     .statusCode(HttpStatus.OK.value())
@@ -201,13 +205,13 @@ public class ResourceControllerTest {
                     .body(requestBody)
                     .log().body()
                     .when()
-                    .put("/resources/{vm}", vm.id())
+                    .put("/resources/{vm}", vm.getId())
                     .then()
                     .statusCode(HttpStatus.BAD_REQUEST.value());
 
             RestAssured.given()
                     .when()
-                    .get("/resources/{vm}", vm.id())
+                    .get("/resources/{vm}", vm.getId())
                     .then()
                     .log().body()
                     .statusCode(HttpStatus.OK.value())
@@ -220,12 +224,12 @@ public class ResourceControllerTest {
     @Test
     void deletePositiveVM() {
         try {
-            resourceService.addVM(new ResourceAddDTO(2, 4, 50));
-            ResourceDTO vm = resourceService.getAll().getLast();
+            resourceService.addVM(new VirtualMachine(null, 2, 4, 50));
+            VirtualMachine vm = (VirtualMachine) resourceService.getAll().getLast();
 
             RestAssured.given()
                     .when()
-                    .delete("/resources/{vm}", vm.id())
+                    .delete("/resources/{vm}", vm.getId())
                     .then()
                     .statusCode(HttpStatus.NO_CONTENT.value());
 
@@ -238,17 +242,19 @@ public class ResourceControllerTest {
     @Test
     void deleteNegativeVM() {
         try {
-            resourceService.addVM(new ResourceAddDTO(2, 4, 50));
-            UserDTO client = userService.add(new UserAddDTO("BLis", "Bartosz", "Lis", UserType.CLIENT));
-            userService.activate(client.id());
-            client = userService.findByLogin("BLis");
-            ResourceDTO vm = resourceService.getAll().getLast();
-            allocationService.add(client, vm, Instant.now());
+            resourceService.addVM(new VirtualMachine(null, 2, 4, 50));
 
+            User client = userService.add(new Client(null, "BLis", "Bartosz", "Lis", false));
+            userService.activate(client.getId());
+
+            client = userService.findByLogin("BLis");
+
+            VirtualMachine vm = (VirtualMachine) resourceService.getAll().getLast();
+            allocationService.add(client, vm, Instant.now());
 
             RestAssured.given()
                     .when()
-                    .delete("/resources/{vm}", vm.id())
+                    .delete("/resources/{vm}", vm.getId())
                     .then()
                     .statusCode(HttpStatus.FORBIDDEN.value());
 

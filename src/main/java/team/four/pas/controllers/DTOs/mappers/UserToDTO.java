@@ -2,7 +2,9 @@ package team.four.pas.controllers.DTOs.mappers;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import team.four.pas.controllers.DTOs.UserAddDTO;
 import team.four.pas.controllers.DTOs.UserDTO;
+import team.four.pas.repositories.entities.UserEntity;
 import team.four.pas.services.data.users.Admin;
 import team.four.pas.services.data.users.Client;
 import team.four.pas.services.data.users.Manager;
@@ -29,6 +31,11 @@ public interface UserToDTO {
 
     Admin adminFromUserDTO(UserDTO userDto);
 
+    Client clientFromClientDTO(UserAddDTO clientDto);
+
+    Manager managerFromUserDTO(UserAddDTO userDto);
+
+    Admin adminFromUserDTO(UserAddDTO userDto);
 
     default List<UserDTO> toDataList(List<User> users) {
         if (users == null) {
@@ -37,6 +44,30 @@ public interface UserToDTO {
         return users.stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
+    }
+
+    default User toData(UserDTO dto) {
+        if (dto == null) {
+            return null;
+        }
+
+        return switch (dto.type()) {
+            case CLIENT -> clientFromClientDTO(dto);
+            case MANAGER -> managerFromUserDTO(dto);
+            case ADMIN -> adminFromUserDTO(dto);
+        };
+    }
+
+    default User toData(UserAddDTO dto) {
+        if (dto == null) {
+            return null;
+        }
+
+        return switch (dto.type()) {
+            case CLIENT -> clientFromClientDTO(dto);
+            case MANAGER -> managerFromUserDTO(dto);
+            case ADMIN -> adminFromUserDTO(dto);
+        };
     }
 
     default UserDTO toDTO(User data) {

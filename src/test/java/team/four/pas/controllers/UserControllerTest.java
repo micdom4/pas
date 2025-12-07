@@ -22,8 +22,12 @@ import team.four.pas.controllers.DTOs.UserModDTO;
 import team.four.pas.controllers.DTOs.UserType;
 import team.four.pas.exceptions.user.UserException;
 import team.four.pas.services.UserService;
+import team.four.pas.services.data.users.Admin;
+import team.four.pas.services.data.users.Manager;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.fail;
@@ -75,7 +79,7 @@ public class UserControllerTest {
     @Test
     void getAll() {
         try {
-            userService.add(new UserAddDTO("BLis", "Bartosz", "Lis", UserType.ADMIN));
+            userService.add(new Admin(null, "BLis", "Bartosz", "Lis", true));
 
             RestAssured.given()
                     .log().parameters()
@@ -93,8 +97,8 @@ public class UserControllerTest {
     @Test
     void getUser() {
         try {
-            userService.add(new UserAddDTO("BLis", "Bartosz", "Lis", UserType.ADMIN));
-            String id = userService.findByLogin("BLis").id();
+            userService.add(new Admin(null, "BLis", "Bartosz", "Lis", true));
+            String id = userService.findByLogin("BLis").getId();
             RestAssured.given()
                     .log().parameters()
                     .when()
@@ -112,9 +116,9 @@ public class UserControllerTest {
     @Test
     void searchByLogin() {
         try {
-            userService.add(new UserAddDTO("BLis", "Bartosz", "Lis", UserType.ADMIN));
-            userService.add(new UserAddDTO("BLis2", "Bartosz", "Lis", UserType.ADMIN));
-            userService.add(new UserAddDTO("KLrol", "Bartosz", "Lis", UserType.ADMIN));
+            userService.add(new Admin(null, "BLis", "Bartosz", "Lis", true));
+            userService.add(new Admin(null, "BLis2", "Bartosz", "Lis", true));
+            userService.add(new Admin(null, "KLrol", "Bartosz", "Lis", true));
 
             String login = "BL";
 
@@ -134,7 +138,7 @@ public class UserControllerTest {
 
     @Test
     void findByLoginPass() {
-        assertDoesNotThrow(() -> userService.add(new UserAddDTO("BLis", "Bartosz", "Lis", UserType.ADMIN)));
+        assertDoesNotThrow(() -> userService.add(new Admin(null, "BLis", "Bartosz", "Lis", true)));
 
         RestAssured.given()
                 .when()
@@ -157,9 +161,9 @@ public class UserControllerTest {
     @Test
     void activateDeactivateUser() {
         try {
-            userService.add(new UserAddDTO("BLis", "Bartosz", "Lis", UserType.ADMIN));
+            userService.add(new Admin(null, "BLis", "Bartosz", "Lis", false));
 
-            String id = userService.findByLogin("BLis").id();
+            String id = userService.findByLogin("BLis").getId();
 
             RestAssured.given()
                     .log().parameters()
@@ -216,7 +220,11 @@ public class UserControllerTest {
 
     @Test
     void createUser() {
-        UserAddDTO newUser = new UserAddDTO("BLis", "Bartosz", "Lis", UserType.ADMIN);
+        Map<String, String> newUser = new HashMap<>();
+        newUser.put("login", "BLis");
+        newUser.put("name", "Bartosz");
+        newUser.put("surname", "Lis");
+        newUser.put("type", "ADMIN");
 
         RestAssured.given()
                 .log().all()
@@ -234,7 +242,11 @@ public class UserControllerTest {
 
     @Test
     void createUserConflict() {
-        UserAddDTO existingUser = new UserAddDTO("BLis", "Bartosz", "Lis", UserType.ADMIN);
+        Map<String, String> existingUser = new HashMap<>();
+        existingUser.put("login", "BLis");
+        existingUser.put("name", "Bartosz");
+        existingUser.put("surname", "Lis");
+        existingUser.put("type", "ADMIN");
 
         RestAssured.given()
                 .log().all()
@@ -259,12 +271,16 @@ public class UserControllerTest {
 
     @Test
     void createUserBadRequest() {
-        UserAddDTO existingUser = new UserAddDTO("BLis", "bLISSASD", "Lis", UserType.ADMIN);
+        Map<String, String> badUser = new HashMap<>();
+        badUser.put("login", "BLis");
+        badUser.put("name", "bLISSASD");
+        badUser.put("surname", "Lis");
+        badUser.put("type", "ADMIN");
 
         RestAssured.given()
                 .log().all()
                 .contentType(ContentType.JSON)
-                .body(existingUser)
+                .body(badUser)
                 .when()
                 .post("/users")
                 .then()
@@ -275,28 +291,28 @@ public class UserControllerTest {
     @Test
     void editUserPass() {
         try {
-            assertDoesNotThrow(() -> userService.add(new UserAddDTO("ASkywalker", "Anakin", "Skywalker", UserType.MANAGER)));
+            assertDoesNotThrow(() -> userService.add(new Manager(null, "ASkywalker", "Anakin", "Skywalker", true)));
             String login = "ASkywalker";
 
-            assertEquals("Skywalker", userService.findByLogin(login).surname());
+            assertEquals("Skywalker", userService.findByLogin(login).getSurname());
 
-            UserModDTO mod = new UserModDTO(userService.findByLogin(login).id(), "Vader");
+            Map<String, String> mod = new HashMap<>();
+            mod.put("surname", "Vader");
 
             RestAssured.given()
                     .contentType(ContentType.JSON)
                     .body(mod)
                     .log().body()
                     .when()
-                    .put("users/{id}", userService.findByLogin(login).id())
+                    .put("users/{id}", userService.findByLogin(login).getId())
                     .then()
                     .log().body()
                     .statusCode(HttpStatus.OK.value())
                     .body("surname", equalTo("Vader"));
 
-            assertEquals("Vader", userService.findByLogin(login).surname());
+            assertEquals("Vader", userService.findByLogin(login).getSurname());
         } catch (UserException e) {
             fail(e.getMessage());
         }
     }
-
 }

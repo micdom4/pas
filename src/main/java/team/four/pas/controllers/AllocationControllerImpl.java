@@ -29,9 +29,9 @@ import java.util.List;
 @RequestMapping(value = {"/allocations"}, produces = {"application/json"})
 @RequiredArgsConstructor
 public class AllocationControllerImpl {
-    private final @NonNull AllocationService allocationService;
-    private final @NonNull UserToDTO userToDTO;
-    private final @NonNull ResourceToDTO resourceToDTO;
+    private final AllocationService allocationService;
+    private final UserToDTO userToDTO;
+    private final ResourceToDTO resourceToDTO;
 
     @GetMapping(
             {""}

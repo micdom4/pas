@@ -26,9 +26,7 @@ import java.util.List;
 )
 @RequiredArgsConstructor
 public class ResourceControllerImpl {
-    @NonNull
     private final ResourceService resourceService;
-    @NonNull
     private final ResourceToDTO resourceToDTO;
 
     @GetMapping({""})

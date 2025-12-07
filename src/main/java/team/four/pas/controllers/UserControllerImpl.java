@@ -26,8 +26,8 @@ import java.util.List;
 )
 @RequiredArgsConstructor
 public class UserControllerImpl {
-    private final @NonNull UserService userService;
-    private final @NonNull UserToDTO userToDTO;
+    private final UserService userService;
+    private final UserToDTO userToDTO;
 
     @GetMapping({""})
     public ResponseEntity<List<UserDTO>> getAll() {
@@ -137,11 +137,12 @@ public class UserControllerImpl {
             value = {""},
             consumes = {"application/json"}
     )
-    public ResponseEntity<UserDTO> createUser(@RequestBody UserAddDTO addDTO) {
+    public ResponseEntity<User> createUser(@RequestBody UserAddDTO addDTO) {
+        User user = userToDTO.toData(addDTO);
         try {
             return ResponseEntity
                     .status(HttpStatus.CREATED)
-                    .body(userService.add(addDTO));
+                    .body(userService.add(user));
         } catch (UserTypeException e) {
             return ResponseEntity
                     .status(HttpStatus.UNPROCESSABLE_ENTITY)
