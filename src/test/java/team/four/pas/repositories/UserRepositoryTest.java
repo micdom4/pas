@@ -79,11 +79,6 @@ class UserRepositoryTest {
         assertThrows(UserAlreadyExistsException.class, () -> userRepository.add("BLis", "Bartosz", "Lis", Client.class));
     }
 
-    @Test
-    void addFailWhenLoginEmpty() {
-        assertThrows(UserLoginException.class, () -> userRepository.add(null, "Bartosz", "Lis", Client.class));
-    }
-
     /* RRR
        R  R
        RRR

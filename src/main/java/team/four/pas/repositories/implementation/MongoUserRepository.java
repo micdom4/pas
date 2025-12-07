@@ -35,9 +35,6 @@ public class MongoUserRepository implements UserRepository {
 
     @Override
     public User findByLogin(String login) throws UserLoginException, UserNotFoundException {
-        if (login == null || login.isEmpty()) {
-            throw new UserLoginException("Provided login is empty");
-        }
 
         Bson filter = Filters.eq("login", login);
 
@@ -62,10 +59,6 @@ public class MongoUserRepository implements UserRepository {
 
     @Override
     public <T extends User> User add(String login, String name, String surname, Class<T> userClass) throws UserTypeException, UserLoginException, UserAlreadyExistsException {
-        if (login == null || login.isEmpty()) {
-            throw new UserLoginException("User login may not be empty");
-        }
-
         UserEntity.Type type;
 
         if (userClass.equals(Client.class)) {

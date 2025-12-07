@@ -82,11 +82,6 @@ public class UserServiceTest {
     }
 
     @Test
-    void addFailWhenLoginEmpty() {
-        assertThrows(UserLoginException.class, () -> userService.add(new Admin(null, "", "Bartosz", "Lis", true)));
-    }
-
-    @Test
     void findByLogin() {
         assertDoesNotThrow(() -> userService.add(new Client("25", "BLis", "Bartosz", "Lis", false)));
         assertDoesNotThrow(() -> assertEquals("Bartosz", userService.findByLogin("BLis").getName()));
