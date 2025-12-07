@@ -1,5 +1,8 @@
 package team.four.pas.controllers;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,14 +44,19 @@ public class UserControllerImpl {
     }
 
     @GetMapping({"/login/{login}"})
-    public ResponseEntity<UserDTO> findPersonByLogin(@PathVariable String login) {
+    public ResponseEntity<UserDTO> findPersonByLogin(@PathVariable
+                                                      @NotNull(message = "login can't be null")
+                                                      @Pattern(regexp = "^[A-Z][A-Z][a-z]{1,18}[0-9]{0,5}$",
+                                                              message = "Wrong format of login")
+                                                      String login) {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(userToDTO.toDTO(userService.findByLogin(login)));
     }
 
     @GetMapping({"/search/{login}"})
-    public ResponseEntity<List<UserDTO>> searchByLogin(@PathVariable String login) {
+    public ResponseEntity<List<UserDTO>> searchByLogin(@PathVariable
+                                                               String login) {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(userToDTO.toDataList(userService.findByMatchingLogin(login)));
@@ -76,7 +84,7 @@ public class UserControllerImpl {
             value = {""},
             consumes = {"application/json"}
     )
-    public ResponseEntity<UserDTO> createUser(@RequestBody UserAddDTO addDTO) {
+    public ResponseEntity<UserDTO> createUser(@Valid @RequestBody UserAddDTO addDTO) {
         User user = userToDTO.toData(addDTO);
 
         return ResponseEntity
@@ -88,7 +96,7 @@ public class UserControllerImpl {
             value = {"/{id}"},
             consumes = {"application/json"}
     )
-    public ResponseEntity<?> editUser(@PathVariable String id, @RequestBody UserModDTO modDTO) {
+    public ResponseEntity<?> editUser(@PathVariable String id, @Valid @RequestBody UserModDTO modDTO) {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(userService.update(id, modDTO.surname()));

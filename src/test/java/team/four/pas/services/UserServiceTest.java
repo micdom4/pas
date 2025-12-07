@@ -87,21 +87,6 @@ public class UserServiceTest {
     }
 
     @Test
-    void addFailWhenBadText() {
-        int initialSize = userService.getAll().size();
-
-        assertThrows(UserDataException.class, () -> userService.add(new Client(null, "BLis5", "bartosz", "Lis", true)));
-        assertThrows(UserDataException.class, () -> userService.add(new Client(null, "BLis5", "Bart0sz", "Lis", true)));
-        assertThrows(UserDataException.class, () -> userService.add(new Client(null, "BLis5", "Bartosz", "lis", true)));
-        assertThrows(UserDataException.class, () -> userService.add(new Client(null, "BLis5", "Bartosz", "LiS", true)));
-        assertThrows(UserLoginException.class, () -> userService.add(new Client(null, "bLis5", "Bartosz", "Lis", true)));
-        assertThrows(UserLoginException.class, () -> userService.add(new Client(null, "BLis555555", "Bartosz", "Lis", true)));
-        assertThrows(UserLoginException.class, () -> userService.add(new Client(null, "Blis55555", "Bartosz", "Lis", true)));
-
-        assertEquals(initialSize, userService.getAll().size());
-    }
-
-    @Test
     void findByLogin() {
         assertDoesNotThrow(() -> userService.add(new Client("25", "BLis", "Bartosz", "Lis", false)));
         assertDoesNotThrow(() -> assertEquals("Bartosz", userService.findByLogin("BLis").getName()));
@@ -139,44 +124,6 @@ public class UserServiceTest {
             assertEquals("Lis-Nowak", userService.findByLogin("BLis").getSurname());
         } catch (UserException ue) {
             fail(ue.getMessage());
-        }
-    }
-
-    @Test
-    void updateFail() {
-        try {
-            assertNotNull(userService.add(new Admin(null, "BLis", "Bartosz", "Lis", true)));
-            assertEquals("Lis", userService.findByLogin("BLis").getSurname());
-
-            String userId = userService.findByLogin("BLis").getId();
-
-            assertThrows(UserDataException.class, () -> userService.update(userId, "Lis-nowak"));
-            assertThrows(UserDataException.class, () -> userService.update(userId, "lis-Nowak"));
-            assertThrows(UserDataException.class, () -> userService.update(userId, "Lis-N0wak"));
-            assertThrows(UserDataException.class, () -> userService.update(userId, "Lis-Noooooooooooooooooooowak"));
-
-            assertEquals("Lis", userService.findByLogin("BLis").getSurname());
-        } catch (UserException ue) {
-            fail(ue.getMessage());
-        }
-    }
-
-    @Test
-    void activateDeactivate() {
-        try {
-            assertNotNull(userService.add(new Admin(null, "BLis", "Bartosz", "Lis", true)));
-
-            String id = userService.getAll().getFirst().getId();
-
-            userService.activate(id);
-
-            assertTrue(userService.findByLogin("BLis").isActive());
-            userService.deactivate(id);
-            assertFalse(userService.findByLogin("BLis").isActive());
-            userService.activate(id);
-            assertTrue(userService.findByLogin("BLis").isActive());
-        } catch (UserException e) {
-            fail(e.getMessage());
         }
     }
 

@@ -37,10 +37,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User add(User user) throws UserDataException, UserTypeException, UserAlreadyExistsException, UserLoginException {
-        validateLogin(user.getLogin());
-        validateName(user.getName());
-        validateSurname(user.getSurname());
-
 //        return switch (user.getClass()) {
 //            case Client.class ->
 //                    userRepository.add(user.getlogin(), user.getname(), user.getsurname(), Client.class);
@@ -55,8 +51,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User update(String id, String surname) throws UserDataException, UserNotFoundException, UserIdException {
-        validateSurname(surname);
-
         return userRepository.update(id, surname);
     }
 
@@ -68,26 +62,5 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deactivate(String id) throws UserNotFoundException, UserIdException {
         userRepository.deactivate(id);
-    }
-
-    private void validateLogin(String login) throws UserLoginException {
-        final Pattern pattern = Pattern.compile("^[A-Z][A-Z][a-z]{1,18}[0-9]{0,5}$");
-        if (!pattern.matcher(login).matches()) {
-            throw new UserLoginException("Wrong format of login");
-        }
-    }
-
-    private void validateName(String name) throws UserDataException {
-        final Pattern pattern = Pattern.compile("^[A-Z][a-z]{1,19}$");
-        if (!pattern.matcher(name).matches()) {
-            throw new UserDataException("Wrong format of name");
-        }
-    }
-
-    private void validateSurname(String surname) throws UserDataException {
-        final Pattern pattern = Pattern.compile("^[A-Z][a-z]{1,19}(-[A-Z][a-z]{1,19})?$");
-        if (!pattern.matcher(surname).matches()) {
-            throw new UserDataException("Wrong format of surname");
-        }
     }
 }

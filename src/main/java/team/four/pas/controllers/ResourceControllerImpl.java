@@ -1,5 +1,6 @@
 package team.four.pas.controllers;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,7 +44,7 @@ public class ResourceControllerImpl {
             value = {""},
             consumes = {"application/json"}
     )
-    public ResponseEntity<ResourceDTO> createVM(@RequestBody ResourceAddDTO vmDto) {
+    public ResponseEntity<ResourceDTO> createVM(@Valid @RequestBody ResourceAddDTO vmDto) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(resourceToDTO.dtoFromVM(resourceService.addVM(resourceToDTO.vmFromAddDTO(vmDto))));
@@ -53,7 +54,7 @@ public class ResourceControllerImpl {
             value = {"/{id}"},
             consumes = {"application/json"}
     )
-    public ResponseEntity<ResourceDTO> updateVM(@PathVariable String id, @RequestBody ResourceAddDTO vmDto) {
+    public ResponseEntity<ResourceDTO> updateVM(@PathVariable String id, @Valid @RequestBody ResourceAddDTO vmDto) {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(resourceToDTO.toDTO(resourceService.updateVM(id, vmDto.cpuNumber(), vmDto.ramGiB(), vmDto.storageGiB())));

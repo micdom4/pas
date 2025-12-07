@@ -1,5 +1,7 @@
 package team.four.pas.controllers;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,7 +42,7 @@ public class AllocationControllerImpl {
             value = {""},
             consumes = {"application/json"}
     )
-    public ResponseEntity<VMAllocation> createAllocation(@RequestBody AllocationAddDTO allocationAddDTO) {
+    public ResponseEntity<VMAllocation> createAllocation(@Valid @RequestBody AllocationAddDTO allocationAddDTO) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(allocationService.add(allocationAddDTO.clientId(), allocationAddDTO.resourceId(), Instant.now()));
