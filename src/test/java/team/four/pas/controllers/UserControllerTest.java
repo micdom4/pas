@@ -245,7 +245,7 @@ public class UserControllerTest {
                 .post("/users")
                 .then()
                 .log().body()
-                .statusCode(Status.INTERNAL_SERVER_ERROR.getStatusCode());
+                .statusCode(Status.CONFLICT.getStatusCode());
     }
 
     @Test
