@@ -5,7 +5,7 @@ import {api} from "./api.config.ts";
 
 const allocations_path = "/allocations"
 
-const allocationCrud = new CrudApi<AllocationType, CreateAllocationType>(allocations_path)
+const allocationCrud = new CrudApi<AllocationType, CreateAllocationType, AllocationType>(allocations_path)
 
 const errorMessages = {
     allocatedResource: "Resource is already allocated",

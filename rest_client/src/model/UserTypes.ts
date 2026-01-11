@@ -1,23 +1,3 @@
-// export class UserType {
-//     id: string
-//     login: string
-//     name: string
-//     surname: string
-//     active: boolean
-//
-//     constructor(id: string, login: string, name: string, surname: string, active: boolean) {
-//         this.id = id;
-//         this.login = login;
-//         this.name = name;
-//         this.surname = surname;
-//         this.active = active;
-//     }
-//
-//     public toString(): string {
-//         return `Person: ${this.id} ${this.login} ${this.name} ${this.surname} ${this.active}`;
-//     }
-// }
-
 import type {BaseType} from "./BaseType.ts";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -34,6 +14,10 @@ export interface UserType extends BaseType {
     surname: string
     type: TypeOfUser
     active: boolean
+}
+
+export interface ClientType extends UserType {
+    type: TypeOfUser.CLIENT
 }
 
 export interface CreateUserType {
