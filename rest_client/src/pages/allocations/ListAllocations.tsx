@@ -1,4 +1,4 @@
-import {useEffect, useMemo, useState} from "react";
+import {useEffect, useMemo, useState, useTransition} from "react";
 import type {AllocationType} from "../../model/AllocationTypes.ts";
 import {allocationApi} from "../../api/AllocationRestApi.ts";
 import {type Column, GenericTable} from "../../components/GenericTable.tsx";
@@ -11,44 +11,45 @@ const formatDate = (date: Date | null) => {
 
 export default function ListAllocations() {
     const [allocations, setAllocations] = useState<AllocationType[]>([])
-    const [loading, setLoading] = useState(true)
+    const [isPending, startTransition] = useTransition()
 
     const columns: Column<AllocationType>[] = useMemo(() => [
         {
-            header: 'Klient',
+            header: 'Client',
             render: (a) => `${a.client.login}, ${a.client.name} ${a.client.surname}`
         },
         {
-            header: 'ID Zasobu',
+            header: 'Virtual Machine ID',
             render: (a) => <span className="text-secondary">#{a.id}</span>
         },
         {
-            header: 'Rozpoczęcie',
+            header: 'Start Time',
             render: (a) => formatDate(a.startTime)
         },
         {
-            header: 'Zakończenie',
+            header: 'End Time',
             render: (a) => (
                 a.endTime ? formatDate(a.endTime) : <span className="text-success fw-bold">W trakcie</span>
             )
         }
     ], []);
 
-    useEffect(() => {
-        allocationApi.getAll().then((response) => {
-            setAllocations(response.data)
-            setLoading(false)
+    const loadAllocations = () => {
+        startTransition(() => {
+            allocationApi.getAll().then((response) => {
+                setAllocations(response.data)
+            })
         })
-    }, [])
-
-    if (loading) {
-        return <p>Ni ma</p>
     }
+
+    useEffect(() => {
+        loadAllocations()
+    }, [])
 
     return (
         <div className="container">
-            <h2>Lista Alokacji</h2>
-            <GenericTable data={allocations} columns={columns}/>
+            <h2>Allocation List</h2>
+            {isPending ? <p>Fetching data...</p> : <GenericTable data={allocations} columns={columns}/>}
         </div>
     );
 }
