@@ -41,9 +41,9 @@ export default function CreateResource () {
                                     'danger'
                                 )
                             })
-                            .finally(() => setSubmitting(false))
                     }
                 })
+                setSubmitting(false)
             }}
         >
             {({

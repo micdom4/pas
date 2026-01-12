@@ -52,13 +52,15 @@ export default function DetailedUser() {
 
                 setUser(fetchedUser);
 
-                const [pastRes, activeRes] = await Promise.all([
-                    allocationApi.getPastForClient(fetchedUser.id),
-                    allocationApi.getActiveForClient(fetchedUser.id)
-                ]);
+                if (fetchedUser.type.toString() === "CLIENT") {
+                    const [pastRes, activeRes] = await Promise.all([
+                        allocationApi.getPastForClient(fetchedUser.id),
+                        allocationApi.getActiveForClient(fetchedUser.id)
+                    ]);
 
-                setPastAllocations(pastRes.data);
-                setActiveAllocations(activeRes.data);
+                    setPastAllocations(pastRes.data);
+                    setActiveAllocations(activeRes.data);
+                }
 
             } catch (error) {
                 console.error(error);
