@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">polVirtApp</string>
+    <string name="title_activity_main">polVirtApp</string>
+    <string name="package_name">team.four.pas</string>
+    <string name="custom_url_scheme">team.four.pas</string>
+</resources>

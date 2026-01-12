@@ -12,10 +12,12 @@ export default function DefaultLayout({children}: LayoutProps) {
 
     return (
         <div>
-            <Navbar bg={"primary"} fixed={"top"} expand="lg" data-bs-theme={"dark"}>
+            <Navbar collapseOnSelect bg={"primary"} fixed={"top"} expand="lg" data-bs-theme={"dark"}>
                 <Container>
                     <Navbar.Brand onClick={() => navigate(Paths.default.home)}>polVirt</Navbar.Brand>
-                    <Navbar.Collapse>
+                    <Navbar.Toggle aria-controls="responsive-navbar-nav" />
+
+                    <Navbar.Collapse id="responsive-navbar-nav">
                         <Nav className="me-auto">
                             <Nav.Link onClick={() => navigate(Paths.default.home)}>Home</Nav.Link>
                             <NavDropdown title="Users" id="basic-nav-dropdown">
@@ -46,7 +48,7 @@ export default function DefaultLayout({children}: LayoutProps) {
                     </Navbar.Collapse>
                 </Container>
             </Navbar>
-            <Container>
+            <Container style={{ marginTop: '80px' }}>
                 {children}
             </Container>
         </div>

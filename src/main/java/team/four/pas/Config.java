@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import team.four.pas.repositories.entities.UserEntity;
 import team.four.pas.repositories.entities.VMAllocationEntity;
 import team.four.pas.repositories.entities.VirtualMachineEntity;
@@ -27,8 +29,15 @@ import team.four.pas.controllers.DTOs.mappers.ResourceToDTO;
 import team.four.pas.controllers.DTOs.mappers.UserToDTO;
 
 @Configuration
-public class Config {
+public class Config implements WebMvcConfigurer {
 
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                .allowedOrigins("*")
+                .allowedMethods("GET", "POST", "PUT", "DELETE")
+                .allowedHeaders("*");
+    }
 
     @Bean
     public StringToObjectId idMapper() {

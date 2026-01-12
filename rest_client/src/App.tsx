@@ -1,6 +1,6 @@
 import './App.css'
 import RoutesComponent from "./routes";
-import {BrowserRouter} from "react-router-dom";
+import {HashRouter} from "react-router-dom";
 import {ToastProvider} from "./components/toasts/ToastProvider.tsx";
 import {ModalProvider} from "./components/modals/ModalProvider.tsx";
 
@@ -11,9 +11,9 @@ function App() {
         <>
             <ToastProvider>
                 <ModalProvider>
-                    <BrowserRouter>
+                    <HashRouter>
                         <RoutesComponent/>
-                    </BrowserRouter>
+                    </HashRouter>
                 </ModalProvider>
             </ToastProvider>
         </>

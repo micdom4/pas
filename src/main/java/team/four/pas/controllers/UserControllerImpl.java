@@ -17,9 +17,6 @@ import team.four.pas.services.data.users.User;
 import java.util.List;
 
 @RestController
-@CrossOrigin(
-        originPatterns = {"http://localhost:[*]"}
-)
 @RequestMapping(
         value = {"/users"},
         produces = {"application/json"}
