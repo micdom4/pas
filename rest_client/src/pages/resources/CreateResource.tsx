@@ -3,37 +3,47 @@ import { Form, Button } from 'react-bootstrap';
 import {ResourceSchema} from "../../model/ResourceTypes.ts";
 import useToast from "../../components/toasts/useToast.tsx";
 import {resourceApi} from "../../api/ResourceRestApi.ts";
+import useModal from "../../components/modals/useModal.tsx";
 
 export default function CreateResource () {
     const {addToast} = useToast()
+    const {showConfirmation} = useModal()
 
     return (
         <Formik
             initialValues={{ cpuNumber: '', ramGiB: '', storageGiB: '' }}
             validationSchema={ResourceSchema}
             onSubmit={(values, { setSubmitting }) => {
-                const formattedValues = {
-                    cpuNumber: Number(values.cpuNumber),
-                    ramGiB: Number(values.ramGiB),
-                    storageGiB: Number(values.storageGiB)
-                };
-                console.log('Sending resource to create: ', values);
-                resourceApi.create(formattedValues)
-                    .then((response) => {
-                        addToast(
-                            'Success!',
-                            `New resource has been successfully created. ID: #${response.data.id}`,
-                            'success'
-                        )
-                    })
-                    .catch((error) => {
-                        addToast(
-                            'Error!',
-                            `Error occurred while creating new resource. Error: ${error}`,
-                            'danger'
-                        )
-                    })
-                    .finally(() => setSubmitting(false))
+                showConfirmation({
+                    title: 'Create new resource confirmation',
+                    message: 'Do you really want to create new resource with provided values?',
+                    variant: 'primary',
+
+                    onConfirm: async ()=> {
+                        const formattedValues = {
+                            cpuNumber: Number(values.cpuNumber),
+                            ramGiB: Number(values.ramGiB),
+                            storageGiB: Number(values.storageGiB)
+                        };
+                        console.log('Sending resource to create: ', values);
+                        resourceApi.create(formattedValues)
+                            .then((response) => {
+                                addToast(
+                                    'Success!',
+                                    `New resource has been successfully created. ID: #${response.data.id}`,
+                                    'success'
+                                )
+                            })
+                            .catch((error) => {
+                                addToast(
+                                    'Error!',
+                                    `Error occurred while creating new resource. Error: ${error}`,
+                                    'danger'
+                                )
+                            })
+                            .finally(() => setSubmitting(false))
+                    }
+                })
             }}
         >
             {({

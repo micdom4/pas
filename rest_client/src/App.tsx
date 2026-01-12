@@ -2,6 +2,7 @@ import './App.css'
 import RoutesComponent from "./routes";
 import {BrowserRouter} from "react-router-dom";
 import {ToastProvider} from "./components/toasts/ToastProvider.tsx";
+import {ModalProvider} from "./components/modals/ModalProvider.tsx";
 
 
 function App() {
@@ -9,9 +10,11 @@ function App() {
     return (
         <>
             <ToastProvider>
-                <BrowserRouter>
-                    <RoutesComponent/>
-                </BrowserRouter>
+                <ModalProvider>
+                    <BrowserRouter>
+                        <RoutesComponent/>
+                    </BrowserRouter>
+                </ModalProvider>
             </ToastProvider>
         </>
     )

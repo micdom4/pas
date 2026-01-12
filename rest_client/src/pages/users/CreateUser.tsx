@@ -3,9 +3,11 @@ import {Button, Col, Form, Row} from 'react-bootstrap';
 import {StringTypeOfUser, TypeOfUser, UserSchema} from '../../model/UserTypes.ts';
 import {userApi} from "../../api/UserRestApi.ts";
 import useToast from "../../components/toasts/useToast.tsx";
+import useModal from "../../components/modals/useModal.tsx";
 
 export default function CreateUser() {
     const {addToast} = useToast()
+    const {showConfirmation} = useModal()
 
     return (
         <>
@@ -13,25 +15,33 @@ export default function CreateUser() {
                 initialValues={{login: '', name: '', surname: '', type: TypeOfUser.CLIENT}}
                 validationSchema={UserSchema}
                 onSubmit={(values, {setSubmitting, resetForm}) => {
-                    console.log('Sending user to create: ', values);
-                    userApi.create(values)
-                        .then((response) => {
-                            addToast(
-                                'Success!',
-                                `User "${response.data.login}" has been successfully created.`,
-                                'success');
-                            resetForm();
-                        })
-                        .catch((error) => {
-                            addToast(
-                                'Error!',
-                                `Error occurred while creating user "${values.login}": ${error}`,
-                                'danger'
-                            );
-                        })
-                        .finally(() => {
-                            setSubmitting(false);
-                        });
+                    showConfirmation({
+                        title: 'Confirmation of creation',
+                        message: `Do you really want to create user with login "${values.login}"?`,
+                        confirmLabel: 'Create',
+                        variant: 'primary',
+
+                        onConfirm: async () => {
+                            console.log('Sending user to create: ', values);
+                            userApi.create(values)
+                                .then((response) => {
+                                    addToast(
+                                        'Success!',
+                                        `User "${response.data.login}" has been successfully created.`,
+                                        'success');
+                                    resetForm();
+                                })
+                                .catch((error) => {
+                                    addToast(
+                                        'Error!',
+                                        `Error occurred while creating user "${values.login}": ${error}`,
+                                        'danger'
+                                    );
+                                })
+                        }
+                    });
+
+                    setSubmitting(false);
                 }}
             >
                 {({
