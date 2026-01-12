@@ -74,11 +74,9 @@ export default function CreateAllocation() {
                             .catch((error) => {
                                 addToast('Error', `Error while creating new allocation. Error: ${error}`, 'danger');
                             })
-                            .finally(() => {
-                                setSubmitting(false);
-                            });
                     }
                 })
+                setSubmitting(false);
             }}
         >
             {({

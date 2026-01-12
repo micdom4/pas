@@ -2,12 +2,27 @@ import {useEffect, useMemo, useState, useTransition} from "react";
 import type {UserType} from "../../model/UserTypes.ts";
 import {userApi} from "../../api/UserRestApi.ts";
 import {type Column, GenericTable} from "../../components/GenericTable.tsx";
-import {Badge, CloseButton, Col, Form, InputGroup, Row} from "react-bootstrap";
+import {Badge, Button, ButtonGroup, CloseButton, Col, Dropdown, Form, InputGroup, Row} from "react-bootstrap";
+import useToast from "../../components/toasts/useToast.tsx";
+import {EditUserModal} from "../../components/modals/EditUserModal.tsx";
 
 export default function ListUsers() {
     const [users, setUsers] = useState<UserType[]>([]);
     const [isPending, startTransition] = useTransition();
     const [searchTerm, setSearchTerm] = useState('');
+    const {addToast} = useToast()
+
+    const [editingUser, setEditingUser] = useState<UserType | null>(null);
+    const [showEditModal, setShowEditModal] = useState(false);
+
+    const handleEdit = (user: UserType) => {
+        setEditingUser(user);
+        setShowEditModal(true);
+    };
+
+    const handleEditSuccess = () => {
+        loadUsers();
+    };
 
     const columns: Column<UserType>[] = useMemo(() => [
         {header: 'Login', render: (u) => <strong>{u.login}</strong>},
@@ -20,6 +35,31 @@ export default function ListUsers() {
                 <Badge bg={u.active ? 'success' : 'secondary'}>
                     {u.active ? 'Active' : 'Not Active'}
                 </Badge>
+            )
+        },
+        {
+            header: 'Options',
+            render: (u) => (
+                <Dropdown as={ButtonGroup}>
+                    <Button onClick={() => handleEdit(u)} variant="primary">Edit</Button>
+
+                    <Dropdown.Toggle split variant="primary" id="dropdown-split-basic"/>
+
+                    <Dropdown.Menu>
+                        <Dropdown.Item onClick={() => {
+                            userApi.activate(u.id).then(() =>
+                                addToast('Success!', `User with login "${u.login}" has been activated`, 'success')
+                            )
+                        }}>Activate</Dropdown.Item>
+                        <Dropdown.Item onClick={() => {
+                            userApi.deactivate(u.id).then(() =>
+                                addToast('Success!', `User with login "${u.login}" has been deactivated`, 'success')
+                            )
+                        }}>Deactivate</Dropdown.Item>
+                        <Dropdown.Divider/>
+                        <Dropdown.Item onClick={() => handleEdit(u)}>Edit</Dropdown.Item>
+                    </Dropdown.Menu>
+                </Dropdown>
             )
         }
     ], []);
@@ -43,7 +83,7 @@ export default function ListUsers() {
 
     useEffect(() => {
         startTransition(() => loadUsers())
-    }, [])
+    }, [addToast])
 
     return <>
         <h2>Users</h2>
@@ -68,6 +108,13 @@ export default function ListUsers() {
                 </Col>
             </Row>
             {isPending ? <p>Fetching data...</p> : <GenericTable data={users} columns={columns}></GenericTable>}
+
+            <EditUserModal
+                show={showEditModal}
+                handleClose={() => setShowEditModal(false)}
+                user={editingUser}
+                onSuccess={handleEditSuccess}
+            />
         </div>
     </>
 }

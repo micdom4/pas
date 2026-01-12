@@ -39,7 +39,7 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({children}) => 
                     >
                         <Toast.Header>
                             <strong className="me-auto">{toast.title}</strong>
-                            <small>teraz</small>
+                            <small>now</small>
                         </Toast.Header>
                         <Toast.Body className={toast.variant === 'danger' ? 'text-white' : ''}>
                             {toast.message}
