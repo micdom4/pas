@@ -14,7 +14,7 @@ interface GenericTableProps<T extends BaseType> {
 
 export const GenericTable = <T extends BaseType>({data, columns}: GenericTableProps<T>) => {
     if (!data || data.length === 0) {
-        return <div className="p-3 text-center text-muted">Brak danych do wyświetlenia.</div>;
+        return <div className="p-3 text-center text-muted">No data to display.</div>;
     }
 
     return (

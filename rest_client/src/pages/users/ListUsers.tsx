@@ -5,12 +5,16 @@ import {type Column, GenericTable} from "../../components/GenericTable.tsx";
 import {Badge, Button, ButtonGroup, CloseButton, Col, Dropdown, Form, InputGroup, Row} from "react-bootstrap";
 import useToast from "../../components/toasts/useToast.tsx";
 import {EditUserModal} from "../../components/modals/EditUserModal.tsx";
+import {useNavigate} from "react-router-dom";
+import {Paths} from "../../routes/paths.ts";
 
 export default function ListUsers() {
     const [users, setUsers] = useState<UserType[]>([]);
     const [isPending, startTransition] = useTransition();
     const [searchTerm, setSearchTerm] = useState('');
     const {addToast} = useToast()
+
+    const navigate = useNavigate()
 
     const [editingUser, setEditingUser] = useState<UserType | null>(null);
     const [showEditModal, setShowEditModal] = useState(false);
@@ -25,7 +29,8 @@ export default function ListUsers() {
     };
 
     const columns: Column<UserType>[] = useMemo(() => [
-        {header: 'Login', render: (u) => <strong>{u.login}</strong>},
+        {header: 'Login', render: (u) =>
+                <strong>{u.login}</strong>},
         {header: 'Name', render: (u) => u.name},
         {header: 'Surname', render: (u) => u.surname},
         {header: 'Role', render: (u) => u.type},
@@ -41,7 +46,8 @@ export default function ListUsers() {
             header: 'Options',
             render: (u) => (
                 <Dropdown as={ButtonGroup}>
-                    <Button onClick={() => handleEdit(u)} variant="primary">Edit</Button>
+                    <Button variant="primary" onClick={() =>
+                        navigate(Paths.default.detailedUser.replace(":login",u.login))}>Details</Button>
 
                     <Dropdown.Toggle split variant="primary" id="dropdown-split-basic"/>
 

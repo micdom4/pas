@@ -4,11 +4,10 @@ import Home from "../pages/Home.tsx";
 import ListUsers from "../pages/users/ListUsers.tsx";
 import ListResources from "../pages/resources/ListResources.tsx";
 import CreateUser from "../pages/users/CreateUser.tsx";
-import EditUser from "../pages/users/EditUser.tsx";
 import CreateResource from "../pages/resources/CreateResource.tsx";
-import EditResource from "../pages/resources/EditResource.tsx";
 import ListAllocations from "../pages/allocations/ListAllocations.tsx";
 import CreateAllocation from "../pages/allocations/CreateAllocation.tsx";
+import DetailedUser from "../pages/users/DetailedUser.tsx";
 
 export type RouteType = {
     Component: () => React.ReactElement,
@@ -29,8 +28,8 @@ export const defaultRoutes: RouteType[] = [
         Component: CreateUser,
     },
     {
-        path: Paths.default.editUser,
-        Component: EditUser,
+        path: Paths.default.detailedUser,
+        Component: DetailedUser,
     },
     {
         path: Paths.default.listResources,
@@ -39,10 +38,6 @@ export const defaultRoutes: RouteType[] = [
     {
         path: Paths.default.createResource,
         Component: CreateResource,
-    },
-    {
-        path: Paths.default.editResource,
-        Component: EditResource,
     },
     {
         path: Paths.default.listAllocations,
