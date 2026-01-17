@@ -10,10 +10,14 @@ console.log("Existing collections dropped.");
 const userSchema = {
     $jsonSchema: {
         bsonType: "object",
-        required: ["login", "name", "surname", "type", "active"],
+        required: ["login", "password", "name", "surname", "type", "active"],
         properties: {
             _id: { bsonType: "objectId" },
             login: {
+                bsonType: "string",
+                description: "must be a string and is required (unique)"
+            },
+            password: {
                 bsonType: "string",
                 description: "must be a string and is required (unique)"
             },

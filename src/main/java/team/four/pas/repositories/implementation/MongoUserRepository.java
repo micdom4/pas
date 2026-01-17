@@ -45,7 +45,6 @@ public class MongoUserRepository implements UserRepository {
         }
 
         return mapper.toData(entity);
-
     }
 
     @Override
@@ -58,7 +57,7 @@ public class MongoUserRepository implements UserRepository {
     }
 
     @Override
-    public <T extends User> User add(String login, String name, String surname, Class<T> userClass) throws UserTypeException, UserLoginException, UserAlreadyExistsException {
+    public <T extends User> User add(String login, String password, String name, String surname, Class<T> userClass) throws UserTypeException, UserLoginException, UserAlreadyExistsException {
         UserEntity.Type type;
 
         if (userClass.equals(Client.class)) {
@@ -72,7 +71,7 @@ public class MongoUserRepository implements UserRepository {
         }
 
         try {
-            userCollection.insertOne(new UserEntity(null, login, name, surname, type, false));
+            userCollection.insertOne(new UserEntity(null, login, password, name, surname, type, false));
         } catch (MongoException e) {
             throw new UserAlreadyExistsException("User already exists: " + login, e);
         }

@@ -21,11 +21,14 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import team.four.pas.exceptions.resource.ResourceDataException;
 import team.four.pas.exceptions.user.UserException;
+import team.four.pas.repositories.UserRepository;
 import team.four.pas.services.AllocationService;
 import team.four.pas.services.ResourceService;
 import team.four.pas.services.UserService;
 import team.four.pas.services.data.resources.VirtualMachine;
+import team.four.pas.services.data.users.Admin;
 import team.four.pas.services.data.users.Client;
+import team.four.pas.services.data.users.Manager;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -45,6 +48,10 @@ class SecurityConfigTest {
     @LocalServerPort
     private int port;
 
+    private final static Client clientOk = new Client(null, "MCorleone", "abc123","Michael", "Corleone", true);
+    private final static Manager managerOk = new Manager(null, "MSmolinski", "abc123","Michael", "Corleone", true);
+    private final static Admin adminOk = new Admin(null, "BLis", "abc123","Michael", "Corleone", true);
+
     @Autowired
     private UserService userService;
     @Autowired
@@ -56,6 +63,8 @@ class SecurityConfigTest {
     private MongoClient mongoClient;
 
     private MongoDatabase database;
+    @Autowired
+    private UserRepository userRepository;
 
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
@@ -71,9 +80,13 @@ class SecurityConfigTest {
 
         this.database = mongoClient.getDatabase("pas");
         try {
-            userService.add(new Client(null, "MCorleone", "Michael", "Corleone", true));
+            userService.add(clientOk);
+            userService.add(managerOk);
+            userService.add(adminOk);
             resourceService.addVM(new VirtualMachine(null, 8, 16, 256));
-            userService.activate(userService.getAll().getLast().getId());
+            userService.activate(userRepository.findByLogin(clientOk.getLogin()).getId());
+            userService.activate(userRepository.findByLogin(managerOk.getLogin()).getId());
+            userService.activate(userRepository.findByLogin(adminOk.getLogin()).getId());
         } catch (UserException | ResourceDataException e) {
             throw new RuntimeException(e);
         }
@@ -98,9 +111,11 @@ class SecurityConfigTest {
     }
 
     @Test
-    void AllowWithCredentials() {
-        String encoded = Base64.getEncoder().encodeToString("Mark:password".getBytes(StandardCharsets.UTF_8));
+    void AllowClientWithCredentials() {
+        String creds = clientOk.getLogin() + ":" + clientOk.getPassword();
+        String encoded = Base64.getEncoder().encodeToString(creds.getBytes(StandardCharsets.UTF_8));
         Header auth = new Header("Authorization","Basic " + encoded);
+
         RestAssured.given()
                 .header(auth)
                 .log().headers()

@@ -5,10 +5,10 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.bson.types.ObjectId;
 
-
 public record UserEntity(
         @BsonId ObjectId id,
         @BsonProperty("login") String login,
+        @BsonProperty("password") String password,
         @BsonProperty("name") String name,
         @BsonProperty("surname") String surname,
         @BsonProperty("type") Type type,

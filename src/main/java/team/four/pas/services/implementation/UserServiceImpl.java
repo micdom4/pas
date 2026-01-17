@@ -46,7 +46,7 @@ public class UserServiceImpl implements UserService {
 //                    userRepository.add(user.getlogin(), user.getname(), user.getsurname(), Admin.class);
 //        };
 
-        return userRepository.add(user.getLogin(), user.getName(), user.getSurname(), user.getClass());
+        return userRepository.add(user.getLogin(), user.getPassword(), user.getName(), user.getSurname(), user.getClass());
     }
 
     @Override

@@ -2,25 +2,46 @@ package team.four.pas.services.data.users;
 import lombok.*;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.springframework.security.core.userdetails.UserDetails;
 import team.four.pas.services.data.resources.VirtualMachine;
 
 
-@Getter  @Setter @NoArgsConstructor @ToString
-public abstract class User  {
+@Getter @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
+public abstract class User implements UserDetails {
     private String id;
     private String login;
+    private String password;
     private String name;
     private String surname;
     private boolean active;
 
-    public User(String id, String login, String name, String surname, boolean active) {
-        this.id = id;
-        this.login = login;
-        this.name = name;
-        this.surname = surname;
-        this.active = active;
+    @Override
+    public String getUsername() {
+        return login;
     }
 
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return active;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -36,5 +57,4 @@ public abstract class User  {
     public int hashCode() {
         return new HashCodeBuilder(17, 37).append(id).toHashCode();
     }
-
 }

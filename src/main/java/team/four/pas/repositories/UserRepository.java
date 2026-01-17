@@ -14,7 +14,7 @@ public interface UserRepository  extends Repository<User> {
 
     List<User> findByMatchingLogin(String loginStart);
 
-    <T extends User> User add(String login, String name, String surname, Class<T> userClass) throws UserTypeException, UserLoginException, UserAlreadyExistsException;
+    <T extends User> User add(String login, String password, String name, String surname, Class<T> userClass) throws UserTypeException, UserLoginException, UserAlreadyExistsException;
 
     User update(String id, String Surname) throws UserNotFoundException, UserIdException;
 
