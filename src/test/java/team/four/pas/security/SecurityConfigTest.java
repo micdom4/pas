@@ -2,6 +2,9 @@ package team.four.pas.security;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
+import io.jsonwebtoken.JwtBuilder;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.impl.JwtTokenizer;
 import io.restassured.RestAssured;
 import io.restassured.http.Header;
 import org.bson.Document;
@@ -114,7 +117,8 @@ class SecurityConfigTest {
     void AllowClientWithCredentials() {
         String creds = clientOk.getLogin() + ":" + clientOk.getPassword();
         String encoded = Base64.getEncoder().encodeToString(creds.getBytes(StandardCharsets.UTF_8));
-        Header auth = new Header("Authorization","Basic " + encoded);
+
+        Header auth = new Header("Authorization","Bearer " + encoded);
 
         RestAssured.given()
                 .header(auth)
@@ -125,6 +129,7 @@ class SecurityConfigTest {
                 .log().body()
                 .statusCode(HttpStatus.OK.value());
     }
+
 
 
 }

@@ -4,3 +4,6 @@ pas:
       uri: mongodb://localhost:27017/pas
       database: pas
     entities-package: team.four.pas.repositories.entities
+
+jwt:
+  secret: B6A8F7A6D8357D3E347CB64ED1553CF104B76982D105D19FB19AD340843E6FEE
