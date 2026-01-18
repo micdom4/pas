@@ -24,7 +24,9 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import team.four.pas.controllers.AuthController;
 import team.four.pas.controllers.DTOs.AuthResponse;
+import team.four.pas.controllers.DTOs.UserAddDTO;
 import team.four.pas.controllers.DTOs.UserLoginDTO;
+import team.four.pas.controllers.DTOs.UserType;
 import team.four.pas.exceptions.resource.ResourceDataException;
 import team.four.pas.exceptions.user.UserException;
 import team.four.pas.repositories.ResourceRepository;
@@ -90,13 +92,7 @@ class SecurityConfigTest {
 
         this.database = mongoClient.getDatabase("pas");
         try {
-            userService.add(clientOk);
-            userService.add(managerOk);
-            userService.add(adminOk);
-            resourceService.addVM(new VirtualMachine(null, 8, 16, 256));
-            userService.activate(userRepository.findByLogin(clientOk.getLogin()).getId());
-            userService.activate(userRepository.findByLogin(managerOk.getLogin()).getId());
-            userService.activate(userRepository.findByLogin(adminOk.getLogin()).getId());
+
         } catch (UserException | ResourceDataException e) {
             throw new RuntimeException(e);
         }
@@ -122,11 +118,11 @@ class SecurityConfigTest {
 
     @Test
     void AllowClientWithCredentials() {
-        String creds = clientOk.getLogin() + ":" + clientOk.getPassword();
-        String jwt = authController.login(new UserLoginDTO(clientOk.getLogin(), clientOk.getPassword())).getBody().getToken();
-        String encoded = Base64.getEncoder().encodeToString(creds.getBytes(StandardCharsets.UTF_8));
+        authController.register(new UserAddDTO(clientOk.getLogin(), clientOk.getName(), clientOk.getPassword(), clientOk.getSurname(), UserType.CLIENT));
 
-        Header auth = new Header("Authorization","Bearer " + encoded);
+        String jwt = authController.login(new UserLoginDTO(clientOk.getLogin(), clientOk.getPassword())).getBody().getToken();
+
+        Header auth = new Header("Authorization","Bearer " + jwt);
 
         RestAssured.given()
                 .header(auth)

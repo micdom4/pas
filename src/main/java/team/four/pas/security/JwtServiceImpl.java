@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -32,7 +33,7 @@ public class JwtServiceImpl implements JwtService {
     }
 
     public String generateToken(UserDetails userDetails) {
-        return generateToken(null, userDetails);
+        return generateToken(new HashMap<>(), userDetails);
    }
 
    public boolean isTokenValid(String token, UserDetails userDetails) {

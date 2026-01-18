@@ -71,7 +71,7 @@ public class MongoUserRepository implements UserRepository {
         }
 
         try {
-            userCollection.insertOne(new UserEntity(null, login, password, name, surname, type, false));
+            userCollection.insertOne(new UserEntity(null, login, password, name, surname, type, true));
         } catch (MongoException e) {
             throw new UserAlreadyExistsException("User already exists: " + login, e);
         }
