@@ -1,16 +1,12 @@
 package team.four.pas.controllers;
 
-import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import team.four.pas.controllers.DTOs.AllocationAddDTO;
-import team.four.pas.controllers.DTOs.UserType;
-import team.four.pas.security.SecurityRoles;
 import team.four.pas.services.AllocationService;
 import team.four.pas.services.data.allocations.VMAllocation;
 
@@ -27,7 +23,8 @@ public class AllocationControllerImpl {
     @GetMapping(
             {""}
     )
-    @PreAuthorize("hasRole(T(team.four.pas.security.SecurityRoles).ADMIN)")
+    @PreAuthorize("hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN, " +
+                  "T(team.four.pas.security.SecurityRoles).MANAGER)")
     public ResponseEntity<List<VMAllocation>> getAll() {
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -37,6 +34,8 @@ public class AllocationControllerImpl {
     @GetMapping(
             {"/{id}"}
     )
+    @PreAuthorize("hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN, " +
+                  "T(team.four.pas.security.SecurityRoles).MANAGER)")
     public ResponseEntity<VMAllocation> getById(@PathVariable String id) {
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -47,6 +46,8 @@ public class AllocationControllerImpl {
             value = {""},
             consumes = {"application/json"}
     )
+    @PreAuthorize("hasRole(T(team.four.pas.security.SecurityRoles).CLIENT)" +
+            " && @ownershipChecker.isOwner(authentication, #allocationAddDTO.clientId())")
     public ResponseEntity<VMAllocation> createAllocation(@Valid @RequestBody AllocationAddDTO allocationAddDTO) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -56,6 +57,8 @@ public class AllocationControllerImpl {
     @GetMapping(
             {"/past/vm/{id}"}
     )
+    @PreAuthorize("hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN, " +
+            "T(team.four.pas.security.SecurityRoles).MANAGER)")
     public ResponseEntity<List<VMAllocation>> getPastVmAllocations(@PathVariable String id) {
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -65,6 +68,8 @@ public class AllocationControllerImpl {
     @GetMapping(
             {"/active/vm/{id}"}
     )
+    @PreAuthorize("hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN, " +
+            "T(team.four.pas.security.SecurityRoles).MANAGER)")
     public ResponseEntity<List<VMAllocation>> getActiveVmAllocations(@PathVariable String id) {
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -73,6 +78,11 @@ public class AllocationControllerImpl {
 
     @GetMapping(
             {"/active/client/{id}"}
+    )
+    @PreAuthorize(
+            "(hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN, T(team.four.pas.security.SecurityRoles).MANAGER)) " +
+                    "|| " +
+                    "(hasRole(T(team.four.pas.security.SecurityRoles).CLIENT) && @ownershipChecker.isOwner(authentication, #id))"
     )
     public ResponseEntity<List<VMAllocation>> getActiveClientAllocations(@PathVariable String id) {
         return ResponseEntity
@@ -83,6 +93,11 @@ public class AllocationControllerImpl {
     @GetMapping(
             {"/past/client/{id}"}
     )
+    @PreAuthorize(
+            "(hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN, T(team.four.pas.security.SecurityRoles).MANAGER)) " +
+                    "|| " +
+                    "(hasRole(T(team.four.pas.security.SecurityRoles).CLIENT) && @ownershipChecker.isOwner(authentication, #id))"
+    )
     public ResponseEntity<List<VMAllocation>> getPastClientAllocations(@PathVariable String id) {
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -91,6 +106,11 @@ public class AllocationControllerImpl {
 
     @PutMapping(
             {"/{id}/finish"}
+    )
+    @PreAuthorize(
+            "(hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN, T(team.four.pas.security.SecurityRoles).MANAGER)) " +
+                    "|| " +
+                    "(hasRole(T(team.four.pas.security.SecurityRoles).CLIENT) && @ownershipChecker.isOwnerOfAllocation(authentication, #id))"
     )
     public ResponseEntity<?> finishAllocation(@PathVariable String id) {
         allocationService.finishAllocation(id);
@@ -102,6 +122,11 @@ public class AllocationControllerImpl {
 
     @DeleteMapping(
             {"/{id}"}
+    )
+    @PreAuthorize(
+            "(hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN, T(team.four.pas.security.SecurityRoles).MANAGER)) " +
+                    "|| " +
+                    "(hasRole(T(team.four.pas.security.SecurityRoles).CLIENT) && @ownershipChecker.isOwnerOfAllocation(authentication, #id))"
     )
     public ResponseEntity<?> deleteAllocation(@PathVariable String id) {
         allocationService.delete(id);

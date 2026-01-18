@@ -1,4 +1,5 @@
 package team.four.pas.services.data.users;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -13,6 +14,8 @@ import team.four.pas.services.data.resources.VirtualMachine;
 public abstract class User implements UserDetails {
     private String id;
     private String login;
+
+    @JsonIgnore
     private String password;
     private String name;
     private String surname;

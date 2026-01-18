@@ -6,6 +6,7 @@ import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.impl.JwtTokenizer;
 import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
 import io.restassured.http.Header;
 import org.bson.Document;
 import org.junit.jupiter.api.AfterEach;
@@ -23,10 +24,7 @@ import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import team.four.pas.controllers.AuthController;
-import team.four.pas.controllers.DTOs.AuthResponse;
-import team.four.pas.controllers.DTOs.UserAddDTO;
-import team.four.pas.controllers.DTOs.UserLoginDTO;
-import team.four.pas.controllers.DTOs.UserType;
+import team.four.pas.controllers.DTOs.*;
 import team.four.pas.exceptions.resource.ResourceDataException;
 import team.four.pas.exceptions.user.UserException;
 import team.four.pas.repositories.ResourceRepository;
@@ -34,11 +32,14 @@ import team.four.pas.repositories.UserRepository;
 import team.four.pas.services.AllocationService;
 import team.four.pas.services.ResourceService;
 import team.four.pas.services.UserService;
+import team.four.pas.services.data.resources.VirtualMachine;
 import team.four.pas.services.data.users.Admin;
 import team.four.pas.services.data.users.Client;
 import team.four.pas.services.data.users.Manager;
 
 import java.io.File;
+
+import static org.hamcrest.Matchers.equalTo;
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -115,19 +116,53 @@ class SecurityConfigTest {
     @Test
     void AllowClientWithCredentials() {
         authController.register(new UserAddDTO(clientOk.getLogin(), clientOk.getName(), clientOk.getPassword(), clientOk.getSurname(), UserType.CLIENT));
+        authController.register(new UserAddDTO(managerOk.getLogin(), managerOk.getName(), managerOk.getPassword(), managerOk.getSurname(), UserType.CLIENT));
 
         String jwt = authController.login(new UserLoginDTO(clientOk.getLogin(), clientOk.getPassword())).getBody().getToken();
 
         Header auth = new Header("Authorization","Bearer " + jwt);
 
+        resourceService.addVM(new VirtualMachine(null, 8, 16, 256));
+        VirtualMachine virtualMachine = resourceService.getAll().getLast();
+        Client client = (Client) userRepository.findByLogin(clientOk.getLogin());
+
+        AllocationAddDTO requestBody = new AllocationAddDTO(client.getId(), virtualMachine.getId());
+
         RestAssured.given()
+                .contentType(ContentType.JSON)
                 .header(auth)
-                .log().headers()
+                .body(requestBody)
                 .when()
-                .get("/allocations")
+                .post("/allocations")
                 .then()
+                .statusCode(HttpStatus.CREATED.value())
                 .log().body()
-                .statusCode(HttpStatus.OK.value());
+                .body("client.login", equalTo("MCorleone"));
+    }
+
+    @Test
+    void ClientCantCreateAllocationForOtherUsers() {
+        authController.register(new UserAddDTO(clientOk.getLogin(), clientOk.getName(), clientOk.getPassword(), clientOk.getSurname(), UserType.CLIENT));
+        authController.register(new UserAddDTO(managerOk.getLogin(), managerOk.getName(), managerOk.getPassword(), managerOk.getSurname(), UserType.CLIENT));
+
+        String jwt = authController.login(new UserLoginDTO(clientOk.getLogin(), clientOk.getPassword())).getBody().getToken();
+
+        Header auth = new Header("Authorization","Bearer " + jwt);
+
+        resourceService.addVM(new VirtualMachine(null, 8, 16, 256));
+        VirtualMachine virtualMachine = resourceService.getAll().getLast();
+        Client manager = (Client) userRepository.findByLogin(managerOk.getLogin());
+
+        AllocationAddDTO requestBody = new AllocationAddDTO(manager.getId(), virtualMachine.getId());
+
+        RestAssured.given()
+                .contentType(ContentType.JSON)
+                .header(auth)
+                .body(requestBody)
+                .when()
+                .post("/allocations")
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN.value());
     }
 
 
