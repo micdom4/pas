@@ -119,6 +119,8 @@ try {
     db.createCollection("vmAllocations", {
         validator: vmAllocationSchema
     });
+    db.createCollection("tokens", {
+    });
 } catch (e) {
     console.log("Failed :( rep -1");
 }

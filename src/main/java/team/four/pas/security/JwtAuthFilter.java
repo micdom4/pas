@@ -1,6 +1,5 @@
 package team.four.pas.security;
 
-import io.jsonwebtoken.Jwt;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,6 +13,7 @@ import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import team.four.pas.repositories.TokenRepository;
 
 import java.io.IOException;
 
@@ -23,12 +23,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsManager userDetailsManager;
+    private final TokenRepository tokenRepository;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain)
-                                    throws ServletException, IOException {
+            throws ServletException, IOException {
 
         final String authHeader = request.getHeader("Authorization");
         final String jwtToken;
@@ -44,11 +45,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsManager.loadUserByUsername(username);
-            if(jwtService.isTokenValid(jwtToken, userDetails)) {
+
+            var isTokenValidInDb = tokenRepository.findFirstByToken(jwtToken)
+                    .map(t -> !t.isExpired() && !t.isRevoked())
+                    .orElse(false);
+
+            if(jwtService.isTokenValid(jwtToken, userDetails) && isTokenValidInDb) {
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(userDetails,
-                                                                null,
-                                                                userDetails.getAuthorities());
+                                null,
+                                userDetails.getAuthorities());
 
                 authToken.setDetails(
                         new WebAuthenticationDetailsSource().buildDetails(request)
@@ -60,5 +66,4 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
-
 }

@@ -2,6 +2,7 @@ try {
     db.users.drop();
     db.virtualMachines.drop();
     db.vmAllocations.drop();
+    db.tokens.drop();
 } catch (e) {
     console.log("Failed :( rep -1");
 }

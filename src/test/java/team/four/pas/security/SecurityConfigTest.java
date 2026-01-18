@@ -36,6 +36,7 @@ import team.four.pas.services.data.resources.VirtualMachine;
 import team.four.pas.services.data.users.Admin;
 import team.four.pas.services.data.users.Client;
 import team.four.pas.services.data.users.Manager;
+import team.four.pas.services.data.users.User;
 
 import java.io.File;
 
@@ -54,9 +55,9 @@ class SecurityConfigTest {
     @LocalServerPort
     private int port;
 
-    private final static Client clientOk = new Client(null, "MCorleone", "abc123","Michael", "Corleone", true);
+    private final static Client clientOk = new Client(null, "MCorleone", "abc123","Michael22", "Corleone", true);
     private final static Manager managerOk = new Manager(null, "MSmolinski", "abc123","Michael", "Corleone", true);
-    private final static Admin adminOk = new Admin(null, "BLis", "abc123","Michael", "Corleone", true);
+    private final static Admin adminOk = new Admin(null, "BLis", "abc123","Michael22", "Corleone", true);
 
     @Autowired
     private UserService userService;
@@ -100,6 +101,7 @@ class SecurityConfigTest {
         database.getCollection("users").deleteMany(new Document());
         database.getCollection("virtualMachines").deleteMany(new Document());
         database.getCollection("vmAllocations").deleteMany(new Document());
+        database.getCollection("tokens").deleteMany(new Document());
     }
 
     @Test
@@ -115,10 +117,7 @@ class SecurityConfigTest {
 
     @Test
     void AllowClientWithCredentials() {
-        authController.register(new UserAddDTO(clientOk.getLogin(), clientOk.getName(), clientOk.getPassword(), clientOk.getSurname(), UserType.CLIENT));
-        authController.register(new UserAddDTO(managerOk.getLogin(), managerOk.getName(), managerOk.getPassword(), managerOk.getSurname(), UserType.CLIENT));
-
-        String jwt = authController.login(new UserLoginDTO(clientOk.getLogin(), clientOk.getPassword())).getBody().getToken();
+        String jwt = authController.register(new UserAddDTO(clientOk.getLogin(), clientOk.getName(), clientOk.getPassword(), clientOk.getSurname(), UserType.CLIENT)).getBody().getToken();
 
         Header auth = new Header("Authorization","Bearer " + jwt);
 
@@ -161,6 +160,60 @@ class SecurityConfigTest {
                 .body(requestBody)
                 .when()
                 .post("/allocations")
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN.value());
+    }
+
+    @Test
+    void RejectTokenAfterLogout() {
+        String jwt = authController.register(new UserAddDTO(adminOk.getLogin(), adminOk.getName(),
+                adminOk.getPassword(), adminOk.getSurname(), UserType.ADMIN)).getBody().getToken();
+        Header authHeader = new Header("Authorization", "Bearer " + jwt);
+
+        RestAssured.given()
+                .header(authHeader)
+                .when()
+                .get("/allocations")
+                .then()
+                .statusCode(HttpStatus.OK.value());
+
+        RestAssured.given()
+                .header(authHeader)
+                .when()
+                .post("/auth/logout")
+                .then()
+                .statusCode(HttpStatus.NO_CONTENT.value());
+
+
+        RestAssured.given()
+                .header(authHeader)
+                .when()
+                .get("/allocations")
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN.value());
+
+        String jwt2 = authController.login(new UserLoginDTO(adminOk.getLogin(), adminOk.getPassword())).getBody().getToken();
+        Header authHeader2 = new Header("Authorization", "Bearer " + jwt2);
+
+        RestAssured.given()
+                .header(authHeader2)
+                .when()
+                .get("/allocations")
+                .then()
+                .statusCode(HttpStatus.OK.value());
+
+        RestAssured.given()
+                .header(authHeader2)
+                .when()
+                .post("/auth/logout")
+                .then()
+                .statusCode(HttpStatus.NO_CONTENT.value());
+
+
+        RestAssured.given()
+                .header(authHeader2)
+                .when()
+                .get("/allocations")
                 .then()
                 .statusCode(HttpStatus.FORBIDDEN.value());
     }
