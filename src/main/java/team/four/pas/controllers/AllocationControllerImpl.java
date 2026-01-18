@@ -6,8 +6,11 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import team.four.pas.controllers.DTOs.AllocationAddDTO;
+import team.four.pas.controllers.DTOs.UserType;
+import team.four.pas.security.SecurityRoles;
 import team.four.pas.services.AllocationService;
 import team.four.pas.services.data.allocations.VMAllocation;
 
@@ -24,6 +27,7 @@ public class AllocationControllerImpl {
     @GetMapping(
             {""}
     )
+    @PreAuthorize("hasRole(T(team.four.pas.security.SecurityRoles).ADMIN)")
     public ResponseEntity<List<VMAllocation>> getAll() {
         return ResponseEntity
                 .status(HttpStatus.OK)

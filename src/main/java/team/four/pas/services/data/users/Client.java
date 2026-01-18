@@ -3,7 +3,7 @@ package team.four.pas.services.data.users;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import team.four.pas.controllers.DTOs.UserType;
+import team.four.pas.security.SecurityRoles;
 
 import java.util.Collection;
 import java.util.List;
@@ -17,6 +17,6 @@ public class Client extends User {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(UserType.CLIENT.toString()));
+        return List.of(new SimpleGrantedAuthority(SecurityRoles.CLIENT));
     }
 }

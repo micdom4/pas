@@ -2,11 +2,14 @@ package team.four.pas.services.data.users;
 
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import team.four.pas.security.SecurityRoles;
 
 import java.util.Collection;
 import java.util.List;
 
 public class Manager extends User {
+
     public Manager(String id, String login,
                    String password, String name,
                    String surname, boolean active) {
@@ -15,7 +18,7 @@ public class Manager extends User {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        return List.of(new SimpleGrantedAuthority(SecurityRoles.MANAGER));
     }
 
 }
