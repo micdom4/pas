@@ -22,8 +22,12 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import team.four.pas.controllers.AuthController;
+import team.four.pas.controllers.DTOs.AuthResponse;
+import team.four.pas.controllers.DTOs.UserLoginDTO;
 import team.four.pas.exceptions.resource.ResourceDataException;
 import team.four.pas.exceptions.user.UserException;
+import team.four.pas.repositories.ResourceRepository;
 import team.four.pas.repositories.UserRepository;
 import team.four.pas.services.AllocationService;
 import team.four.pas.services.ResourceService;
@@ -68,6 +72,9 @@ class SecurityConfigTest {
     private MongoDatabase database;
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private AuthController authController;
 
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
@@ -116,6 +123,7 @@ class SecurityConfigTest {
     @Test
     void AllowClientWithCredentials() {
         String creds = clientOk.getLogin() + ":" + clientOk.getPassword();
+        String jwt = authController.login(new UserLoginDTO(clientOk.getLogin(), clientOk.getPassword())).getBody().getToken();
         String encoded = Base64.getEncoder().encodeToString(creds.getBytes(StandardCharsets.UTF_8));
 
         Header auth = new Header("Authorization","Bearer " + encoded);

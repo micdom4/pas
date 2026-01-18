@@ -14,6 +14,9 @@ public record UserAddDTO(
         @Pattern(regexp = "^[A-Z][a-z]{1,19}$", message = "Wrong format of name")
         String name,
 
+        @NotNull(message = "password can't be null")
+        String password,
+
         @NotNull(message = "surname can't be null")
         @Pattern(regexp = "^[A-Z][a-z]{1,19}(-[A-Z][a-z]{1,19})?$", message = "Wrong format of surname")
         String surname,

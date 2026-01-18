@@ -9,7 +9,7 @@ import team.four.pas.repositories.UserRepository;
 
 @Service
 @RequiredArgsConstructor
-public class MongoUserService implements UserDetailsManager {
+public class MongoUserManager implements UserDetailsManager {
 
     private final UserRepository mongoUserRepository;
 
