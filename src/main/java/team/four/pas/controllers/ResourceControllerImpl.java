@@ -14,9 +14,6 @@ import team.four.pas.services.ResourceService;
 import java.util.List;
 
 @RestController
-@CrossOrigin(
-        originPatterns = {"http://localhost:[*]"}
-)
 @RequestMapping(
         value = {"/resources"},
         produces = {"application/json"}
@@ -27,7 +24,6 @@ public class ResourceControllerImpl {
     private final ResourceToDTO resourceToDTO;
 
     @GetMapping({""})
-
     @PreAuthorize("hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN, " +
             "T(team.four.pas.security.SecurityRoles).MANAGER, " +
             "T(team.four.pas.security.SecurityRoles).CLIENT) ")

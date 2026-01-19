@@ -12,8 +12,7 @@ import {userApi} from "../../api/UserRestApi.ts";
 import type {UserType} from "../../model/UserTypes.ts";
 
 const AllocationSchema = Yup.object().shape({
-    clientId: Yup.string()
-        .required('You must choose a client'),
+    login: Yup.string(),
     vmId: Yup.string()
         .required('You must choose a resource'),
 });
@@ -44,7 +43,7 @@ export default function CreateAllocation() {
     };
 
     useEffect(() => {
-        startTransition(() => fetchData());
+        startTransition(async () => await fetchData());
     }, []);
 
     return (
@@ -62,7 +61,6 @@ export default function CreateAllocation() {
                     variant: 'primary',
 
                     onConfirm: async () => {
-
                         const payload = {
                             clientId: client?.id || '',
                             resourceId: values.vmId,
