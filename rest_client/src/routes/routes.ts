@@ -8,11 +8,28 @@ import CreateResource from "../pages/resources/CreateResource.tsx";
 import ListAllocations from "../pages/allocations/ListAllocations.tsx";
 import CreateAllocation from "../pages/allocations/CreateAllocation.tsx";
 import DetailedUser from "../pages/users/DetailedUser.tsx";
+import LoginPage from "../pages/login/LoginPage.tsx";
+import RegisterPage from "../pages/login/RegisterPage.tsx";
 
 export type RouteType = {
     Component: () => React.ReactElement,
     path: string
 }
+
+export const anonymousRoutes: RouteType[] = [
+    {
+        path: Paths.anonymous.home,
+        Component: Home,
+    },
+    {
+        path: Paths.anonymous.login,
+        Component: LoginPage
+    },
+    {
+        path: Paths.anonymous.register,
+        Component: RegisterPage
+    }
+]
 
 export const defaultRoutes: RouteType[] = [
     {

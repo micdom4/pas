@@ -74,7 +74,7 @@ export default function DetailedUser() {
         loadData();
     }, [login, navigate, addToast]);
 
-    if (loading) {
+    if (loading || !user) {
         return (
             <div className="text-center mt-5">
                 <Spinner animation="border" variant="primary"/>
@@ -82,8 +82,6 @@ export default function DetailedUser() {
             </div>
         );
     }
-
-    if (!user) return null;
 
     return (
         <div className="container mt-4">

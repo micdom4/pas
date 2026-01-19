@@ -12,4 +12,11 @@ export const Paths = {
         listAllocations: '/allocations',
         createAllocations: '/allocations/create'
     },
+
+    anonymous: {
+        home: '/',
+
+        login: '/login',
+        register: '/register',
+    }
 }

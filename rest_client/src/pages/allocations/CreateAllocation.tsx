@@ -1,14 +1,15 @@
-import {useEffect, useState, useTransition} from 'react';
+import {use, useEffect, useState, useTransition} from 'react';
 import {Formik} from 'formik';
 import {Button, Col, Form, Row} from 'react-bootstrap';
 import useToast from '../../components/toasts/useToast.tsx';
 import {resourceApi} from "../../api/ResourceRestApi.ts";
-import {userApi} from "../../api/UserRestApi.ts";
 import {allocationApi} from "../../api/AllocationRestApi.ts";
-import {type UserType} from "../../model/UserTypes.ts";
 import type {ResourceType} from "../../model/ResourceTypes.ts";
 import * as Yup from "yup";
 import useModal from "../../components/modals/useModal.tsx";
+import LoggedUserContext from "../../contexts/LoggedUserContext";
+import {userApi} from "../../api/UserRestApi.ts";
+import type {UserType} from "../../model/UserTypes.ts";
 
 const AllocationSchema = Yup.object().shape({
     clientId: Yup.string()
@@ -21,21 +22,23 @@ export default function CreateAllocation() {
     const {addToast} = useToast();
     const {showConfirmation} = useModal()
 
-    const [clients, setClients] = useState<UserType[]>([]);
+    const {user} = use(LoggedUserContext)
+
+    const [client, setClient] = useState<UserType>()
     const [resources, setResources] = useState<ResourceType[]>([]);
     const [isPending, startTransition] = useTransition()
 
     const fetchData = async () => {
         try {
-            const [usersResponse, resourcesResponse] = await Promise.all([
-                userApi.getAll(),
-                resourceApi.getAll()
+            const [resourcesResponse, clientResponse] = await Promise.all([
+                resourceApi.getAll(),
+                userApi.getByLogin(user.login || '')
             ]);
 
-            setClients(usersResponse.data);
             setResources(resourcesResponse.data);
+            setClient(clientResponse.data)
         } catch (error) {
-            addToast('Fetch data error', `Error while fetching resources or users. Error: ${error}`, 'danger');
+            addToast('Fetch data error', `Error while fetching resources. Error: ${error}`, 'danger');
             console.error(error);
         }
     };
@@ -47,7 +50,7 @@ export default function CreateAllocation() {
     return (
         <Formik
             initialValues={{
-                clientId: '',
+                login: '',
                 vmId: '',
             }}
             validationSchema={AllocationSchema}
@@ -59,8 +62,9 @@ export default function CreateAllocation() {
                     variant: 'primary',
 
                     onConfirm: async () => {
+
                         const payload = {
-                            clientId: values.clientId,
+                            clientId: client?.id || '',
                             resourceId: values.vmId,
                         };
 
@@ -94,23 +98,12 @@ export default function CreateAllocation() {
                                     <Form.Group className="mb-3" controlId="formClient">
                                         <Form.Label>Client</Form.Label>
                                         <Form.Select
-                                            name="clientId"
-                                            value={values.clientId}
-                                            onChange={handleChange}
-                                            onBlur={handleBlur}
-                                            isInvalid={touched.clientId && !!errors.clientId}
+                                            name="login"
+                                            value={values.login}
+                                            disabled
                                         >
-                                            <option value="">-- Choose Client --</option>
-                                            {clients.filter(u => u.type.toString() === "CLIENT" && u.active)
-                                                .map((client) => (
-                                                    <option key={client.id} value={client.id}>
-                                                        {client.name} {client.surname} ({client.login})
-                                                    </option>
-                                                ))}
+                                            <option value={user.login || ''}>{user.login}</option>
                                         </Form.Select>
-                                        <Form.Control.Feedback type="invalid">
-                                            {errors.clientId}
-                                        </Form.Control.Feedback>
                                     </Form.Group>
                                 </Col>
 

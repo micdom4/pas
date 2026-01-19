@@ -1,4 +1,5 @@
-import axios, {AxiosError} from 'axios'
+import axios, {AxiosError, type InternalAxiosRequestConfig} from 'axios'
+import {tokenStorageName} from "../contexts/LoggedUserContext/tokenStorageConfig.ts";
 
 export const API_URL = "http://localhost:8080"
 export const TIMEOUT_IN_MS = 10000
@@ -13,12 +14,84 @@ export const api = axios.create({
     headers: DEFAULT_HEADERS,
 })
 
+const authorizationRequestInterceptor = (config: InternalAxiosRequestConfig) => {
+    const accessToken = sessionStorage.getItem(tokenStorageName)
+
+    if (accessToken && config.headers) {
+        config.headers.Authorization = "Bearer " + accessToken
+    }
+
+    return config
+}
+
 const errorMessages = {
     serverError: "Internal Server Error!!!",
     unknownError: "Unknown Error"
 }
 
+api.interceptors.request.use(
+    (config) => {
+        return authorizationRequestInterceptor(config)
+    }
+)
+
 api.interceptors.response.use(
+    (response) => {
+        return response;
+    },
+    async (error: AxiosError) => {
+        // const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+        //
+        // if (error.response?.status === 401 && !originalRequest._retry) {
+        //     originalRequest._retry = true;
+        //
+        //     const refreshToken = sessionStorage.getItem(refreshTokenStorageName);
+        //     const userId = sessionStorage.getItem(userUsernameStorageName) || "unknown";
+        //
+        //     if (refreshToken) {
+        //         try {
+        //             const res = await loginApi.refresh(userId, { refreshToken: refreshToken });
+        //
+        //             if (res.data.accessToken) {
+        //                 console.log("Token refreshed successfully");
+        //
+        //                 sessionStorage.setItem(tokenStorageName, res.data.accessToken);
+        //
+        //                 originalRequest.headers.Authorization = "Bearer " + res.data.accessToken;
+        //
+        //                 return api(originalRequest);
+        //             }
+        //         } catch (refreshError) {
+        //             console.error("Refresh token failed", refreshError);
+        //             sessionStorage.clear();
+        //             window.location.href = '/login';
+        //             return Promise.reject(refreshError);
+        //         }
+        //     }
+        // }
+
+        if (!error.response) {
+            console.error(error);
+        } else {
+            const status = error.response.status;
+            if (status === 500) {
+                console.error("Server Error 500");
+            }
+        }
+
+        return Promise.reject(error);
+    }
+);
+
+
+
+export const loginApiInstance = axios.create({
+    baseURL: API_URL + "/auth",
+    timeout: TIMEOUT_IN_MS,
+    headers: DEFAULT_HEADERS
+})
+
+loginApiInstance.interceptors.response.use(
     (response) => {
         return response;
     },
