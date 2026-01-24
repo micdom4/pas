@@ -39,6 +39,7 @@ import team.four.pas.services.data.users.Manager;
 
 import java.io.File;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 
@@ -163,6 +164,29 @@ class SecurityConfigTest {
                 .post("/allocations")
                 .then()
                 .statusCode(HttpStatus.FORBIDDEN.value());
+    }
+
+    @Test
+    void returnClaimsReturnsCorrectRoles() {
+        authController.register(new UserAddDTO(clientOk.getLogin(), clientOk.getName(), clientOk.getPassword(), clientOk.getSurname(), UserType.CLIENT));
+        authController.register(new UserAddDTO(managerOk.getLogin(), managerOk.getName(), managerOk.getPassword(), managerOk.getSurname(), UserType.MANAGER));
+        authController.register(new UserAddDTO(adminOk.getLogin(), adminOk.getName(), adminOk.getPassword(), adminOk.getSurname(), UserType.ADMIN));
+
+        AuthResponse auth0 = authController.login(new UserLoginDTO(clientOk.getLogin(), clientOk.getPassword())).getBody();
+        AuthResponse auth1 = authController.login(new UserLoginDTO(managerOk.getLogin(), managerOk.getPassword())).getBody();
+        AuthResponse auth2 = authController.login(new UserLoginDTO(adminOk.getLogin(), adminOk.getPassword())).getBody();
+
+        assertThat(auth0.getRoles())
+                        .extracting(Object::toString)
+                        .contains(SecurityRoles.CLIENT);
+
+        assertThat(auth1.getRoles())
+                        .extracting(Object::toString)
+                        .contains(SecurityRoles.MANAGER);
+
+        assertThat(auth2.getRoles())
+                        .extracting(Object::toString)
+                        .contains(SecurityRoles.ADMIN);
     }
 
 
