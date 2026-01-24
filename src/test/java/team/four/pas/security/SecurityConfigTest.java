@@ -2,9 +2,6 @@ package team.four.pas.security;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
-import io.jsonwebtoken.JwtBuilder;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.impl.JwtTokenizer;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.http.Header;
@@ -13,11 +10,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.DockerComposeContainer;
@@ -27,7 +22,6 @@ import team.four.pas.controllers.AuthController;
 import team.four.pas.controllers.DTOs.*;
 import team.four.pas.exceptions.resource.ResourceDataException;
 import team.four.pas.exceptions.user.UserException;
-import team.four.pas.repositories.ResourceRepository;
 import team.four.pas.repositories.UserRepository;
 import team.four.pas.services.AllocationService;
 import team.four.pas.services.ResourceService;
@@ -40,7 +34,7 @@ import team.four.pas.services.data.users.Manager;
 import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.*;
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -187,6 +181,70 @@ class SecurityConfigTest {
         assertThat(auth2.getRoles())
                         .extracting(Object::toString)
                         .contains(SecurityRoles.ADMIN);
+    }
+
+    @Test
+    void RegisterShouldReturnCorrectJwtAndRoles() {
+        UserAddDTO newUser = new UserAddDTO(clientOk.getLogin(), clientOk.getName(), clientOk.getPassword(), clientOk.getSurname(), UserType.CLIENT);
+        RestAssured.given()
+                .contentType(ContentType.JSON)
+                .body(newUser)
+                .when()
+                .post("/auth/register")
+                .then()
+                .statusCode(HttpStatus.CREATED.value())
+                .body("token", not(emptyOrNullString()))
+                .body("roles", not(emptyOrNullString()));
+    }
+
+    @Test
+    void LoginShouldReturnCorrectJwtAndRoles() {
+        UserAddDTO newUser = new UserAddDTO(clientOk.getLogin(), clientOk.getName(), clientOk.getPassword(), clientOk.getSurname(), UserType.CLIENT);
+        authController.register(newUser);
+
+        UserLoginDTO userLoginDTO = new UserLoginDTO(clientOk.getLogin(), clientOk.getPassword());
+
+        RestAssured.given()
+                .contentType(ContentType.JSON)
+                .body(userLoginDTO)
+                .when()
+                .post("/auth/login")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("token", not(emptyOrNullString()))
+                .body("roles", not(emptyOrNullString()));
+    }
+
+    @Test
+    void LogoutShouldRevokeJwtToken() {
+        authController.register(new UserAddDTO(adminOk.getLogin(), adminOk.getName(), adminOk.getPassword(), adminOk.getSurname(), UserType.ADMIN));
+        AuthResponse response = authController.login(new UserLoginDTO(adminOk.getLogin(), adminOk.getPassword())).getBody();
+
+        Header auth = new Header("Authorization","Bearer " + response.getToken());
+
+        RestAssured.given()
+                .log().parameters()
+                .header(auth)
+                .when()
+                .get("/allocations")
+                .then()
+                .statusCode(HttpStatus.OK.value());
+
+        RestAssured.given()
+                .log().parameters()
+                .header(auth)
+                .when()
+                .post("/auth/logout")
+                .then()
+                .statusCode(HttpStatus.NO_CONTENT.value());
+
+        RestAssured.given()
+                .log().parameters()
+                .header(auth)
+                .when()
+                .get("/allocations")
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN.value());
     }
 
 

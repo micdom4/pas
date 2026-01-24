@@ -1,7 +1,9 @@
 package team.four.pas.controllers;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import team.four.pas.controllers.DTOs.AuthResponse;
 import team.four.pas.controllers.DTOs.UserAddDTO;
@@ -20,11 +22,19 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@RequestBody UserAddDTO request){
-        return ResponseEntity.ok(authService.register(userToDTO.toData(request)));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                             .body(authService.register(userToDTO.toData(request)));
     }
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody UserLoginDTO request){
         return ResponseEntity.ok(authService.login(request.login(), request.password()));
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(){
+        SecurityContextHolder.clearContext();
+        return ResponseEntity.noContent().build();
+    }
+
 }

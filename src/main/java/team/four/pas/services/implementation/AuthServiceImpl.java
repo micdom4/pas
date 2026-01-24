@@ -7,12 +7,9 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import team.four.pas.controllers.DTOs.AuthResponse;
-import team.four.pas.controllers.DTOs.UserAddDTO;
-import team.four.pas.controllers.DTOs.UserLoginDTO;
 import team.four.pas.repositories.UserRepository;
 import team.four.pas.security.JwtService;
 import team.four.pas.services.AuthService;
@@ -37,7 +34,7 @@ public class AuthServiceImpl implements AuthService {
                            request.getClass());
 
         var jwtToken = jwtService.generateToken(createdUser);
-        return new AuthResponse(jwtToken, (List<SimpleGrantedAuthority>) request.getAuthorities().stream().toList());
+        return new AuthResponse(jwtToken, parseAuthorities(createdUser));
     }
 
     @Override
@@ -52,6 +49,10 @@ public class AuthServiceImpl implements AuthService {
         var user = userRepository.findByLogin(username);
         var jwtToken = jwtService.generateToken(user);
 
-        return new AuthResponse(jwtToken, (List<SimpleGrantedAuthority>) user.getAuthorities().stream().toList());
+        return new AuthResponse(jwtToken, parseAuthorities(user));
+    }
+
+    private List<SimpleGrantedAuthority> parseAuthorities(User user) {
+       return (List<SimpleGrantedAuthority>) user.getAuthorities().stream().toList();
     }
 }
