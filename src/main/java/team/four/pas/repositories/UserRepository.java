@@ -18,6 +18,8 @@ public interface UserRepository  extends Repository<User> {
 
     User update(String id, String Surname) throws UserNotFoundException, UserIdException;
 
+    User updatePassword(String id, String encodedPassword) throws UserNotFoundException, UserIdException;
+
     void activate(String id) throws UserNotFoundException, UserIdException;
 
     void deactivate(String id) throws UserNotFoundException, UserIdException;

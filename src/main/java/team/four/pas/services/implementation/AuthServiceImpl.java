@@ -7,11 +7,13 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import team.four.pas.controllers.DTOs.AuthResponse;
 import team.four.pas.repositories.UserRepository;
 import team.four.pas.security.JwtService;
+import team.four.pas.security.TokenBlackList;
 import team.four.pas.services.AuthService;
 import team.four.pas.services.data.users.User;
 
@@ -24,6 +26,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final TokenBlackList tokenBlackList;
 
     @Override
     public AuthResponse register(User request) {
@@ -54,7 +57,18 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void changePassword(String oldPassword, String newPassword) {
+       Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        var user = (User) authentication.getPrincipal();
 
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new IllegalStateException("Wrong password");
+        }
+
+        //Blacklist the old token to prevent HACKERS from hacking further
+        tokenBlackList.add(authentication.getCredentials().toString());
+        userRepository.updatePassword(user.getId(), passwordEncoder.encode(newPassword));
+
+        SecurityContextHolder.clearContext();
     }
 
 

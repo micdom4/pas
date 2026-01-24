@@ -30,8 +30,10 @@ import team.four.pas.services.data.resources.VirtualMachine;
 import team.four.pas.services.data.users.Admin;
 import team.four.pas.services.data.users.Client;
 import team.four.pas.services.data.users.Manager;
+import team.four.pas.services.data.users.User;
 
 import java.io.File;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -246,6 +248,122 @@ class SecurityConfigTest {
                 .then()
                 .statusCode(HttpStatus.FORBIDDEN.value());
     }
+
+    @Test
+    void ChangingPasswordShouldntAllowUnregistered() {
+        RestAssured.given()
+                   .log().parameters()
+                   .contentType(ContentType.JSON)
+                   .body(new ChangePasswordDTO("abc123", "Iceman"))
+                   .when()
+                   .post("/auth/reset")
+                   .then()
+                   .statusCode(HttpStatus.FORBIDDEN.value());
+    }
+
+    @Test
+    void ChangingPasswordShouldRevokeJwtToken() {
+        authController.register(new UserAddDTO(adminOk.getLogin(), adminOk.getName(), adminOk.getPassword(), adminOk.getSurname(), UserType.ADMIN));
+        AuthResponse response = authController.login(new UserLoginDTO(adminOk.getLogin(), adminOk.getPassword())).getBody();
+
+        Header auth = new Header("Authorization","Bearer " + response.getToken());
+
+        RestAssured.given()
+                .log().parameters()
+                .contentType(ContentType.JSON)
+                .header(auth)
+                .when()
+                .get("/allocations")
+                .then()
+                .statusCode(HttpStatus.OK.value());
+
+        RestAssured.given()
+                .log().parameters()
+                .contentType(ContentType.JSON)
+                .header(auth)
+                .body(new ChangePasswordDTO(adminOk.getPassword(), "ICEMAN"))
+                .when()
+                .post("/auth/reset")
+                .then()
+                .statusCode(HttpStatus.OK.value());
+
+        RestAssured.given()
+                .log().parameters()
+                .contentType(ContentType.JSON)
+                .header(auth)
+                .when()
+                .get("/allocations")
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN.value());
+    }
+
+    @Test
+    void ChangingPasswordShouldFailWhenLoggingWithOld() {
+        authController.register(new UserAddDTO(adminOk.getLogin(), adminOk.getName(), adminOk.getPassword(), adminOk.getSurname(), UserType.ADMIN));
+        AuthResponse response = authController.login(new UserLoginDTO(adminOk.getLogin(), adminOk.getPassword())).getBody();
+
+        Header auth = new Header("Authorization","Bearer " + response.getToken());
+
+        RestAssured.given()
+                .log().parameters()
+                .contentType(ContentType.JSON)
+                .header(auth)
+                .body(new ChangePasswordDTO(adminOk.getPassword(), "ICEMAN"))
+                .when()
+                .post("/auth/reset")
+                .then()
+                .statusCode(HttpStatus.OK.value());
+
+        UserLoginDTO incorrectLoginDTO = new UserLoginDTO(adminOk.getLogin(), adminOk.getPassword());
+
+        RestAssured.given()
+                .log().parameters()
+                .contentType(ContentType.JSON)
+                .body(incorrectLoginDTO)
+                .when()
+                .post("/auth/login")
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN.value());
+
+        RestAssured.given()
+                .log().parameters()
+                .contentType(ContentType.JSON)
+                .header(auth)
+                .when()
+                .get("/allocations")
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN.value());
+    }
+
+    @Test
+    void ChangingPasswordShouldWorkWhenLoggingWithNew() {
+        authController.register(new UserAddDTO(adminOk.getLogin(), adminOk.getName(), adminOk.getPassword(), adminOk.getSurname(), UserType.ADMIN));
+        AuthResponse response = authController.login(new UserLoginDTO(adminOk.getLogin(), adminOk.getPassword())).getBody();
+
+        Header auth = new Header("Authorization","Bearer " + response.getToken());
+
+        RestAssured.given()
+                .log().parameters()
+                .contentType(ContentType.JSON)
+                .header(auth)
+                .body(new ChangePasswordDTO(adminOk.getPassword(), "ICEMAN"))
+                .when()
+                .post("/auth/reset")
+                .then()
+                .statusCode(HttpStatus.OK.value());
+
+        UserLoginDTO correctLoginDTO = new UserLoginDTO(adminOk.getLogin(), "ICEMAN");
+
+        RestAssured.given()
+                .log().parameters()
+                .contentType(ContentType.JSON)
+                .body(correctLoginDTO)
+                .when()
+                .post("/auth/login")
+                .then()
+                .statusCode(HttpStatus.OK.value());
+    }
+
 
 
 
