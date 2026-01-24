@@ -1,5 +1,10 @@
 import axios, {AxiosError, type InternalAxiosRequestConfig} from 'axios'
-import {tokenStorageName} from "../contexts/LoggedUserContext/tokenStorageConfig.ts";
+import {
+    accessTokenStorageName,
+    refreshTokenStorageName,
+    userLoginStorageName
+} from "../contexts/LoggedUserContext/tokenStorageConfig.ts";
+import {loginApi} from "./LoginApi.ts";
 
 export const API_URL = "http://localhost:8080"
 export const TIMEOUT_IN_MS = 10000
@@ -15,7 +20,7 @@ export const api = axios.create({
 })
 
 const authorizationRequestInterceptor = (config: InternalAxiosRequestConfig) => {
-    const accessToken = sessionStorage.getItem(tokenStorageName)
+    const accessToken = sessionStorage.getItem(accessTokenStorageName)
 
     if (accessToken && config.headers) {
         config.headers.Authorization = "Bearer " + accessToken
@@ -40,35 +45,36 @@ api.interceptors.response.use(
         return response;
     },
     async (error: AxiosError) => {
-        // const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
-        //
-        // if (error.response?.status === 401 && !originalRequest._retry) {
-        //     originalRequest._retry = true;
-        //
-        //     const refreshToken = sessionStorage.getItem(refreshTokenStorageName);
-        //     const userId = sessionStorage.getItem(userUsernameStorageName) || "unknown";
-        //
-        //     if (refreshToken) {
-        //         try {
-        //             const res = await loginApi.refresh(userId, { refreshToken: refreshToken });
-        //
-        //             if (res.data.accessToken) {
-        //                 console.log("Token refreshed successfully");
-        //
-        //                 sessionStorage.setItem(tokenStorageName, res.data.accessToken);
-        //
-        //                 originalRequest.headers.Authorization = "Bearer " + res.data.accessToken;
-        //
-        //                 return api(originalRequest);
-        //             }
-        //         } catch (refreshError) {
-        //             console.error("Refresh token failed", refreshError);
-        //             sessionStorage.clear();
-        //             window.location.href = '/login';
-        //             return Promise.reject(refreshError);
-        //         }
-        //     }
-        // }
+        const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+
+        console.log("Received error:", error, " with code: ", error.response?.status)
+        if (error.response?.status === 403 && !originalRequest._retry) {
+            originalRequest._retry = true;
+
+            const refreshToken = sessionStorage.getItem(refreshTokenStorageName);
+            const userId = sessionStorage.getItem(userLoginStorageName) || "unknown";
+
+            if (refreshToken) {
+                try {
+                    const res = await loginApi.refresh(userId, { refreshToken: refreshToken });
+
+                    if (res.data.accessToken) {
+                        console.log("Token refreshed successfully");
+
+                        sessionStorage.setItem(accessTokenStorageName, res.data.accessToken);
+
+                        originalRequest.headers.Authorization = "Bearer " + res.data.accessToken;
+
+                        return api(originalRequest);
+                    }
+                } catch (refreshError) {
+                    console.error("Refresh token failed", refreshError);
+                    sessionStorage.clear();
+                    window.location.href = '/login';
+                    return Promise.reject(refreshError);
+                }
+            }
+        }
 
         if (!error.response) {
             console.error(error);

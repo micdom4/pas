@@ -1,7 +1,7 @@
 import {type ReactNode, useEffect, useLayoutEffect, useState} from 'react'
 import {emptyUser, LoggedUser, RoleEnum} from "./types.ts";
 import LoggedUserContext from "./index.tsx";
-import {tokenStorageName, userLoginStorageName, userRoleStorageName} from "./tokenStorageConfig.ts";
+import {accessTokenStorageName, userLoginStorageName, userRoleStorageName} from "./tokenStorageConfig.ts";
 
 export default function LoggedUserContextProvider({children}: { children: ReactNode }) {
 
@@ -9,12 +9,12 @@ export default function LoggedUserContextProvider({children}: { children: ReactN
     const [isInitialized, setIsInitialized] = useState(false);
 
     useLayoutEffect(() => {
-        const accessToken = sessionStorage.getItem(tokenStorageName);
-        const username = sessionStorage.getItem(userLoginStorageName);
+        const accessToken = sessionStorage.getItem(accessTokenStorageName);
+        const login = sessionStorage.getItem(userLoginStorageName);
         const role = sessionStorage.getItem(userRoleStorageName) as RoleEnum;
 
-        if (accessToken && username && role) {
-            const restoredUser = new LoggedUser(username, accessToken, role);
+        if (accessToken && login && role) {
+            const restoredUser = new LoggedUser(login, accessToken, role);
             setLoggedUser(restoredUser);
         }
         setIsInitialized(true);
@@ -22,7 +22,7 @@ export default function LoggedUserContextProvider({children}: { children: ReactN
 
     useEffect(() => {
         if (loggedUser.isAuthenticated()) {
-            sessionStorage.setItem(tokenStorageName, loggedUser.token || "");
+            sessionStorage.setItem(accessTokenStorageName, loggedUser.token || "");
             if (loggedUser.login) {
                 sessionStorage.setItem(userLoginStorageName, loggedUser.login);
             }
@@ -30,7 +30,7 @@ export default function LoggedUserContextProvider({children}: { children: ReactN
                 sessionStorage.setItem(userRoleStorageName, loggedUser.role);
             }
         } else if (isInitialized) {
-            sessionStorage.removeItem(tokenStorageName);
+            sessionStorage.removeItem(accessTokenStorageName);
             sessionStorage.removeItem(userLoginStorageName);
             sessionStorage.removeItem(userRoleStorageName);
         }

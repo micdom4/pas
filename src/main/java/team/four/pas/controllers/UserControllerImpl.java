@@ -50,7 +50,8 @@ public class UserControllerImpl {
 
     @GetMapping({"/login/{login}"})
     @PreAuthorize("hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN, " +
-            "T(team.four.pas.security.SecurityRoles).MANAGER)")
+            "T(team.four.pas.security.SecurityRoles).MANAGER, " +
+            "T(team.four.pas.security.SecurityRoles).CLIENT)")
     public ResponseEntity<UserDTO> findPersonByLogin(@PathVariable
                                                       @NotNull(message = "login can't be null")
                                                       @Pattern(regexp = "^[A-Z][A-Z][a-z]{1,18}[0-9]{0,5}$",

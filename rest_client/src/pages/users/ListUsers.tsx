@@ -47,7 +47,7 @@ export default function ListUsers() {
             render: (u) => (
                 <Dropdown as={ButtonGroup}>
                     <Button variant="primary" onClick={() =>
-                        navigate(Paths.default.detailedUser.replace(":login",u.login))}>Details</Button>
+                        navigate(Paths.administrator.detailedUser.replace(":login",u.login))}>Details</Button>
 
                     <Dropdown.Toggle split variant="primary" id="dropdown-split-basic"/>
 

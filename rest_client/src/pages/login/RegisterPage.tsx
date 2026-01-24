@@ -70,7 +70,7 @@ export default function RegisterPage() {
 
     return (
         <Formik
-            initialValues={{login: '', name: '', password: '', confirmPassword: '', surname: ''}}
+            initialValues={{login: '', name: '', password: '', confirmPassword: '', surname: '', type: 'CLIENT'}}
             validationSchema={registerDataSchema}
             onSubmit={handleRegistration}
         >

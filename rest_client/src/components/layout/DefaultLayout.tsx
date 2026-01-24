@@ -20,7 +20,7 @@ export default function DefaultLayout({children}: LayoutProps) {
         await loginApi.logout()
             .then(() =>
                 addToast('Logout successful',
-                `Successfully logged out from account '${user.login}'`,
+                    `Successfully logged out from account '${user.login}'`,
                     'success')
             )
             .catch((err) => {
@@ -42,30 +42,72 @@ export default function DefaultLayout({children}: LayoutProps) {
                             <Nav.Link onClick={() => navigate(Paths.default.home)}>Home</Nav.Link>
 
                             {user.isAuthenticated() ? <>
-                                <NavDropdown title="Users" id="basic-nav-dropdown">
-                                    <NavDropdown.Item onClick={() => navigate(Paths.default.listUsers)}>
-                                        List Users
-                                    </NavDropdown.Item>
-                                    <NavDropdown.Item onClick={() => navigate(Paths.default.createUser)}>
-                                        Create New User
-                                    </NavDropdown.Item>
-                                </NavDropdown>
-                                <NavDropdown title="Resources" id="basic-nav-dropdown">
-                                    <NavDropdown.Item onClick={() => navigate(Paths.default.listResources)}>
+                                {user.isAdmin() && <>
+                                    <NavDropdown title="Users" id="basic-nav-dropdown">
+                                        <NavDropdown.Item onClick={() => navigate(Paths.administrator.listUsers)}>
+                                            List Users
+                                        </NavDropdown.Item>
+                                        <NavDropdown.Item onClick={() => navigate(Paths.administrator.createUser)}>
+                                            Create New User
+                                        </NavDropdown.Item>
+                                    </NavDropdown>
+                                    <NavDropdown title="Resources" id="basic-nav-dropdown">
+                                        <NavDropdown.Item onClick={() => navigate(Paths.administrator.listResources)}>
+                                            List Resources
+                                        </NavDropdown.Item>
+                                        <NavDropdown.Item onClick={() => navigate(Paths.administrator.createResource)}>
+                                            Create New Resource
+                                        </NavDropdown.Item>
+                                    </NavDropdown>
+                                    <NavDropdown title="Allocations" id="basic-nav-dropdown">
+                                        <NavDropdown.Item onClick={() => navigate(Paths.administrator.listAllocations)}>
+                                            List Allocations
+                                        </NavDropdown.Item>
+                                        <NavDropdown.Item
+                                            onClick={() => navigate(Paths.administrator.createAllocations)}>
+                                            Create New Allocation
+                                        </NavDropdown.Item>
+                                    </NavDropdown>
+                                </>
+                                }
+
+                                {user.isManager() && <>
+                                    <NavDropdown title="Resources" id="basic-nav-dropdown">
+                                        <NavDropdown.Item onClick={() => navigate(Paths.manager.listResources)}>
+                                            List Resources
+                                        </NavDropdown.Item>
+                                        <NavDropdown.Item onClick={() => navigate(Paths.manager.createResource)}>
+                                            Create New Resource
+                                        </NavDropdown.Item>
+                                    </NavDropdown>
+                                    <NavDropdown title="Allocations" id="basic-nav-dropdown">
+                                        <NavDropdown.Item onClick={() => navigate(Paths.manager.listAllocations)}>
+                                            List Allocations
+                                        </NavDropdown.Item>
+                                        <NavDropdown.Item onClick={() => navigate(Paths.manager.createAllocations)}>
+                                            Create New Allocation
+                                        </NavDropdown.Item>
+                                    </NavDropdown>
+                                </>
+                                }
+
+                                {user.isClient() && <>
+                                    <Nav.Link onClick={() => navigate(Paths.client.listResources)}>
                                         List Resources
-                                    </NavDropdown.Item>
-                                    <NavDropdown.Item onClick={() => navigate(Paths.default.createResource)}>
-                                        Create New Resource
-                                    </NavDropdown.Item>
-                                </NavDropdown>
-                                <NavDropdown title="Allocations" id="basic-nav-dropdown">
-                                    <NavDropdown.Item onClick={() => navigate(Paths.default.listAllocations)}>
-                                        List Allocations
-                                    </NavDropdown.Item>
-                                    <NavDropdown.Item onClick={() => navigate(Paths.default.createAllocations)}>
+                                    </Nav.Link>
+                                    <Nav.Link onClick={() => navigate(Paths.client.createAllocations)}>
                                         Create New Allocation
-                                    </NavDropdown.Item>
-                                </NavDropdown>
+                                    </Nav.Link>
+                                </>
+                                }
+
+                                <Nav.Link
+                                    className={'text-warning'}
+                                    onClick={() => user.login && navigate(Paths.administrator.detailedUser.replace(":login", user.login))}
+                                    disabled={!user.login}
+                                >
+                                    Logged as: '{user.login}' with role: {user.role}
+                                </Nav.Link>
                                 <Nav.Link onClick={logOut}>Logout</Nav.Link>
                             </> : <>
                                 <Nav.Link onClick={() => navigate(Paths.anonymous.login)}>Login</Nav.Link>

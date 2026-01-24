@@ -1,4 +1,4 @@
-import {useEffect, useMemo, useState} from 'react';
+import {use, useEffect, useMemo, useState} from 'react';
 import {useParams, useNavigate} from 'react-router-dom';
 import {Card, Button, Spinner, Badge, ListGroup, Row, Col} from 'react-bootstrap';
 import {userApi} from '../../api/UserRestApi.ts';
@@ -8,13 +8,19 @@ import type {AllocationType} from "../../model/AllocationTypes.ts";
 import {type Column, GenericTable} from "../../components/GenericTable.tsx";
 import {formatDate} from "../../utils";
 import {allocationApi} from "../../api/AllocationRestApi.ts";
+import LoggedUserContext from "../../contexts/LoggedUserContext";
+import {ChangePasswordModal} from "../../components/modals/ChangePasswordModal.tsx";
+import {emptyUser} from "../../contexts/LoggedUserContext/types.ts";
 
 export default function DetailedUser() {
     const {login} = useParams<{ login: string }>();
     const navigate = useNavigate();
     const {addToast} = useToast();
+    const {user, setUser} = use(LoggedUserContext)
 
-    const [user, setUser] = useState<UserType>();
+    const [showPasswordModal, setShowPasswordModal] = useState(false);
+
+    const [detailedUser, setDetailedUser] = useState<UserType>();
     const [loading, setLoading] = useState(true);
 
     const [pastAllocations, setPastAllocations] = useState<AllocationType[]>()
@@ -27,7 +33,7 @@ export default function DetailedUser() {
         },
         {
             header: 'Virtual Machine ID',
-            render: (a) => <span className="text-secondary">#{a.id}</span>
+            render: (a) => <span className="text-secondary">#{a.vm.id}</span>
         },
         {
             header: 'Start Time',
@@ -41,6 +47,13 @@ export default function DetailedUser() {
         }
     ], []);
 
+    const handleSuccess = () => {
+        console.log("Password has been changed for user: ", detailedUser?.login)
+        addToast('You have been logged out', 'You need to log in with your new password.','warning')
+        setUser(emptyUser)
+        navigate('/login')
+    }
+
     useEffect(() => {
         const loadData = async () => {
             if (!login) return;
@@ -50,7 +63,7 @@ export default function DetailedUser() {
                 const userResponse = await userApi.getByLogin(login);
                 const fetchedUser = userResponse.data;
 
-                setUser(fetchedUser);
+                setDetailedUser(fetchedUser);
 
                 if (fetchedUser.type.toString() === "CLIENT") {
                     const [pastRes, activeRes] = await Promise.all([
@@ -72,9 +85,9 @@ export default function DetailedUser() {
         };
 
         loadData();
-    }, [login, navigate, addToast]);
+    }, [login, addToast]);
 
-    if (loading || !user) {
+    if (loading || !detailedUser) {
         return (
             <div className="text-center mt-5">
                 <Spinner animation="border" variant="primary"/>
@@ -100,30 +113,35 @@ export default function DetailedUser() {
                                 className="rounded-circle bg-light d-flex align-items-center justify-content-center mx-auto"
                                 style={{width: '150px', height: '150px', fontSize: '3rem', border: '2px solid #ddd'}}
                             >
-                                {user.login.charAt(0)}
-                                {user.login.charAt(1)}
+                                {detailedUser.login.charAt(0)}
+                                {detailedUser.login.charAt(1)}
                             </div>
-                            <h3 className="mt-3">{user.login}</h3>
-                            <Badge bg={user.active ? 'success' : 'secondary'}>
-                                {user.active ? 'Active' : 'Not Active'}
+                            <h3 className="mt-3">{detailedUser.login}</h3>
+                            <Badge bg={detailedUser.active ? 'success' : 'secondary'}>
+                                {detailedUser.active ? 'Active' : 'Not Active'}
                             </Badge>
                         </div>
 
                         <div className="col-md-8">
                             <ListGroup variant="flush">
                                 <ListGroup.Item>
-                                    <strong>ID:</strong> <span className="text-muted">{user.id}</span>
+                                    <strong>ID:</strong> <span className="text-muted">{detailedUser.id}</span>
                                 </ListGroup.Item>
                                 <ListGroup.Item>
-                                    <strong>Name:</strong> {user.name}
+                                    <strong>Name:</strong> {detailedUser.name}
                                 </ListGroup.Item>
                                 <ListGroup.Item>
-                                    <strong>Surname:</strong> {user.surname}
+                                    <strong>Surname:</strong> {detailedUser.surname}
                                 </ListGroup.Item>
                                 <ListGroup.Item>
-                                    <strong>Role:</strong> {user.type}
+                                    <strong>Role:</strong> {detailedUser.type}
                                 </ListGroup.Item>
                             </ListGroup>
+                            {user.login == detailedUser.login &&
+                                <Button variant={'link'}
+                                        onClick={() => setShowPasswordModal(true)}>
+                                    Change Password
+                                </Button>}
                         </div>
                     </div>
                     <Row>
@@ -138,6 +156,13 @@ export default function DetailedUser() {
                     </Row>
                 </Card.Body>
             </Card>
+
+            <ChangePasswordModal
+                show={showPasswordModal}
+                handleClose={() => setShowPasswordModal(false)}
+                user={user}
+                onSuccess={handleSuccess}
+            />
         </div>
     );
 };

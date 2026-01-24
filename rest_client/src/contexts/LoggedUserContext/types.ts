@@ -43,7 +43,3 @@ export type LoggedUserContextType = {
     user: LoggedUser;
     setUser: Dispatch<SetStateAction<LoggedUser>>;
 }
-
-export type LoginResponse = {
-    token: string
-}

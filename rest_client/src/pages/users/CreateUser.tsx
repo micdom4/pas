@@ -1,9 +1,9 @@
 import {Formik} from 'formik';
 import {Button, Col, Form, Row} from 'react-bootstrap';
 import {StringTypeOfUser, TypeOfUser, UserSchema} from '../../model/UserTypes.ts';
-import {userApi} from "../../api/UserRestApi.ts";
 import useToast from "../../components/toasts/useToast.tsx";
 import useModal from "../../components/modals/useModal.tsx";
+import {loginApi} from "../../api/LoginApi.ts";
 
 export default function CreateUser() {
     const {addToast} = useToast()
@@ -12,7 +12,7 @@ export default function CreateUser() {
     return (
         <>
             <Formik
-                initialValues={{login: '', name: '', surname: '', type: TypeOfUser.CLIENT}}
+                initialValues={{login: '', name: '', password: '', surname: '', type: TypeOfUser.CLIENT}}
                 validationSchema={UserSchema}
                 onSubmit={(values, {setSubmitting, resetForm}) => {
                     showConfirmation({
@@ -23,11 +23,11 @@ export default function CreateUser() {
 
                         onConfirm: async () => {
                             console.log('Sending user to create: ', values);
-                            userApi.create(values)
-                                .then((response) => {
+                            loginApi.register(values)
+                                .then(() => {
                                     addToast(
                                         'Success!',
-                                        `User "${response.data.login}" has been successfully created.`,
+                                        `User "${values.login}" has been successfully created.`,
                                         'success');
                                     resetForm();
                                 })
@@ -110,25 +110,46 @@ export default function CreateUser() {
                             </Col>
                         </Row>
 
-                        <Form.Group className="mb-3" controlId="formType">
-                            <Form.Label>Type of user</Form.Label>
-                            <Form.Select
-                                name="type"
-                                value={values.type}
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                isInvalid={touched.type && !!errors.type}
-                            >
-                                {Object.values(StringTypeOfUser).map((type) => (
-                                    <option key={type} value={type}>
-                                        {type}
-                                    </option>
-                                ))}
-                            </Form.Select>
-                            <Form.Control.Feedback type="invalid">
-                                {errors.type}
-                            </Form.Control.Feedback>
-                        </Form.Group>
+                        <Row>
+                            <Col md={6}>
+                                <Form.Group className="mb-3" controlId="formPassword">
+                                    <Form.Label>Password</Form.Label>
+                                    <Form.Control
+                                        type="password"
+                                        name="password"
+                                        placeholder="e.g. ***** ***"
+                                        value={values.password}
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        isInvalid={touched.password && !!errors.password}
+                                    />
+                                    <Form.Control.Feedback type='invalid'>
+                                        {errors.password}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
+                            </Col>
+                            <Col md={6}>
+                                <Form.Group className="mb-3" controlId="formType">
+                                    <Form.Label>Type of user</Form.Label>
+                                    <Form.Select
+                                        name="type"
+                                        value={values.type}
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        isInvalid={touched.type && !!errors.type}
+                                    >
+                                        {Object.values(StringTypeOfUser).map((type) => (
+                                            <option key={type} value={type}>
+                                                {type}
+                                            </option>
+                                        ))}
+                                    </Form.Select>
+                                    <Form.Control.Feedback type="invalid">
+                                        {errors.type}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
+                            </Col>
+                        </Row>
 
                         <Button variant="primary" type="submit" disabled={isSubmitting}>
                             {isSubmitting ? 'Saving...' : 'Create'}

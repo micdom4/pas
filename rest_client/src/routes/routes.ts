@@ -36,32 +36,73 @@ export const defaultRoutes: RouteType[] = [
         path: Paths.default.home,
         Component: Home,
     },
+]
+
+export const clientRoutes: RouteType[] = [
     {
-        path: Paths.default.listUsers,
-        Component: ListUsers,
-    },
-    {
-        path: Paths.default.createUser,
-        Component: CreateUser,
-    },
-    {
-        path: Paths.default.detailedUser,
+        path: Paths.client.detailedUser,
         Component: DetailedUser,
     },
     {
-        path: Paths.default.listResources,
+        path: Paths.client.listResources,
         Component: ListResources,
     },
     {
-        path: Paths.default.createResource,
+        path: Paths.client.createAllocations,
+        Component: CreateAllocation,
+    },
+]
+
+export const managerRoutes: RouteType[] = [
+    {
+        path: Paths.manager.detailedUser,
+        Component: DetailedUser,
+    },
+    {
+        path: Paths.manager.listResources,
+        Component: ListResources,
+    },
+    {
+        path: Paths.manager.createResource,
         Component: CreateResource,
     },
     {
-        path: Paths.default.listAllocations,
+        path: Paths.manager.listAllocations,
         Component: ListAllocations,
     },
     {
-        path: Paths.default.createAllocations,
+        path: Paths.manager.createAllocations,
+        Component: CreateAllocation,
+    },
+]
+
+export const administratorRoutes: RouteType[] = [
+    {
+        path: Paths.administrator.listUsers,
+        Component: ListUsers,
+    },
+    {
+        path: Paths.administrator.createUser,
+        Component: CreateUser,
+    },
+    {
+        path: Paths.administrator.detailedUser,
+        Component: DetailedUser,
+    },
+    {
+        path: Paths.administrator.listResources,
+        Component: ListResources,
+    },
+    {
+        path: Paths.administrator.createResource,
+        Component: CreateResource,
+    },
+    {
+        path: Paths.administrator.listAllocations,
+        Component: ListAllocations,
+    },
+    {
+        path: Paths.administrator.createAllocations,
         Component: CreateAllocation,
     },
 ]

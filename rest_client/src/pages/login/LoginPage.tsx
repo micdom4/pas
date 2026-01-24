@@ -6,7 +6,8 @@ import {loginApi} from "../../api/LoginApi.ts";
 import useToast from "../../components/toasts/useToast.tsx";
 import {use} from "react";
 import LoggedUserContext from "../../contexts/LoggedUserContext";
-import {LoggedUser, RoleEnum} from "../../contexts/LoggedUserContext/types.ts";
+import {LoggedUser} from "../../contexts/LoggedUserContext/types.ts";
+import {convertRole} from "../../utils";
 
 export default function LoginPage() {
     const {addToast} = useToast();
@@ -27,7 +28,7 @@ export default function LoginPage() {
             await loginApi.login(values)
                 .then((response) => {
                     console.log(response);
-                    setUser(new LoggedUser(values.login, response.data.token, RoleEnum.CLIENT));
+                    setUser(new LoggedUser(values.login, response.data.token, convertRole(response.data.roles)));
 
                     addToast(
                         'Login successful!',

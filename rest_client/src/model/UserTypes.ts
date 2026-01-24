@@ -4,9 +4,9 @@ import * as Yup from "yup";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
 export enum TypeOfUser {
-    "CLIENT",
-    "MANAGER",
-    "ADMIN"
+    "CLIENT" = "CLIENT",
+    "MANAGER" = "MANAGER",
+    "ADMIN" = "ADMIN"
 }
 
 export const StringTypeOfUser = ["CLIENT", "MANAGER", "ADMIN"]
@@ -17,11 +17,12 @@ export const UserSchema = Yup.object().shape({
         .matches(/^[A-Z][A-Z][a-z]{1,18}[0-9]{0,5}$/, 'login must have two capital letters at the beginning')
         .required(),
     name: Yup.string()
-        .min(2, )
+        .min(2,)
         .matches(/^[A-Z][a-z]{1,19}$/, "name must start with a capital letter")
         .required(),
+    password: Yup.string().required(),
     surname: Yup.string()
-        .min(2, )
+        .min(2,)
         .matches(/^[A-Z][a-z]{1,19}(-[A-Z][a-z]{1,19})?$/, "surname must start with a capital letter")
         .required(),
     type: Yup.string()
@@ -43,6 +44,7 @@ export interface ClientType extends UserType {
 export interface CreateUserType {
     login: string
     name: string
+    password: string
     surname: string
     type: TypeOfUser
 }
