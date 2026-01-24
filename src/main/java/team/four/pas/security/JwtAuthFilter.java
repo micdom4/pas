@@ -1,6 +1,5 @@
 package team.four.pas.security;
 
-import io.jsonwebtoken.Jwt;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,6 +22,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsManager userDetailsManager;
+    private final TokenBlackList tokenBlackList;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
@@ -42,12 +42,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         jwtToken = authHeader.substring(7);
         username = jwtService.extractUsername(jwtToken);
 
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null && !tokenBlackList.contains(jwtToken)) {
             UserDetails userDetails = userDetailsManager.loadUserByUsername(username);
             if(jwtService.isTokenValid(jwtToken, userDetails)) {
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(userDetails,
-                                                                null,
+                                                                jwtToken,
                                                                 userDetails.getAuthorities());
 
                 authToken.setDetails(

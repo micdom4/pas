@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -16,10 +17,16 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Service
+@RequiredArgsConstructor
 public class JwtServiceImpl implements JwtService {
 
     @Value("${jwt.secret}")
     private String SECRET_KEY;
+
+    private final TokenBlackList blacklist;
+
+    @Value("${jwt.time}")
+    private Integer timeout;
 
     public String generateToken(Map<String, Object> extraClaims,
                                 UserDetails userDetails) {
@@ -27,7 +34,7 @@ public class JwtServiceImpl implements JwtService {
                    .setClaims(extraClaims)
                    .subject(userDetails.getUsername())
                    .setIssuedAt(new Date(System.currentTimeMillis()))
-                   .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 30))
+                   .setExpiration(new Date(System.currentTimeMillis() + timeout))
                    .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                    .compact();
     }
@@ -38,7 +45,7 @@ public class JwtServiceImpl implements JwtService {
 
    public boolean isTokenValid(String token, UserDetails userDetails) {
         final String UserName = extractUsername(token);
-        return userDetails.getUsername().equals(UserName) && !isTokenExpired(token);
+        return userDetails.getUsername().equals(UserName) && !isTokenExpired(token) && !blacklist.contains(token);
    }
 
    public boolean isTokenExpired(String token) {
