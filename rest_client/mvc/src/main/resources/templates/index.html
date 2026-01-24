@@ -1,11 +1,65 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>HELLO TO SUPER MODERN SITE 123</title>
+    <title>Modern Registration</title>
+    <style>
+        .error { color: red; font-size: 0.8em; display: none; }
+        input:invalid { border: 1px solid red; }
+    </style>
 </head>
 <body>
-    <h1>Nice nice</h1>
+<h2>Create New User</h2>
+<form id="regForm">
+    <div>
+        <label>Login:</label>
+        <input type="text" id="login" name="login" required
+               pattern="^[A-Z][A-Z][a-z]{1,18}[0-9]{0,5}$">
+    </div>
+    <div>
+        <label>Name:</label>
+        <input type="text" id="name" name="name" required>
+    </div>
+    <div>
+        <label>Surname:</label>
+        <input type="text" id="surname" name="surname" required>
+    </div>
+    <div>
+        <label>User Type:</label>
+        <select id="type">
+            <option th:each="type : ${userTypeValues}"
+                    th:value="${type}" th:text="${type}"></option>
+        </select>
+    </div>
+    <button type="submit">Register</button>
+</form>
 
+<div id="message"></div>
+
+<script>
+    document.getElementById('regForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const data = {
+            login: document.getElementById('login').value,
+            name: document.getElementById('name').value,
+            surname: document.getElementById('surname').value,
+            type: document.getElementById('type').value
+        };
+
+        fetch('http://localhost:8080/users', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+            .then(async res => {
+                const result = await res.json();
+                if (res.ok) {
+                    document.getElementById('message').innerText = "Success! ID: " + result.id;
+                } else {
+                    document.getElementById('message').innerText = "Error: " + (result.message || "Check constraints");
+                }
+            });
+    });
+</script>
 </body>
 </html>

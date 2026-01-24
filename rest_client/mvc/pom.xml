@@ -67,6 +67,12 @@
             <version>5.5.6</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>team.four</groupId>
+            <artifactId>pas</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <build>
