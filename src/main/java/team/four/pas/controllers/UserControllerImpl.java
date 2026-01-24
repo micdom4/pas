@@ -31,7 +31,8 @@ public class UserControllerImpl {
     private final UserToDTO userToDTO;
 
     @GetMapping({""})
-    @PreAuthorize("hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN)")
+    @PreAuthorize("hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN, " +
+            "T(team.four.pas.security.SecurityRoles).MANAGER)")
     public ResponseEntity<List<UserDTO>> getAll() {
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -39,7 +40,8 @@ public class UserControllerImpl {
     }
 
     @GetMapping({"/{id}"})
-    @PreAuthorize("hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN)")
+    @PreAuthorize("hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN, " +
+            "T(team.four.pas.security.SecurityRoles).MANAGER)")
     public ResponseEntity<UserDTO> getUser(@PathVariable String id) {
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -47,7 +49,8 @@ public class UserControllerImpl {
     }
 
     @GetMapping({"/login/{login}"})
-    @PreAuthorize("hasAnyRole(T(team.four.pas.security.SecurityRoles).CLIENT)")
+    @PreAuthorize("hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN, " +
+            "T(team.four.pas.security.SecurityRoles).MANAGER)")
     public ResponseEntity<UserDTO> findPersonByLogin(@PathVariable
                                                       @NotNull(message = "login can't be null")
                                                       @Pattern(regexp = "^[A-Z][A-Z][a-z]{1,18}[0-9]{0,5}$",
@@ -59,7 +62,8 @@ public class UserControllerImpl {
     }
 
     @GetMapping({"/search/{login}"})
-    @PreAuthorize("hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN)")
+    @PreAuthorize("hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN, " +
+            "T(team.four.pas.security.SecurityRoles).MANAGER)")
     public ResponseEntity<List<UserDTO>> searchByLogin(@PathVariable
                                                                String login) {
         return ResponseEntity
@@ -68,7 +72,8 @@ public class UserControllerImpl {
     }
 
     @PutMapping({"/{id}/activate"})
-    @PreAuthorize("hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN)")
+    @PreAuthorize("hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN, " +
+            "T(team.four.pas.security.SecurityRoles).MANAGER)")
     public ResponseEntity<?> activateUser(@PathVariable String id) {
         userService.activate(id);
 
@@ -78,7 +83,8 @@ public class UserControllerImpl {
     }
 
     @PutMapping({"/{id}/deactivate"})
-    @PreAuthorize("hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN)")
+    @PreAuthorize("hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN, " +
+            "T(team.four.pas.security.SecurityRoles).MANAGER)")
     public ResponseEntity<?> deactivateUser(@PathVariable String id) {
         userService.deactivate(id);
 
@@ -91,7 +97,6 @@ public class UserControllerImpl {
             value = {""},
             consumes = {"application/json"}
     )
-    @PreAuthorize("hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN)")
     public ResponseEntity<UserDTO> createUser(@Valid @RequestBody UserAddDTO addDTO) {
         User user = userToDTO.toData(addDTO);
 
@@ -104,7 +109,11 @@ public class UserControllerImpl {
             value = {"/{id}"},
             consumes = {"application/json"}
     )
-    @PreAuthorize("hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN)")
+    @PreAuthorize(
+            "(hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN, T(team.four.pas.security.SecurityRoles).MANAGER)) " +
+                    "|| " +
+                    "(hasRole(T(team.four.pas.security.SecurityRoles).CLIENT) && @ownershipChecker.isOwner(authentication, #id))"
+    )
     public ResponseEntity<?> editUser(@PathVariable String id, @Valid @RequestBody UserModDTO modDTO) {
         return ResponseEntity
                 .status(HttpStatus.OK)

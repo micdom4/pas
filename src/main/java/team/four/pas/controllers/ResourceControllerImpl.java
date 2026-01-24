@@ -14,6 +14,9 @@ import team.four.pas.services.ResourceService;
 import java.util.List;
 
 @RestController
+@CrossOrigin(
+        originPatterns = {"http://localhost:[*]"}
+)
 @RequestMapping(
         value = {"/resources"},
         produces = {"application/json"}
@@ -26,7 +29,7 @@ public class ResourceControllerImpl {
     @GetMapping({""})
     @PreAuthorize("hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN, " +
             "T(team.four.pas.security.SecurityRoles).MANAGER, " +
-            "T(team.four.pas.security.SecurityRoles).CLIENT) ")
+            "T(team.four.pas.security.SecurityRoles).CLIENT)")
     public ResponseEntity<List<ResourceDTO>> getAll() {
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -37,7 +40,7 @@ public class ResourceControllerImpl {
     @GetMapping({"/{id}"})
     @PreAuthorize("hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN, " +
             "T(team.four.pas.security.SecurityRoles).MANAGER, " +
-            "T(team.four.pas.security.SecurityRoles).CLIENT) ")
+            "T(team.four.pas.security.SecurityRoles).CLIENT)")
     public ResponseEntity<ResourceDTO> getResource(@PathVariable String id) {
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -49,7 +52,7 @@ public class ResourceControllerImpl {
             consumes = {"application/json"}
     )
     @PreAuthorize("hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN, " +
-            "T(team.four.pas.security.SecurityRoles).MANAGER)")
+                  "T(team.four.pas.security.SecurityRoles).MANAGER)")
     public ResponseEntity<ResourceDTO> createVM(@Valid @RequestBody ResourceAddDTO vmDto) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -61,7 +64,7 @@ public class ResourceControllerImpl {
             consumes = {"application/json"}
     )
     @PreAuthorize("hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN, " +
-            "T(team.four.pas.security.SecurityRoles).MANAGER)")
+                  "T(team.four.pas.security.SecurityRoles).MANAGER)")
     public ResponseEntity<ResourceDTO> updateVM(@PathVariable String id, @Valid @RequestBody ResourceAddDTO vmDto) {
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -72,7 +75,7 @@ public class ResourceControllerImpl {
             value = {"/{id}"}
     )
     @PreAuthorize("hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN, " +
-            "T(team.four.pas.security.SecurityRoles).MANAGER)")
+                  "T(team.four.pas.security.SecurityRoles).MANAGER)")
     public ResponseEntity<?> deleteVM(@PathVariable String id) {
         resourceService.deleteVM(id);
 

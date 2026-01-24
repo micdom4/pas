@@ -1,6 +1,9 @@
 package team.four.pas.services;
 
+import org.springframework.security.core.userdetails.UserDetails;
 import team.four.pas.controllers.DTOs.AuthResponse;
+import team.four.pas.controllers.DTOs.UserAddDTO;
+import team.four.pas.controllers.DTOs.UserLoginDTO;
 import team.four.pas.services.data.users.User;
 
 public interface AuthService {
@@ -8,5 +11,5 @@ public interface AuthService {
 
     AuthResponse login(String username, String password);
 
-    void logout(String jwt);
+    void changePassword(String oldPassword, String newPassword);
 }
