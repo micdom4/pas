@@ -99,6 +99,21 @@ public class MongoUserRepository implements UserRepository {
     }
 
     @Override
+    public User updatePassword(String id, String encodedPassword) throws UserNotFoundException, UserIdException {
+        ObjectId objectId = getObjectId(id);
+
+        Bson filter = Filters.eq("_id", objectId);
+        Bson update = Updates.set("password", encodedPassword);
+
+        UpdateResult result = userCollection.updateOne(filter, update);
+        if (result.getMatchedCount() == 0) {
+            throw new UserNotFoundException("No user found with ID: " + id);
+        }
+
+        return findById(id);
+    }
+
+    @Override
     public void activate(String id) throws UserNotFoundException, UserIdException {
         ObjectId objectId = getObjectId(id);
 

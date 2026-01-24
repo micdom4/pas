@@ -1,14 +1,14 @@
 package team.four.pas.controllers;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import team.four.pas.controllers.DTOs.AuthResponse;
-import team.four.pas.controllers.DTOs.UserAddDTO;
-import team.four.pas.controllers.DTOs.UserLoginDTO;
+import team.four.pas.controllers.DTOs.*;
 import team.four.pas.controllers.DTOs.mappers.UserToDTO;
 import team.four.pas.security.TokenBlackList;
 import team.four.pas.services.AuthService;
@@ -35,6 +35,9 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
+    @PreAuthorize("hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN, " +
+                  "T(team.four.pas.security.SecurityRoles).MANAGER, " +
+                  "T(team.four.pas.security.SecurityRoles).CLIENT)")
     public ResponseEntity<Void> logout(){
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
@@ -45,6 +48,16 @@ public class AuthController {
 
         SecurityContextHolder.clearContext();
         return ResponseEntity.noContent().build();
+    }
+
+
+    @PostMapping("/reset")
+    @PreAuthorize("hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN, " +
+                  "T(team.four.pas.security.SecurityRoles).MANAGER, " +
+                  "T(team.four.pas.security.SecurityRoles).CLIENT)")
+    public ResponseEntity<Void> changePassword(@Valid @RequestBody ChangePasswordDTO changePasswordDTO) {
+        authService.changePassword(changePasswordDTO.oldPassword(), changePasswordDTO.newPassword());
+        return ResponseEntity.ok().build();
     }
 
 }

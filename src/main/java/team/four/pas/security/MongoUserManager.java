@@ -33,7 +33,6 @@ public class MongoUserManager implements UserDetailsManager {
 
     @Override
     public void updateUser(UserDetails user) {
-
     }
 
     @Override
