@@ -10,4 +10,6 @@ public interface AuthService {
     AuthResponse register(User request);
 
     AuthResponse login(String username, String password);
+
+    void changePassword(String oldPassword, String newPassword);
 }

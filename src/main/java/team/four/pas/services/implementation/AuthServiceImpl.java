@@ -52,6 +52,12 @@ public class AuthServiceImpl implements AuthService {
         return new AuthResponse(jwtToken, parseAuthorities(user));
     }
 
+    @Override
+    public void changePassword(String oldPassword, String newPassword) {
+
+    }
+
+
     private List<SimpleGrantedAuthority> parseAuthorities(User user) {
        return (List<SimpleGrantedAuthority>) user.getAuthorities().stream().toList();
     }
