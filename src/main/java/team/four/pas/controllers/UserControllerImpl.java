@@ -111,9 +111,8 @@ public class UserControllerImpl {
             consumes = {"application/json"}
     )
     @PreAuthorize(
-            "(hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN, T(team.four.pas.security.SecurityRoles).MANAGER)) " +
-                    "|| " +
-                    "(hasRole(T(team.four.pas.security.SecurityRoles).CLIENT) && @ownershipChecker.isOwner(authentication, #id))"
+            "(hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN, T(team.four.pas.security.SecurityRoles).MANAGER, " +
+            "T(team.four.pas.security.SecurityRoles).CLIENT) && @ownershipChecker.isOwner(authentication, #id))"
     )
     public ResponseEntity<?> editUser(@PathVariable String id, @Valid @RequestBody UserModDTO modDTO) {
         return ResponseEntity
