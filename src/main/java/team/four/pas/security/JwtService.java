@@ -14,4 +14,11 @@ public interface JwtService {
     String extractUsername(String token);
 
     boolean isTokenValid(String token, UserDetails userDetails);
+
+
+    String generateIntegrityToken(String objectId);
+    String generateIntegrityToken(String objectId, String vmId);
+
+    boolean verifyIntegrity(String token, String expectedId);
+    boolean verifyIntegrity(String token, String expectedId, String vmId);
 }

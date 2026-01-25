@@ -12,6 +12,7 @@ import team.four.pas.controllers.DTOs.UserAddDTO;
 import team.four.pas.controllers.DTOs.UserDTO;
 import team.four.pas.controllers.DTOs.UserModDTO;
 import team.four.pas.controllers.DTOs.mappers.UserToDTO;
+import team.four.pas.services.AuthService;
 import team.four.pas.services.UserService;
 import team.four.pas.services.data.users.User;
 
@@ -29,6 +30,7 @@ import java.util.List;
 public class UserControllerImpl {
     private final UserService userService;
     private final UserToDTO userToDTO;
+    private final AuthService authService;
 
     @GetMapping({""})
     @PreAuthorize("hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN, " +
@@ -72,21 +74,24 @@ public class UserControllerImpl {
                 .body(userToDTO.toDataList(userService.findByMatchingLogin(login)));
     }
 
-    @PutMapping({"/{id}/activate"})
+    @PutMapping("/{id}/activate")
     @PreAuthorize("hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN, " +
-            "T(team.four.pas.security.SecurityRoles).MANAGER)")
-    public ResponseEntity<?> activateUser(@PathVariable String id) {
-        userService.activate(id);
+            "T(team.four.pas.security.SecurityRoles).MANAGER) " +
+            "&& @ownershipChecker.isValidJws(#jws, #id)")
+    public ResponseEntity<Void> activateUser(
+            @PathVariable String id,
+            @RequestHeader(value = "X-Data-Integrity") String jws) {
 
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .build();
+        userService.activate(id);
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping({"/{id}/deactivate"})
     @PreAuthorize("hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN, " +
-            "T(team.four.pas.security.SecurityRoles).MANAGER)")
-    public ResponseEntity<?> deactivateUser(@PathVariable String id) {
+            "T(team.four.pas.security.SecurityRoles).MANAGER) " +
+            "&& @ownershipChecker.isValidJws(#jws, #id)")
+    public ResponseEntity<?> deactivateUser(@PathVariable String id,
+                                            @RequestHeader(value = "X-Data-Integrity") String jws) {
         userService.deactivate(id);
 
         return ResponseEntity

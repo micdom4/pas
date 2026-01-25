@@ -64,13 +64,31 @@ public class AuthServiceImpl implements AuthService {
             throw new IllegalStateException("Wrong password");
         }
 
-        //Blacklist the old token to prevent HACKERS from hacking further
         tokenBlackList.add(authentication.getCredentials().toString());
         userRepository.updatePassword(user.getId(), passwordEncoder.encode(newPassword));
 
         SecurityContextHolder.clearContext();
     }
 
+    @Override
+    public String generateIntegrityToken(String clientId) {
+        return jwtService.generateIntegrityToken(clientId);
+    }
+
+    @Override
+    public String generateIntegrityToken(String clientId, String vmId) {
+        return jwtService.generateIntegrityToken(clientId, vmId);
+    }
+
+    @Override
+    public boolean verifyIntegrity(String IntegrityToken, String expectedId) {
+        return jwtService.verifyIntegrity(IntegrityToken, expectedId);
+    }
+
+    @Override
+    public boolean verifyIntegrity(String IntegrityToken, String clientId, String vmId) {
+        return jwtService.verifyIntegrity(IntegrityToken, clientId, vmId);
+    }
 
     private List<SimpleGrantedAuthority> parseAuthorities(User user) {
        return (List<SimpleGrantedAuthority>) user.getAuthorities().stream().toList();

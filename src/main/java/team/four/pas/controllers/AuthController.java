@@ -60,4 +60,27 @@ public class AuthController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/change/{clientId}")
+    @PreAuthorize("hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN, " +
+                  "T(team.four.pas.security.SecurityRoles).MANAGER)")
+    public ResponseEntity<Void> prepareIntToken(@PathVariable String clientId) {
+        String jws = authService.generateIntegrityToken(clientId);
+
+        return ResponseEntity.ok()
+                             .header("X-Data-Integrity", jws)
+                             .header("Access-Control-Expose-Headers", "X-Data-Integrity")
+                             .build();
+    }
+
+    @GetMapping("/change/{clientId}/{vmId}")
+    @PreAuthorize("hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN, " +
+                  "T(team.four.pas.security.SecurityRoles).MANAGER)")
+    public ResponseEntity<Void> prepareIntToken(@PathVariable String clientId, @PathVariable String vmId) {
+        String jws = authService.generateIntegrityToken(clientId, vmId);
+
+        return ResponseEntity.ok()
+                             .header("X-Data-Integrity", jws)
+                             .header("Access-Control-Expose-Headers", "X-Data-Integrity")
+                             .build();
+    }
 }

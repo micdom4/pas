@@ -39,6 +39,49 @@ public class JwtServiceImpl implements JwtService {
                    .compact();
     }
 
+    public String generateIntegrityToken(String objectId) {
+        return Jwts.builder()
+                .setSubject(objectId)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 600000))
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public String generateIntegrityToken(String objectId, String vmId) {
+        return Jwts.builder()
+                .setSubject(objectId + ":" + vmId)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 600000))
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public boolean verifyIntegrity(String token, String expectedId) {
+        try {
+            blacklist.add(token);
+            String idFromToken = extractUsername(token);
+            return idFromToken.equals(expectedId) && !isTokenExpired(token);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean verifyIntegrity(String token, String expectedClientId, String expectedVmId) {
+        try {
+            Claims claims = extractAllClaims(token);
+
+            String compositeKey = claims.getSubject();
+            String[] parts = compositeKey.split(":");
+
+            if (parts.length != 2) return false;
+
+            return parts[0].equals(expectedClientId) && parts[1].equals(expectedVmId);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     public String generateToken(UserDetails userDetails) {
         return generateToken(new HashMap<>(), userDetails);
    }
