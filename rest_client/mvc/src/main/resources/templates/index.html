@@ -2,64 +2,54 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Modern Registration</title>
-    <style>
-        .error { color: red; font-size: 0.8em; display: none; }
-        input:invalid { border: 1px solid red; }
-    </style>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-<h2>Create New User</h2>
-<form id="regForm">
-    <div>
-        <label>Login:</label>
-        <input type="text" id="login" name="login" required
-               pattern="^[A-Z][A-Z][a-z]{1,18}[0-9]{0,5}$">
-    </div>
-    <div>
-        <label>Name:</label>
-        <input type="text" id="name" name="name" required>
-    </div>
-    <div>
-        <label>Surname:</label>
-        <input type="text" id="surname" name="surname" required>
-    </div>
-    <div>
-        <label>User Type:</label>
-        <select id="type">
-            <option th:each="type : ${userTypeValues}"
-                    th:value="${type}" th:text="${type}"></option>
-        </select>
-    </div>
-    <button type="submit">Register</button>
-</form>
 
-<div id="message"></div>
+<div class="container">
+    <h2>New User Form</h2>
 
-<script>
-    document.getElementById('regForm').addEventListener('submit', function(e) {
-        e.preventDefault();
+    <form th:action="@{/superModernSite}" th:object="${newClient}" method="post">
 
-        const data = {
-            login: document.getElementById('login').value,
-            name: document.getElementById('name').value,
-            surname: document.getElementById('surname').value,
-            type: document.getElementById('type').value
-        };
+        <div>
+            <label for="login">Login:</label>
+            <input type="text" id="login" th:field="*{login}" required
+                   pattern="^[A-Z][A-Z][a-z]{1,18}[0-9]{0,5}$"
+                   title="Two first letters must be capital letters">
+        </div>
 
-        fetch('http://localhost:8080/users', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        })
-            .then(async res => {
-                const result = await res.json();
-                if (res.ok) {
-                    document.getElementById('message').innerText = "Success! ID: " + result.id;
-                } else {
-                    document.getElementById('message').innerText = "Error: " + (result.message || "Check constraints");
-                }
-            });
-    });
-</script>
+        <div>
+            <label for="name">Name:</label>
+            <input type="text" id="name" th:field="*{name}" required>
+        </div>
+
+        <div>
+            <label for="surname">Surname:</label>
+            <input type="text" id="surname" th:field="*{surname}" required>
+        </div>
+
+        <div>
+            <label for="type">User Type:</label>
+            <select id="type" th:field="*{type}">
+                <option th:each="typeVal : ${userTypeValues}"
+                        th:value="${typeVal}"
+                        th:text="${typeVal}"></option>
+            </select>
+        </div>
+
+        <button type="submit">Register</button>
+    </form>
+
+    <div th:if="${errorMessage}" class="alert alert-danger">
+        <strong th:text="${errorMessage}"></strong>
+    </div>
+
+    <div th:if="${successMessage}" class="alert alert-success">
+        <strong th:text="${successMessage}"></strong>
+    </div>
+
+    <a href="/allocations" class="link-allocations">Go to Allocation Page &rarr;</a>
+</div>
+
 </body>
 </html>
