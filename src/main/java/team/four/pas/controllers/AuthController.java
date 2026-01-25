@@ -67,8 +67,7 @@ public class AuthController {
         String jws = authService.generateIntegrityToken(clientId);
 
         return ResponseEntity.ok()
-                             .header("X-Data-Integrity", jws)
-                             .header("Access-Control-Expose-Headers", "X-Data-Integrity")
+                             .header("ETag", jws)
                              .build();
     }
 
@@ -79,8 +78,7 @@ public class AuthController {
         String jws = authService.generateIntegrityToken(clientId, vmId);
 
         return ResponseEntity.ok()
-                             .header("X-Data-Integrity", jws)
-                             .header("Access-Control-Expose-Headers", "X-Data-Integrity")
+                             .header("ETag", jws)
                              .build();
     }
 }

@@ -50,7 +50,7 @@ public class AllocationControllerImpl {
             "(hasRole('ADMIN') && @ownershipChecker.isValidJws(#jws, #allocationAddDTO.clientId(), #allocationAddDTO.resourceId())) " +
                     "|| (hasRole('CLIENT') && @ownershipChecker.isOwner(authentication, #allocationAddDTO.clientId()))"
     )    public ResponseEntity<VMAllocation> createAllocation(@Valid @RequestBody AllocationAddDTO allocationAddDTO,
-                                                         @RequestHeader(value = "X-Data-Integrity", required = false) String jws) {
+                                                              @RequestHeader(value = "ETag", required = false) String jws) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(allocationService.add(allocationAddDTO.clientId(), allocationAddDTO.resourceId(), Instant.now()));

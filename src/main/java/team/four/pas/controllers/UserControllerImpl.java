@@ -80,7 +80,7 @@ public class UserControllerImpl {
             "&& @ownershipChecker.isValidJws(#jws, #id)")
     public ResponseEntity<Void> activateUser(
             @PathVariable String id,
-            @RequestHeader(value = "X-Data-Integrity") String jws) {
+            @RequestHeader(value = "ETag") String jws) {
 
         userService.activate(id);
         return ResponseEntity.ok().build();
@@ -91,7 +91,7 @@ public class UserControllerImpl {
             "T(team.four.pas.security.SecurityRoles).MANAGER) " +
             "&& @ownershipChecker.isValidJws(#jws, #id)")
     public ResponseEntity<?> deactivateUser(@PathVariable String id,
-                                            @RequestHeader(value = "X-Data-Integrity") String jws) {
+                                            @RequestHeader(value = "ETag") String jws) {
         userService.deactivate(id);
 
         return ResponseEntity
