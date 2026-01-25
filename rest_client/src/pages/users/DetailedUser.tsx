@@ -11,6 +11,7 @@ import {allocationApi} from "../../api/AllocationRestApi.ts";
 import LoggedUserContext from "../../contexts/LoggedUserContext";
 import {ChangePasswordModal} from "../../components/modals/ChangePasswordModal.tsx";
 import {emptyUser} from "../../contexts/LoggedUserContext/types.ts";
+import useModal from "../../components/modals/useModal.tsx";
 
 export default function DetailedUser() {
     const {login} = useParams<{ login: string }>();
@@ -25,6 +26,27 @@ export default function DetailedUser() {
 
     const [pastAllocations, setPastAllocations] = useState<AllocationType[]>()
     const [activeAllocations, setActiveAllocations] = useState<AllocationType[]>()
+    const {showConfirmation} = useModal()
+
+    const handleFinish = (allocation: AllocationType) => {
+        showConfirmation({
+            title: 'Finishing allocation',
+            message: 'Are you sure you want to finish this allocation?',
+            variant: 'warning',
+            cancelLabel: 'No',
+            confirmLabel: 'Yes',
+
+            onConfirm: () => {
+                allocationApi.finish(allocation.id)
+                    .then(() =>
+                        addToast('Success!', `Allocation #${allocation.id} has been finished`, "success"))
+                    .catch((err) =>
+                        addToast("Error!", `Error while finishing allocation. Error: ${err}`, "danger"))
+                loadData()
+            }
+        })
+    }
+
 
     const columns: Column<AllocationType>[] = useMemo(() => [
         {
@@ -44,46 +66,52 @@ export default function DetailedUser() {
             render: (a) => (
                 a.endTime ? formatDate(a.endTime) : <span className="text-success fw-bold">In progress</span>
             )
+        },
+        {
+            header: 'Finish Allocation',
+            render: (a) => (
+                <Button variant={'info'} onClick={() => handleFinish(a)} disabled={a.endTime !== null}>Finish</Button>
+            )
         }
     ], []);
 
     const handleSuccess = () => {
         console.log("Password has been changed for user: ", detailedUser?.login)
-        addToast('You have been logged out', 'You need to log in with your new password.','warning')
+        addToast('You have been logged out', 'You need to log in with your new password.', 'warning')
         setUser(emptyUser)
         navigate('/login')
     }
 
-    useEffect(() => {
-        const loadData = async () => {
-            if (!login) return;
-            setLoading(true);
+    const loadData = async () => {
+        if (!login) return;
+        setLoading(true);
 
-            try {
-                const userResponse = await userApi.getByLogin(login);
-                const fetchedUser = userResponse.data;
+        try {
+            const userResponse = await userApi.getByLogin(login);
+            const fetchedUser = userResponse.data;
 
-                setDetailedUser(fetchedUser);
+            setDetailedUser(fetchedUser);
 
-                if (fetchedUser.type.toString() === "CLIENT") {
-                    const [pastRes, activeRes] = await Promise.all([
-                        allocationApi.getPastForClient(fetchedUser.id),
-                        allocationApi.getActiveForClient(fetchedUser.id)
-                    ]);
+            if (fetchedUser.type.toString() === "CLIENT") {
+                const [pastRes, activeRes] = await Promise.all([
+                    allocationApi.getPastForClient(fetchedUser.id),
+                    allocationApi.getActiveForClient(fetchedUser.id)
+                ]);
 
-                    setPastAllocations(pastRes.data);
-                    setActiveAllocations(activeRes.data);
-                }
-
-            } catch (error) {
-                console.error(error);
-                addToast('Error', `Could not fetch data for login: "${login}"`, 'danger');
-                navigate('/users');
-            } finally {
-                setLoading(false);
+                setPastAllocations(pastRes.data);
+                setActiveAllocations(activeRes.data);
             }
-        };
 
+        } catch (error) {
+            console.error(error);
+            addToast('Error', `Could not fetch data for login: "${login}"`, 'danger');
+            navigate('/users');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
         loadData();
     }, [login]);
 
@@ -99,7 +127,7 @@ export default function DetailedUser() {
     return (
         <div className="container mt-4">
             <Button variant="outline-secondary" className="mb-3" onClick={() => navigate('/users')}>
-                &larr; Wróć do listy
+                &larr; Go Back
             </Button>
 
             <Card className="shadow-sm">
@@ -147,7 +175,9 @@ export default function DetailedUser() {
                     <Row>
                         <Col>
                             <h3>Previous Allocations</h3>
-                            <GenericTable data={pastAllocations || []} columns={columns}/>
+                            <GenericTable data={pastAllocations || []}
+                                          columns={columns.filter(
+                                              (c) => c.header != "Finish Allocation")}/>
                         </Col>
                         <Col>
                             <h3>Current Allocations</h3>

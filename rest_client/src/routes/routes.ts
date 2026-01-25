@@ -70,10 +70,6 @@ export const managerRoutes: RouteType[] = [
         path: Paths.manager.listAllocations,
         Component: ListAllocations,
     },
-    {
-        path: Paths.manager.createAllocations,
-        Component: CreateAllocation,
-    },
 ]
 
 export const administratorRoutes: RouteType[] = [

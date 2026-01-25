@@ -30,6 +30,7 @@ const authorizationRequestInterceptor = (config: InternalAxiosRequestConfig) => 
 }
 
 const errorMessages = {
+    authError: "Access Denied!",
     serverError: "Internal Server Error!!!",
     unknownError: "Unknown Error"
 }
@@ -74,6 +75,11 @@ api.interceptors.response.use(
                     return Promise.reject(refreshError);
                 }
             }
+            // else {
+            //     sessionStorage.clear();
+            //     window.location.href = '/login';
+            //     return Promise.reject(errorMessages.authError);
+            // }
         }
 
         if (!error.response) {

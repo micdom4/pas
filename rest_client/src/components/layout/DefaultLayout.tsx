@@ -23,13 +23,8 @@ export default function DefaultLayout({children}: LayoutProps) {
                     `Successfully logged out from account '${user.login}'`,
                     'success')
             )
-            .catch((err) => {
-                console.error(err)
-                addToast('Error in logout',
-                    `Error while trying to log out. Error: ${err}`,
-                    'danger')
-            })
-        setUser(emptyUser)
+            .catch()
+            .finally(() => setUser(emptyUser))
     }
 
     return (
@@ -80,14 +75,9 @@ export default function DefaultLayout({children}: LayoutProps) {
                                             Create New Resource
                                         </NavDropdown.Item>
                                     </NavDropdown>
-                                    <NavDropdown title="Allocations" id="basic-nav-dropdown">
-                                        <NavDropdown.Item onClick={() => navigate(Paths.manager.listAllocations)}>
-                                            List Allocations
-                                        </NavDropdown.Item>
-                                        <NavDropdown.Item onClick={() => navigate(Paths.manager.createAllocations)}>
-                                            Create New Allocation
-                                        </NavDropdown.Item>
-                                    </NavDropdown>
+                                    <Nav.Link onClick={() => navigate(Paths.manager.listAllocations)}>
+                                        List Allocations
+                                    </Nav.Link>
                                 </>
                                 }
 

@@ -22,7 +22,6 @@ export const Paths = {
         detailedUser: '/users/details/:login',
 
         listAllocations: '/allocations',
-        createAllocations: '/allocations/create',
 
         listResources: '/resources',
         createResource: '/resources/create',
