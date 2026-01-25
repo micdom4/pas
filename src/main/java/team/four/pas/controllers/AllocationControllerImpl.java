@@ -46,8 +46,9 @@ public class AllocationControllerImpl {
             value = {""},
             consumes = {"application/json"}
     )
-    @PreAuthorize("hasRole(T(team.four.pas.security.SecurityRoles).CLIENT)" +
-            " && @ownershipChecker.isOwner(authentication, #allocationAddDTO.clientId())")
+    @PreAuthorize("hasRole(T(team.four.pas.security.SecurityRoles).ADMIN)" +
+            "|| (hasRole(T(team.four.pas.security.SecurityRoles).CLIENT)" +
+            " && @ownershipChecker.isOwner(authentication, #allocationAddDTO.clientId()))")
     public ResponseEntity<VMAllocation> createAllocation(@Valid @RequestBody AllocationAddDTO allocationAddDTO) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)

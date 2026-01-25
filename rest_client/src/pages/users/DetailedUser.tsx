@@ -85,7 +85,7 @@ export default function DetailedUser() {
         };
 
         loadData();
-    }, [login, addToast]);
+    }, [login]);
 
     if (loading || !detailedUser) {
         return (

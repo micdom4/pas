@@ -117,7 +117,7 @@ export default function DefaultLayout({children}: LayoutProps) {
                     </Navbar.Collapse>
                 </Container>
             </Navbar>
-            <Container>
+            <Container className={'pt-5'}>
                 {children}
             </Container>
         </div>

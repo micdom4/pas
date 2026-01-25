@@ -12,7 +12,7 @@ import {userApi} from "../../api/UserRestApi.ts";
 import type {UserType} from "../../model/UserTypes.ts";
 
 const AllocationSchema = Yup.object().shape({
-    login: Yup.string(),
+    login: Yup.string().required(),
     vmId: Yup.string()
         .required('You must choose a resource'),
 });
@@ -23,6 +23,7 @@ export default function CreateAllocation() {
 
     const {user} = use(LoggedUserContext)
 
+    const [clients, setClients] = useState<UserType[]>([]);
     const [client, setClient] = useState<UserType>()
     const [resources, setResources] = useState<ResourceType[]>([]);
     const [isPending, startTransition] = useTransition()
@@ -31,11 +32,15 @@ export default function CreateAllocation() {
         try {
             const [resourcesResponse, clientResponse] = await Promise.all([
                 resourceApi.getAll(),
-                userApi.getByLogin(user.login || '')
+                (user.isAdmin() || user.isManager()) ? userApi.getAll() : userApi.getByLogin(user.login || '')
             ]);
 
             setResources(resourcesResponse.data);
-            setClient(clientResponse.data)
+            if (user.isAdmin() || user.isManager()) {
+                setClients(clientResponse.data as UserType[])
+            } else {
+                setClient(clientResponse.data as UserType)
+            }
         } catch (error) {
             addToast('Fetch data error', `Error while fetching resources. Error: ${error}`, 'danger');
             console.error(error);
@@ -49,7 +54,7 @@ export default function CreateAllocation() {
     return (
         <Formik
             initialValues={{
-                login: '',
+                login: user.login,
                 vmId: '',
             }}
             validationSchema={AllocationSchema}
@@ -61,6 +66,10 @@ export default function CreateAllocation() {
                     variant: 'primary',
 
                     onConfirm: async () => {
+                        if (!client) {
+                            setClient(clients.find((c) => c.login == values.login))
+                        }
+
                         const payload = {
                             clientId: client?.id || '',
                             resourceId: values.vmId,
@@ -97,11 +106,24 @@ export default function CreateAllocation() {
                                         <Form.Label>Client</Form.Label>
                                         <Form.Select
                                             name="login"
-                                            value={values.login}
-                                            disabled
+                                            onChange={handleChange}
+                                            onBlur={handleBlur}
+                                            isInvalid={!!errors.login}
+                                            disabled={user.isClient()}
                                         >
-                                            <option value={user.login || ''}>{user.login}</option>
+                                            {user.isClient() ? <option value={user.login || 'a'}>{user.login}</option> :
+                                                <option value="">-- Choose Client --</option>}
+                                            {(user.isAdmin() || user.isManager()) &&
+                                                clients.filter(u => u.type.toString() === "CLIENT" && u.active)
+                                                    .map((client) => (
+                                                        <option key={client.id} value={client.login}>
+                                                            {client.name} {client.surname} ({client.login})
+                                                        </option>
+                                                    ))}
                                         </Form.Select>
+                                        <Form.Control.Feedback type="invalid">
+                                            {errors.login}
+                                        </Form.Control.Feedback>
                                     </Form.Group>
                                 </Col>
 
