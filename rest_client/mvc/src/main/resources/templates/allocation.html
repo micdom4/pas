@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Allocations</title>
+    <style>
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .form-section { margin-bottom: 30px; padding: 20px; background: #f9f9f9; border: 1px solid #ccc; }
+        .btn-finish { background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<h1>Allocation Management</h1>
+
+<div class="form-section">
+    <h3>Create New Allocation</h3>
+    <form th:action="@{/allocations/create}" th:object="${newAllocation}" method="post">
+
+        <label>Choose Active Client:</label>
+        <select th:field="*{clientId}" required>
+            <option value="">-- Choose client --</option>
+            <option th:each="client : ${clients}"
+                    th:value="${client.id}"
+                    th:text="${client.login}"></option>
+        </select>
+
+        <label>Wybierz Zasób (VM):</label>
+        <select th:field="*{resourceId}" required>
+            <option value="">-- Wybierz maszynę --</option>
+            <option th:each="res : ${resources}"
+                    th:value="${res.id}"
+                    th:text="${res.name}"></option>
+        </select>
+
+        <button type="submit">Stwórz Alokację</button>
+    </form>
+</div>
+
+<h3>Lista Alokacji</h3>
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Login Klienta</th>
+        <th>Maszyna (ID)</th>
+        <th>Start</th>
+        <th>Koniec</th>
+        <th>Akcja</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="allocation : ${allocations}">
+        <td th:text="${allocation.id}">1</td>
+        <td th:text="${allocation.clientLogin}">user1</td> <td th:text="${allocation.resourceId}">101</td>
+        <td th:text="${allocation.startTime}">2023-10-01T12:00</td>
+        <td th:text="${allocation.endTime != null ? allocation.endTime : 'TRWA'}">...</td>
+
+        <td>
+            <form th:if="${allocation.endTime == null}"
+                  th:action="@{/allocations/finish/{id}(id=${allocation.id})}"
+                  method="post">
+                <button type="submit" class="btn-finish">Zakończ alokację</button>
+            </form>
+
+            <span th:if="${allocation.endTime != null}">Zakończono</span>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>
