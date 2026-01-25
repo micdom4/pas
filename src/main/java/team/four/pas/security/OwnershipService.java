@@ -26,6 +26,12 @@ public class OwnershipService {
     }
 
     public boolean isValidJws(String clientId, String jws) {
+        if (jws == null || jws.isBlank()) return false;
         return authService.verifyIntegrity(jws,  clientId);
+    }
+
+    public boolean isValidJws(String clientId, String vmId, String jws) {
+        if (jws == null || jws.isBlank()) return false;
+        return authService.verifyIntegrity(jws, clientId,  vmId);
     }
 }

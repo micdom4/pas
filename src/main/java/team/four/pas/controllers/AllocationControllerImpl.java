@@ -46,10 +46,11 @@ public class AllocationControllerImpl {
             value = {""},
             consumes = {"application/json"}
     )
-    @PreAuthorize("hasRole(T(team.four.pas.security.SecurityRoles).ADMIN)" +
-            "|| (hasRole(T(team.four.pas.security.SecurityRoles).CLIENT)" +
-            " && @ownershipChecker.isOwner(authentication, #allocationAddDTO.clientId()))")
-    public ResponseEntity<VMAllocation> createAllocation(@Valid @RequestBody AllocationAddDTO allocationAddDTO) {
+    @PreAuthorize(
+            "(hasRole('ADMIN') && @ownershipChecker.isValidJws(#jws, #allocationAddDTO.clientId(), #allocationAddDTO.resourceId())) " +
+                    "|| (hasRole('CLIENT') && @ownershipChecker.isOwner(authentication, #allocationAddDTO.clientId()))"
+    )    public ResponseEntity<VMAllocation> createAllocation(@Valid @RequestBody AllocationAddDTO allocationAddDTO,
+                                                         @RequestHeader(value = "X-Data-Integrity", required = false) String jws) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(allocationService.add(allocationAddDTO.clientId(), allocationAddDTO.resourceId(), Instant.now()));

@@ -59,9 +59,11 @@ public class JwtServiceImpl implements JwtService {
 
     public boolean verifyIntegrity(String token, String expectedId) {
         try {
-            blacklist.add(token);
             String idFromToken = extractUsername(token);
-            return idFromToken.equals(expectedId) && !isTokenExpired(token);
+            boolean returnVal = idFromToken.equals(expectedId) && !isTokenExpired(token) && !blacklist.contains(token);
+            blacklist.add(token);
+
+            return returnVal;
         } catch (Exception e) {
             return false;
         }
@@ -76,7 +78,10 @@ public class JwtServiceImpl implements JwtService {
 
             if (parts.length != 2) return false;
 
-            return parts[0].equals(expectedClientId) && parts[1].equals(expectedVmId);
+            boolean returnVal = parts[0].equals(expectedClientId) && parts[1].equals(expectedVmId) && !blacklist.contains(token);
+            blacklist.add(token);
+
+            return returnVal;
         } catch (Exception e) {
             return false;
         }
