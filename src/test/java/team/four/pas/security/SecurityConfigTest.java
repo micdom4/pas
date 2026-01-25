@@ -195,7 +195,7 @@ class SecurityConfigTest {
                 .post("/auth/register")
                 .then()
                 .statusCode(HttpStatus.CREATED.value())
-                .body("token", not(emptyOrNullString()))
+                .body("accessToken", not(emptyOrNullString()))
                 .body("roles", not(emptyOrNullString()));
     }
 
@@ -213,7 +213,7 @@ class SecurityConfigTest {
                 .post("/auth/login")
                 .then()
                 .statusCode(HttpStatus.OK.value())
-                .body("token", not(emptyOrNullString()))
+                .body("accessToken", not(emptyOrNullString()))
                 .body("roles", not(emptyOrNullString()));
     }
 

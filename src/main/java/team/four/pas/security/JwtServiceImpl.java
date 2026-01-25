@@ -1,6 +1,7 @@
 package team.four.pas.security;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -99,7 +100,7 @@ public class JwtServiceImpl implements JwtService {
                 .setClaims(claims)
                 .subject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + timeout + timeout))
+                .setExpiration(new Date(System.currentTimeMillis() + 40 * timeout ))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -108,6 +109,10 @@ public class JwtServiceImpl implements JwtService {
         final String UserName = extractUsername(token);
         return userDetails.getUsername().equals(UserName) && !isTokenExpired(token) && !blacklist.contains(token);
    }
+
+    public boolean isTokenValid(String token) {
+        return !isTokenExpired(token) && !blacklist.contains(token);
+    }
 
    public boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
@@ -133,11 +138,17 @@ public class JwtServiceImpl implements JwtService {
     }
 
     public Claims extractAllClaims(String token) {
-        return Jwts.parser()
-                   .setSigningKey(getSignInKey())
-                   .build()
-                   .parseClaimsJws(token)
-                   .getBody();
+        try {
+            return Jwts.parser()
+                    .setSigningKey(getSignInKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (ExpiredJwtException e) {
+            return e.getClaims();
+        } catch (Exception e)  {
+            return null;
+        }
     }
 
     public Key getSignInKey() {

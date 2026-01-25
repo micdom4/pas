@@ -9,8 +9,8 @@ export const loginApi = {
         return await loginApiInstance.post(`/login`, loginData)
     },
 
-    refresh: async (token: string): Promise<AxiosResponse<{accessToken: string}>> => {
-        return await loginApiInstance.post(`/refresh`, token)
+    refresh: async ( accessToken: string): Promise<AxiosResponse<{token: string, refreshToken: string}>> => {
+        return await loginApiInstance.post(`/refresh`, { accessToken })
     },
 
     register: async (registerData: RegisterDataType): Promise<AxiosResponse<string>> => {

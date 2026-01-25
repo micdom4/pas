@@ -18,6 +18,8 @@ public interface JwtService {
     String extractRefresh(String token);
 
     boolean isTokenValid(String token, UserDetails userDetails);
+    boolean isTokenValid(String token);
+
 
     String generateIntegrityToken(String objectId);
     String generateIntegrityToken(String objectId, String vmId);

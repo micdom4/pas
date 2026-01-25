@@ -2,11 +2,13 @@ package team.four.pas.services.implementation;
 
 
 import lombok.RequiredArgsConstructor;
+import org.mapstruct.control.MappingControl;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import team.four.pas.controllers.DTOs.AuthResponse;
@@ -58,17 +60,23 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse resetToken(String token) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        var user = (User) authentication.getPrincipal();
+        String username = jwtService.extractUsername(token);
 
-        if(jwtService.isTokenValid(token, user) && jwtService.extractRefresh(token) != null) {
-            String newJwt =  jwtService.generateAccessToken(user);
+        User user = userRepository.findByLogin(username);
+
+        if(user == null) {
+            throw new IllegalArgumentException("Invalid jwt");
+        }
+
+        if(jwtService.isTokenValid(token) && jwtService.extractRefresh(token) != null) {
+            String newJwt = jwtService.generateAccessToken(user);
             String newRefreshToken = jwtService.generateRefreshToken(user);
             List<SimpleGrantedAuthority> roles = parseAuthorities(user);
+            tokenBlackList.add(token);
             return new AuthResponse(newJwt, newRefreshToken, roles);
         }
 
-        throw new IllegalArgumentException("Invalid token");
+        return new AuthResponse();
     }
 
     @Override

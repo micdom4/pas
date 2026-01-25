@@ -5,6 +5,7 @@ import {
     userLoginStorageName
 } from "../contexts/LoggedUserContext/tokenStorageConfig.ts";
 import {loginApi} from "./LoginApi.ts";
+import {ref} from "yup";
 
 export const API_URL = "http://localhost:8080"
 export const TIMEOUT_IN_MS = 10000
@@ -53,33 +54,37 @@ api.interceptors.response.use(
             originalRequest._retry = true;
 
             const refreshToken = sessionStorage.getItem(refreshTokenStorageName);
-            //const userId = sessionStorage.getItem(userLoginStorageName) || "unknown";
 
             if (refreshToken) {
                 try {
+                    console.log("callin api");
                     const res = await loginApi.refresh(refreshToken);
 
-                    if (res.data.accessToken) {
+                    console.log(res);
+                    console.log(res.data.token);
+                    console.log("LOOLO" + res.data.refreshToken);
+                    if (res.data.token) {
                         console.log("Token refreshed successfully");
 
-                        sessionStorage.setItem(accessTokenStorageName, res.data.accessToken);
+                        sessionStorage.setItem(accessTokenStorageName, res.data.token);
+                        sessionStorage.setItem(refreshTokenStorageName, res.data.refreshToken);
 
-                        originalRequest.headers.Authorization = "Bearer " + res.data.accessToken;
+                        originalRequest.headers.Authorization = "Bearer " + res.data.token;
 
                         return api(originalRequest);
                     }
                 } catch (refreshError) {
-                    console.error("Refresh token failed", refreshError);
+                    console.error("Refresh accessToken failed", refreshError);
                     sessionStorage.clear();
                     window.location.href = '/login';
                     return Promise.reject(refreshError);
                 }
             }
-            // else {
-            //     sessionStorage.clear();
-            //     window.location.href = '/login';
-            //     return Promise.reject(errorMessages.authError);
-            // }
+            else {
+                 sessionStorage.clear();
+                 window.location.href = '/login';
+                 return Promise.reject(errorMessages.authError);
+            }
         }
 
         if (!error.response) {
