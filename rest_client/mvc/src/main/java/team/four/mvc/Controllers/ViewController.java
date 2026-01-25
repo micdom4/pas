@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,7 +45,15 @@ public class ViewController {
             return "index";
 
         } catch (HttpClientErrorException e) {
-            model.addAttribute("errorMessage", "Error during registration: " + e.getResponseBodyAsString()); // Lub własny komunikat
+
+            String message = switch (e.getStatusCode()) {
+                case HttpStatus.CONFLICT -> "User with this login already exists!";
+                case HttpStatus.UNPROCESSABLE_ENTITY -> "Unknown Type of User!";
+                case HttpStatus.BAD_REQUEST -> "Invalid User data provided!";
+                default -> e.getMessage();
+            };
+
+            model.addAttribute("errorMessage", "Error during registration: " + message);
 
             model.addAttribute("newClient", clientAddDTO);
             model.addAttribute("userTypeValues", UserType.values());

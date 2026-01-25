@@ -20,12 +20,16 @@
 
         <div>
             <label for="name">Name:</label>
-            <input type="text" id="name" th:field="*{name}" required>
+            <input type="text" id="name" th:field="*{name}" required
+                   pattern="^[A-Z][a-z]{1,19}$"
+                   title="Name must start with capital letter">
         </div>
 
         <div>
             <label for="surname">Surname:</label>
-            <input type="text" id="surname" th:field="*{surname}" required>
+            <input type="text" id="surname" th:field="*{surname}" required
+                   pattern="^[A-Z][a-z]{1,19}(-[A-Z][a-z]{1,19})?$"
+                   title="Surname must start with capital letter">
         </div>
 
         <div>
