@@ -53,11 +53,11 @@ api.interceptors.response.use(
             originalRequest._retry = true;
 
             const refreshToken = sessionStorage.getItem(refreshTokenStorageName);
-            const userId = sessionStorage.getItem(userLoginStorageName) || "unknown";
+            //const userId = sessionStorage.getItem(userLoginStorageName) || "unknown";
 
             if (refreshToken) {
                 try {
-                    const res = await loginApi.refresh(userId, { refreshToken: refreshToken });
+                    const res = await loginApi.refresh(refreshToken);
 
                     if (res.data.accessToken) {
                         console.log("Token refreshed successfully");

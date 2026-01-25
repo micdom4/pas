@@ -28,7 +28,7 @@ export default function LoginPage() {
             await loginApi.login(values)
                 .then((response) => {
                     console.log(response);
-                    setUser(new LoggedUser(values.login, response.data.token, convertRole(response.data.roles)));
+                    setUser(new LoggedUser(values.login, response.data.token, response.data.refreshToken, convertRole(response.data.roles)));
 
                     addToast(
                         'Login successful!',

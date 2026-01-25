@@ -48,6 +48,7 @@ export type RolesType = {
 
 export type LoginResponse = {
     token: string
+    refreshToken: string
     roles: RolesType[]
 }
 

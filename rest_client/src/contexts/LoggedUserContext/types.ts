@@ -11,11 +11,13 @@ export enum RoleEnum {
 export class LoggedUser {
     login: string | null;
     token: string | null;
+    refreshToken: string | null;
     role: RoleEnum | null;
 
-    constructor(login: string | null, token: string | null, role: RoleEnum | null) {
+    constructor(login: string | null, token: string | null, refreshToken: string | null, role: RoleEnum | null) {
         this.login = login;
         this.token = token;
+        this.refreshToken = refreshToken;
         this.role = role;
     }
 
@@ -37,7 +39,7 @@ export class LoggedUser {
 
 }
 
-export const emptyUser = new LoggedUser(null, null, null)
+export const emptyUser = new LoggedUser(null, null, null, null)
 
 export type LoggedUserContextType = {
     user: LoggedUser;
