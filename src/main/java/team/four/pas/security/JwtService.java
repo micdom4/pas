@@ -6,15 +6,18 @@ import java.util.Map;
 
 public interface JwtService {
 
-    String generateToken(Map<String, Object> extraClaims,
-                            UserDetails userDetails);
+    String generateAccessToken(Map<String, Object> extraClaims,
+                               UserDetails userDetails);
 
-    String generateToken(UserDetails userDetails);
+    String generateAccessToken(UserDetails userDetails);
+
+    String generateRefreshToken(UserDetails userDetails);
 
     String extractUsername(String token);
 
-    boolean isTokenValid(String token, UserDetails userDetails);
+    String extractRefresh(String token);
 
+    boolean isTokenValid(String token, UserDetails userDetails);
 
     String generateIntegrityToken(String objectId);
     String generateIntegrityToken(String objectId, String vmId);

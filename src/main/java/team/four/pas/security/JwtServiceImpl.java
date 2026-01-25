@@ -28,8 +28,8 @@ public class JwtServiceImpl implements JwtService {
     @Value("${jwt.time}")
     private Integer timeout;
 
-    public String generateToken(Map<String, Object> extraClaims,
-                                UserDetails userDetails) {
+    public String generateAccessToken(Map<String, Object> extraClaims,
+                                      UserDetails userDetails) {
         return Jwts.builder()
                    .setClaims(extraClaims)
                    .subject(userDetails.getUsername())
@@ -38,6 +38,7 @@ public class JwtServiceImpl implements JwtService {
                    .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                    .compact();
     }
+
 
     public String generateIntegrityToken(String objectId) {
         return Jwts.builder()
@@ -87,9 +88,21 @@ public class JwtServiceImpl implements JwtService {
         }
     }
 
-    public String generateToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails);
+    public String generateAccessToken(UserDetails userDetails) {
+        return generateAccessToken(new HashMap<>(), userDetails);
    }
+
+    public String generateRefreshToken(UserDetails userDetails) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("type", "REFRESH");
+        return Jwts.builder()
+                .setClaims(claims)
+                .subject(userDetails.getUsername())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + timeout + timeout))
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
 
    public boolean isTokenValid(String token, UserDetails userDetails) {
         final String UserName = extractUsername(token);
@@ -102,6 +115,10 @@ public class JwtServiceImpl implements JwtService {
 
    public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
+   }
+
+   public String extractRefresh(String token) {
+        return extractClaim(token, claims -> claims.get("type", String.class));
    }
 
 

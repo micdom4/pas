@@ -20,4 +20,6 @@ public interface AuthService {
     boolean verifyIntegrity(String IntegrityToken, String expectedId);
 
     boolean verifyIntegrity(String IntegrityToken, String clientId, String vmId);
+
+    AuthResponse resetToken(String token);
 }

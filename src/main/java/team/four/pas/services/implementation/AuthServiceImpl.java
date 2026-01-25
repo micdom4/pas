@@ -1,7 +1,6 @@
 package team.four.pas.services.implementation;
 
 
-import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -36,8 +35,9 @@ public class AuthServiceImpl implements AuthService {
                            request.getSurname(),
                            request.getClass());
 
-        var jwtToken = jwtService.generateToken(createdUser);
-        return new AuthResponse(jwtToken, parseAuthorities(createdUser));
+        var jwtToken = jwtService.generateAccessToken(createdUser);
+        var refreshToken = jwtService.generateRefreshToken(createdUser);
+        return new AuthResponse(jwtToken, refreshToken, parseAuthorities(createdUser));
     }
 
     @Override
@@ -50,9 +50,25 @@ public class AuthServiceImpl implements AuthService {
         );
 
         var user = userRepository.findByLogin(username);
-        var jwtToken = jwtService.generateToken(user);
+        var jwtToken = jwtService.generateAccessToken(user);
+        var refreshToken = jwtService.generateRefreshToken(user);
 
-        return new AuthResponse(jwtToken, parseAuthorities(user));
+        return new AuthResponse(jwtToken, refreshToken, parseAuthorities(user));
+    }
+
+    @Override
+    public AuthResponse resetToken(String token) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        var user = (User) authentication.getPrincipal();
+
+        if(jwtService.isTokenValid(token, user) && jwtService.extractRefresh(token) != null) {
+            String newJwt =  jwtService.generateAccessToken(user);
+            String newRefreshToken = jwtService.generateRefreshToken(user);
+            List<SimpleGrantedAuthority> roles = parseAuthorities(user);
+            return new AuthResponse(newJwt, newRefreshToken, roles);
+        }
+
+        throw new IllegalArgumentException("Invalid token");
     }
 
     @Override

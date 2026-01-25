@@ -60,6 +60,12 @@ public class AuthController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/refresh")
+    public ResponseEntity<AuthResponse> resetToken(@Valid @RequestBody String token) {
+        AuthResponse response = authService.resetToken(token);
+        return ResponseEntity.ok().body(response);
+    }
+
     @GetMapping("/change/{clientId}")
     @PreAuthorize("hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN, " +
                   "T(team.four.pas.security.SecurityRoles).MANAGER)")
