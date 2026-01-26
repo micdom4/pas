@@ -106,7 +106,7 @@ export const allocationApi = {
         return await allocationCrud.create(allocation, etag)
             .catch((error) => {
                 if (axios.isAxiosError(error) && error.response) {
-                    if (error.response.status === 403) {
+                    if (error.response.status === 400) {
                         throw new Error(errorMessages.inactiveClient)
                     }
                     if (error.response.status === 409) {

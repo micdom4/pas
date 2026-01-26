@@ -75,11 +75,11 @@ api.interceptors.response.use(
                     return Promise.reject(refreshError);
                 }
             }
-            // else {
-            //     sessionStorage.clear();
-            //     window.location.href = '/login';
-            //     return Promise.reject(errorMessages.authError);
-            // }
+            else {
+                sessionStorage.clear();
+                setTimeout(() => window.location.href = '/login', 1000);
+                throw new Error(errorMessages.authError);
+            }
         }
 
         if (!error.response) {

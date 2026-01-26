@@ -16,8 +16,10 @@ export default function ListUsers() {
     const navigate = useNavigate()
 
     const columns: Column<UserType>[] = useMemo(() => [
-        {header: 'Login', render: (u) =>
-                <strong>{u.login}</strong>},
+        {
+            header: 'Login', render: (u) =>
+                <strong>{u.login}</strong>
+        },
         {header: 'Name', render: (u) => u.name},
         {header: 'Surname', render: (u) => u.surname},
         {header: 'Role', render: (u) => u.type},
@@ -34,7 +36,7 @@ export default function ListUsers() {
             render: (u) => (
                 <Dropdown as={ButtonGroup}>
                     <Button variant="primary" onClick={() =>
-                        navigate(Paths.administrator.detailedUser.replace(":login",u.login))}>Details</Button>
+                        navigate(Paths.administrator.detailedUser.replace(":login", u.login))}>Details</Button>
 
                     <Dropdown.Toggle split variant="primary" id="dropdown-split-basic"/>
 
@@ -65,9 +67,13 @@ export default function ListUsers() {
 
     const loadUsers = () => {
         {
-            userApi.getAll().then((response) => {
-                setUsers(response.data);
-            })
+            userApi.getAll()
+                .then((response) => {
+                    setUsers(response.data);
+                })
+                .catch((error) => {
+                    addToast('Fetch error', `Error while fetching users: ${error}`, 'danger')
+                })
         }
     }
 
