@@ -102,8 +102,8 @@ export const allocationApi = {
             })
     },
 
-    create: async (allocation: CreateAllocationType): Promise<AxiosResponse<AllocationType>> => {
-        return await allocationCrud.create(allocation)
+    create: async (allocation: CreateAllocationType, etag?: string): Promise<AxiosResponse<AllocationType>> => {
+        return await allocationCrud.create(allocation, etag)
             .catch((error) => {
                 if (axios.isAxiosError(error) && error.response) {
                     if (error.response.status === 403) {
@@ -154,5 +154,11 @@ export const allocationApi = {
 
                 throw error;
             })
+    },
+
+    prepareForCreate: async (clientId: string, vmId: string): Promise<string> => {
+        const response = await api.get(`auth/change/${clientId}/${vmId}`)
+
+        return response.headers['etag']
     }
 }

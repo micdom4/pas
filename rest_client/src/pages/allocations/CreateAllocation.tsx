@@ -12,9 +12,13 @@ import {userApi} from "../../api/UserRestApi.ts";
 import type {UserType} from "../../model/UserTypes.ts";
 
 const AllocationSchema = Yup.object().shape({
+    login: Yup.string().required('You must choose a client'),
+    vmId: Yup.string().required('You must choose a resource'),
+});
+
+const AllocationSchema2 = Yup.object().shape({
     login: Yup.string(),
-    vmId: Yup.string()
-        .required('You must choose a resource'),
+    vmId: Yup.string().required('You must choose a resource'),
 });
 
 export default function CreateAllocation() {
@@ -57,7 +61,7 @@ export default function CreateAllocation() {
                 login: '',
                 vmId: '',
             }}
-            validationSchema={AllocationSchema}
+            validationSchema={user.isClient() ? AllocationSchema2 : AllocationSchema}
             onSubmit={(values, {setSubmitting, resetForm}) => {
 
                 showConfirmation({
@@ -66,19 +70,21 @@ export default function CreateAllocation() {
                     variant: 'primary',
 
                     onConfirm: async () => {
-                        if (!client) {
-                            setClient(clients.find((c) => c.login == values.login))
-                        }
-                        console.log(values.login, " to ", client)
-
                         const payload = {
-                            clientId: client?.id || '',
+                            clientId: user.isClient() ? client?.id || 'dupa' : clients.find((c) => c.login == values.login)?.id || 'dupsko',
                             resourceId: values.vmId,
                         };
 
                         console.log("Sending ID:", payload.clientId, payload.resourceId);
 
-                        allocationApi.create(payload)
+                        let etag
+                        if (!user.isClient()) {
+                            etag = await allocationApi.prepareForCreate(payload.clientId, payload.resourceId)
+                        }
+
+                        console.log("Received etag: ", etag)
+
+                        allocationApi.create(payload, etag)
                             .then(() => {
                                 addToast('Success', 'Allocation has been created successfully', 'success');
                                 resetForm();
@@ -114,10 +120,10 @@ export default function CreateAllocation() {
                                         {(user.isAdmin() || user.isManager()) && <>
                                             <Form.Select
                                                 name="login"
+                                                value={values.login}
                                                 onChange={handleChange}
                                                 onBlur={handleBlur}
                                                 isInvalid={touched.login && !!errors.login}
-                                                required
                                             >
                                                 <option value="">-- Choose Client --</option>
                                                 {clients.filter(u => u.type.toString() === "CLIENT" && u.active)
@@ -131,13 +137,18 @@ export default function CreateAllocation() {
                                                 {errors.login}
                                             </Form.Control.Feedback>
                                         </>}
-                                        {user.isClient() && <Form.Select
-                                            name="login"
-                                            disabled
-                                        >
-                                            <option value={user.login || 'ass'}>{user.login}</option>
-                                        </Form.Select>
-                                        }
+                                        {user.isClient() && <>
+                                            <Form.Select
+                                                name="login"
+                                                value={values.login}
+                                                onChange={handleChange}
+                                                onBlur={handleBlur}
+                                                isInvalid={touched.login && !!errors.login}
+                                                disabled
+                                            >
+                                                <option key={user.login} value={user.login || 'ass'}>{user.login}</option>
+                                            </Form.Select>
+                                        </>}
                                     </Form.Group>
                                 </Col>
 

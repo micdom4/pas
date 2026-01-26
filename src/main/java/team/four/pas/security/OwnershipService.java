@@ -29,11 +29,11 @@ public class OwnershipService {
         if (jws == null || jws.isBlank()) return false;
 
         System.out.println("Sprawdzamy klienta: " + clientId + " jws: " + jws);
-        return authService.verifyIntegrity(jws,  clientId);
+        return authService.verifyIntegrity(jws.replace('"', ' ').strip(),  clientId);
     }
 
     public boolean isValidJws(String clientId, String vmId, String jws) {
         if (jws == null || jws.isBlank()) return false;
-        return authService.verifyIntegrity(jws, clientId,  vmId);
+        return authService.verifyIntegrity(jws.replace('"', ' ').strip(), clientId,  vmId);
     }
 }

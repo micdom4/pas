@@ -17,8 +17,14 @@ export class CrudApi<T extends BaseType, C, E> {
         return await api.get(`${this.endpoint}/${id}`);
     }
 
-    async create(item: C): Promise<AxiosResponse<T>> {
-        return await api.post(this.endpoint, item);
+    async create(item: C, etag?: string): Promise<AxiosResponse<T>> {
+        const config = etag ? {
+            headers: {
+                'If-Match': etag
+            }
+        } : {};
+
+        return await api.post(this.endpoint, item, config);
     }
 
     async update(id: string, item: E, etag?: string): Promise<AxiosResponse<T>> {
