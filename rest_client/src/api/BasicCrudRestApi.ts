@@ -21,8 +21,14 @@ export class CrudApi<T extends BaseType, C, E> {
         return await api.post(this.endpoint, item);
     }
 
-    async update(id: string, item: E): Promise<AxiosResponse<T>> {
-        return await api.put(`${this.endpoint}/${id}`, item);
+    async update(id: string, item: E, etag?: string): Promise<AxiosResponse<T>> {
+        const config = etag ? {
+            headers: {
+                'ETag': etag
+            }
+        } : {};
+
+        return await api.put(`${this.endpoint}/${id}`, item, config);
     }
 
     async delete(id: string): Promise<void> {

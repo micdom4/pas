@@ -95,6 +95,17 @@ api.interceptors.response.use(
     }
 );
 
+export const secureApiInstance = axios.create({
+    baseURL: API_URL,
+    timeout: TIMEOUT_IN_MS,
+    headers: DEFAULT_HEADERS,
+})
+
+secureApiInstance.interceptors.request.use(
+    (config) => {
+        return authorizationRequestInterceptor(config)
+    }
+)
 
 
 export const loginApiInstance = axios.create({

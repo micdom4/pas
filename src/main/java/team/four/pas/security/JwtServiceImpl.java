@@ -60,11 +60,14 @@ public class JwtServiceImpl implements JwtService {
     public boolean verifyIntegrity(String token, String expectedId) {
         try {
             String idFromToken = extractUsername(token);
+            System.out.println("Ekstrakt z id: " + idFromToken);
             boolean returnVal = idFromToken.equals(expectedId) && !isTokenExpired(token) && !blacklist.contains(token);
             blacklist.add(token);
+            System.out.println("Werdykt: " + returnVal);
 
             return returnVal;
         } catch (Exception e) {
+            System.out.println("Coś nie pykło: " + e.getMessage());
             return false;
         }
     }

@@ -27,6 +27,8 @@ public class OwnershipService {
 
     public boolean isValidJws(String clientId, String jws) {
         if (jws == null || jws.isBlank()) return false;
+
+        System.out.println("Sprawdzamy klienta: " + clientId + " jws: " + jws);
         return authService.verifyIntegrity(jws,  clientId);
     }
 

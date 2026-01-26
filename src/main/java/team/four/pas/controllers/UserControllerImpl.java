@@ -77,11 +77,11 @@ public class UserControllerImpl {
     @PutMapping("/{id}/activate")
     @PreAuthorize("hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN, " +
             "T(team.four.pas.security.SecurityRoles).MANAGER) " +
-            "&& @ownershipChecker.isValidJws(#jws, #id)")
+            "&& @ownershipChecker.isValidJws(#id, #jws)")
     public ResponseEntity<Void> activateUser(
             @PathVariable String id,
-            @RequestHeader(value = "ETag") String jws) {
-
+            @RequestHeader(value = "If-Match") String jws) {
+        System.out.println("Git");
         userService.activate(id);
         return ResponseEntity.ok().build();
     }
@@ -89,9 +89,9 @@ public class UserControllerImpl {
     @PutMapping({"/{id}/deactivate"})
     @PreAuthorize("hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN, " +
             "T(team.four.pas.security.SecurityRoles).MANAGER) " +
-            "&& @ownershipChecker.isValidJws(#jws, #id)")
+            "&& @ownershipChecker.isValidJws(#id, #jws)")
     public ResponseEntity<?> deactivateUser(@PathVariable String id,
-                                            @RequestHeader(value = "ETag") String jws) {
+                                            @RequestHeader(value = "If-Match") String jws) {
         userService.deactivate(id);
 
         return ResponseEntity

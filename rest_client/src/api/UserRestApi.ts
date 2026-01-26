@@ -68,8 +68,8 @@ export const userApi = {
             })
     },
 
-    edit: async (id: string, newData: EditUserType):Promise<AxiosResponse<UserType>> => {
-        return await userCrud.update(id, newData)
+    edit: async (id: string, newData: EditUserType, etag?: string): Promise<AxiosResponse<UserType>> => {
+        return await userCrud.update(id, newData, etag)
             .catch((error) => {
                 if (axios.isAxiosError(error) && error.response) {
                     if (error.response.status === 404) {
@@ -84,8 +84,14 @@ export const userApi = {
             })
     },
 
-    deactivate: async (id: string) => {
-        return await api.put(`${user_api}/${id}/deactivate`)
+    deactivate: async (id: string, etag?: string) => {
+        const config = etag ? {
+            headers: {
+                'If-Match': etag
+            }
+        } : {};
+
+        return await api.put(`${user_api}/${id}/deactivate`, null, config)
             .catch((error) => {
                 if (axios.isAxiosError(error) && error.response) {
                     if (error.response.status === 404) {
@@ -100,8 +106,14 @@ export const userApi = {
             })
     },
 
-    activate: async (id: string) => {
-        return await api.put(`${user_api}/${id}/activate`)
+    activate: async (id: string, etag?: string) => {
+        const config = etag ? {
+            headers: {
+                'If-Match': etag
+            }
+        } : {};
+
+        return await api.put(`${user_api}/${id}/activate`, null, config)
             .catch((error) => {
                 if (axios.isAxiosError(error) && error.response) {
                     if (error.response.status === 404) {
@@ -115,4 +127,10 @@ export const userApi = {
                 throw error;
             })
     },
+
+    prepareForChange: async (id: string): Promise<string> => {
+        const response = await api.get(`auth/change/${id}`)
+
+        return response.headers['etag']
+    }
 }

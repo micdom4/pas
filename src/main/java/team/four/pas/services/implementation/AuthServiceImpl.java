@@ -82,7 +82,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public boolean verifyIntegrity(String IntegrityToken, String expectedId) {
-        return jwtService.verifyIntegrity(IntegrityToken, expectedId);
+        System.out.println("Weryfikujemy...");
+        return jwtService.verifyIntegrity(IntegrityToken.replace('"', ' ').strip(), expectedId);
     }
 
     @Override

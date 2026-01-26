@@ -12,6 +12,7 @@ import LoggedUserContext from "../../contexts/LoggedUserContext";
 import {ChangePasswordModal} from "../../components/modals/ChangePasswordModal.tsx";
 import {emptyUser} from "../../contexts/LoggedUserContext/types.ts";
 import useModal from "../../components/modals/useModal.tsx";
+import {EditUserModal} from "../../components/modals/EditUserModal.tsx";
 
 export default function DetailedUser() {
     const {login} = useParams<{ login: string }>();
@@ -20,6 +21,7 @@ export default function DetailedUser() {
     const {user, setUser} = use(LoggedUserContext)
 
     const [showPasswordModal, setShowPasswordModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
 
     const [detailedUser, setDetailedUser] = useState<UserType>();
     const [loading, setLoading] = useState(true);
@@ -165,11 +167,16 @@ export default function DetailedUser() {
                                     <strong>Role:</strong> {detailedUser.type}
                                 </ListGroup.Item>
                             </ListGroup>
-                            {user.login == detailedUser.login &&
+                            {user.login == detailedUser.login && <>
                                 <Button variant={'link'}
                                         onClick={() => setShowPasswordModal(true)}>
                                     Change Password
-                                </Button>}
+                                </Button>
+                                <Button variant={'link'}
+                                        onClick={() => setShowEditModal(true)}>
+                                    Change Surname
+                                </Button>
+                            </>}
                         </div>
                     </div>
                     <Row>
@@ -192,6 +199,12 @@ export default function DetailedUser() {
                 handleClose={() => setShowPasswordModal(false)}
                 user={user}
                 onSuccess={handleSuccess}
+            />
+            <EditUserModal
+                show={showEditModal}
+                handleClose={() => setShowEditModal(false)}
+                user={detailedUser}
+                onSuccess={loadData}
             />
         </div>
     );

@@ -12,7 +12,7 @@ import {userApi} from "../../api/UserRestApi.ts";
 import type {UserType} from "../../model/UserTypes.ts";
 
 const AllocationSchema = Yup.object().shape({
-    login: Yup.string().required(),
+    login: Yup.string(),
     vmId: Yup.string()
         .required('You must choose a resource'),
 });
@@ -54,7 +54,7 @@ export default function CreateAllocation() {
     return (
         <Formik
             initialValues={{
-                login: user.login,
+                login: '',
                 vmId: '',
             }}
             validationSchema={AllocationSchema}
@@ -69,6 +69,7 @@ export default function CreateAllocation() {
                         if (!client) {
                             setClient(clients.find((c) => c.login == values.login))
                         }
+                        console.log(values.login, " to ", client)
 
                         const payload = {
                             clientId: client?.id || '',
@@ -91,39 +92,52 @@ export default function CreateAllocation() {
             }}
         >
             {({
-                  values, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting
+                  values,
+                  errors,
+                  touched,
+                  handleChange,
+                  handleBlur,
+                  handleSubmit,
+                  isSubmitting
               }) => (
                 <Form noValidate onSubmit={handleSubmit} className="p-4 border rounded shadow-sm bg-white">
                     <h4 className="mb-3">New Allocation</h4>
 
                     {isPending ? (
-                        <p className="text-muted">Loading lists...</p>
+                        <p className="text-muted">Loading list...</p>
                     ) : (
                         <>
                             <Row>
                                 <Col md={6}>
                                     <Form.Group className="mb-3" controlId="formClient">
                                         <Form.Label>Client</Form.Label>
-                                        <Form.Select
-                                            name="login"
-                                            onChange={handleChange}
-                                            onBlur={handleBlur}
-                                            isInvalid={!!errors.login}
-                                            disabled={user.isClient()}
-                                        >
-                                            {user.isClient() ? <option value={user.login || 'a'}>{user.login}</option> :
-                                                <option value="">-- Choose Client --</option>}
-                                            {(user.isAdmin() || user.isManager()) &&
-                                                clients.filter(u => u.type.toString() === "CLIENT" && u.active)
+                                        {(user.isAdmin() || user.isManager()) && <>
+                                            <Form.Select
+                                                name="login"
+                                                onChange={handleChange}
+                                                onBlur={handleBlur}
+                                                isInvalid={touched.login && !!errors.login}
+                                                required
+                                            >
+                                                <option value="">-- Choose Client --</option>
+                                                {clients.filter(u => u.type.toString() === "CLIENT" && u.active)
                                                     .map((client) => (
                                                         <option key={client.id} value={client.login}>
                                                             {client.name} {client.surname} ({client.login})
                                                         </option>
                                                     ))}
+                                            </Form.Select>
+                                            <Form.Control.Feedback type="invalid">
+                                                {errors.login}
+                                            </Form.Control.Feedback>
+                                        </>}
+                                        {user.isClient() && <Form.Select
+                                            name="login"
+                                            disabled
+                                        >
+                                            <option value={user.login || 'ass'}>{user.login}</option>
                                         </Form.Select>
-                                        <Form.Control.Feedback type="invalid">
-                                            {errors.login}
-                                        </Form.Control.Feedback>
+                                        }
                                     </Form.Group>
                                 </Col>
 

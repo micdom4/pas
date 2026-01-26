@@ -4,7 +4,6 @@ import {userApi} from "../../api/UserRestApi.ts";
 import {type Column, GenericTable} from "../../components/GenericTable.tsx";
 import {Badge, Button, ButtonGroup, CloseButton, Col, Dropdown, Form, InputGroup, Row} from "react-bootstrap";
 import useToast from "../../components/toasts/useToast.tsx";
-import {EditUserModal} from "../../components/modals/EditUserModal.tsx";
 import {useNavigate} from "react-router-dom";
 import {Paths} from "../../routes/paths.ts";
 
@@ -15,18 +14,6 @@ export default function ListUsers() {
     const {addToast} = useToast()
 
     const navigate = useNavigate()
-
-    const [editingUser, setEditingUser] = useState<UserType | null>(null);
-    const [showEditModal, setShowEditModal] = useState(false);
-
-    const handleEdit = (user: UserType) => {
-        setEditingUser(user);
-        setShowEditModal(true);
-    };
-
-    const handleEditSuccess = () => {
-        loadUsers();
-    };
 
     const columns: Column<UserType>[] = useMemo(() => [
         {header: 'Login', render: (u) =>
@@ -52,23 +39,29 @@ export default function ListUsers() {
                     <Dropdown.Toggle split variant="primary" id="dropdown-split-basic"/>
 
                     <Dropdown.Menu>
-                        <Dropdown.Item onClick={() => {
-                            userApi.activate(u.id).then(() =>
+                        <Dropdown.Item onClick={async () => {
+                            const etag = await userApi.prepareForChange(u.id)
+
+                            console.log("Received ETag: ", etag)
+
+                            userApi.activate(u.id, etag).then(() =>
                                 addToast('Success!', `User with login "${u.login}" has been activated`, 'success')
                             )
                         }}>Activate</Dropdown.Item>
-                        <Dropdown.Item onClick={() => {
-                            userApi.deactivate(u.id).then(() =>
+                        <Dropdown.Item onClick={async () => {
+                            const etag = await userApi.prepareForChange(u.id)
+
+                            console.log("Received ETag: ", etag)
+
+                            userApi.deactivate(u.id, etag).then(() =>
                                 addToast('Success!', `User with login "${u.login}" has been deactivated`, 'success')
                             )
                         }}>Deactivate</Dropdown.Item>
-                        <Dropdown.Divider/>
-                        <Dropdown.Item onClick={() => handleEdit(u)}>Edit</Dropdown.Item>
                     </Dropdown.Menu>
                 </Dropdown>
             )
         }
-    ], []);
+    ], [navigate, addToast]);
 
     const loadUsers = () => {
         {
@@ -114,13 +107,6 @@ export default function ListUsers() {
                 </Col>
             </Row>
             {isPending ? <p>Fetching data...</p> : <GenericTable data={users} columns={columns}></GenericTable>}
-
-            <EditUserModal
-                show={showEditModal}
-                handleClose={() => setShowEditModal(false)}
-                user={editingUser}
-                onSuccess={handleEditSuccess}
-            />
         </div>
     </>
 }
