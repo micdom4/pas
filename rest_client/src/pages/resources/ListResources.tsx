@@ -2,10 +2,12 @@ import type {ResourceType} from "../../model/ResourceTypes.ts";
 import {useEffect, useMemo, useState, useTransition} from "react";
 import {resourceApi} from "../../api/ResourceRestApi.ts";
 import {type Column, GenericTable} from "../../components/GenericTable.tsx";
+import useToast from "../../components/toasts/useToast.tsx";
 
 export default function ListResources() {
     const [resources, setResources] = useState<ResourceType[]>([])
     const [isPending, startTransition] = useTransition()
+    const {addToast} = useToast()
 
     const columns: Column<ResourceType>[] = useMemo(() => [
         {header: 'ID', render: (r) => <span className="text-secondary">#{r.id}</span>},
@@ -16,9 +18,13 @@ export default function ListResources() {
 
     const loadResources = () => {
         startTransition(() => {
-            resourceApi.getAll().then((response) => {
-                setResources(response.data);
-            })
+            resourceApi.getAll()
+                .then((response) => {
+                    setResources(response.data);
+                })
+                .catch((error) => {
+                    addToast('Fetch error', `Error while fetching resources: ${error}`, 'danger')
+                })
         })
     }
 
