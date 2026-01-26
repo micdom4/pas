@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.DockerComposeContainer;
@@ -82,7 +83,10 @@ class SecurityConfigTest {
 
     @BeforeEach
     void beforeEach() {
+        RestAssured.reset();
         RestAssured.port = port;
+
+        SecurityContextHolder.clearContext();
 
         this.database = mongoClient.getDatabase("pas");
         try {
@@ -312,6 +316,7 @@ class SecurityConfigTest {
                 .when()
                 .post("/auth/reset")
                 .then()
+                .log().everything()
                 .statusCode(HttpStatus.OK.value());
 
         UserLoginDTO incorrectLoginDTO = new UserLoginDTO(adminOk.getLogin(), adminOk.getPassword());
