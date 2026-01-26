@@ -30,6 +30,7 @@ const authorizationRequestInterceptor = (config: InternalAxiosRequestConfig) => 
 }
 
 const errorMessages = {
+    sessionExpired: "Current session expired. Please log in again.",
     authError: "Access Denied!",
     serverError: "Internal Server Error!!!",
     unknownError: "Unknown Error"
@@ -49,6 +50,7 @@ api.interceptors.response.use(
         const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
         console.log("Received error:", error, " with code: ", error.response?.status)
+
         if (error.response?.status === 403 && !originalRequest._retry) {
             originalRequest._retry = true;
 
@@ -80,6 +82,12 @@ api.interceptors.response.use(
                 setTimeout(() => window.location.href = '/login', 1000);
                 throw new Error(errorMessages.authError);
             }
+        }
+
+        if (error.response?.status === 401) {
+            sessionStorage.clear();
+            setTimeout(() => window.location.href = '/login', 1000);
+            throw new Error(errorMessages.sessionExpired);
         }
 
         if (!error.response) {
