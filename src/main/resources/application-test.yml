@@ -1,0 +1,5 @@
+logging:
+  level:
+    org.testcontainers: WARN
+    com.github.dockerjava: WARN
+    tc.testcontainers: WARN
