@@ -4,16 +4,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import team.four.pas.exceptions.user.*;
 import team.four.pas.repositories.UserRepository;
+import team.four.pas.services.NotificationService;
 import team.four.pas.services.UserService;
 import team.four.pas.services.data.users.User;
 
 import java.util.List;
-import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     @Override
     public List<User> getAll() {
@@ -37,15 +38,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User add(User user) throws UserDataException, UserTypeException, UserAlreadyExistsException, UserLoginException {
-//        return switch (user.getClass()) {
-//            case Client.class ->
-//                    userRepository.add(user.getlogin(), user.getname(), user.getsurname(), Client.class);
-//            case MANAGER ->
-//                    userRepository.add(user.getlogin(), user.getname(), user.getsurname(), Manager.class);
-//            case ADMIN ->
-//                    userRepository.add(user.getlogin(), user.getname(), user.getsurname(), Admin.class);
-//        };
-
         return userRepository.add(user.getLogin(), user.getPassword(), user.getName(), user.getSurname(), user.getClass());
     }
 
@@ -57,10 +49,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public void activate(String id) throws UserNotFoundException, UserIdException {
         userRepository.activate(id);
+        notificationService.sendNotification(id, "USER_ACTIVATED", "User with ID: " + id + " has been activated");
     }
 
     @Override
     public void deactivate(String id) throws UserNotFoundException, UserIdException {
         userRepository.deactivate(id);
+        notificationService.sendNotification(id, "USER_DEACTIVATED","User with ID: " + id + " has been deactivated");
     }
 }

@@ -1,11 +1,13 @@
 import {Container, Nav, Navbar, NavDropdown} from "react-bootstrap";
 import {Paths} from "../../routes/paths.ts";
-import {type ReactNode, use} from "react";
+import {type ReactNode, use, useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import LoggedUserContext from "../../contexts/LoggedUserContext";
 import {emptyUser} from "../../contexts/LoggedUserContext/types.ts";
 import {loginApi} from "../../api/LoginApi.ts";
 import useToast from "../toasts/useToast.tsx";
+import {userApi} from "../../api/UserRestApi.ts";
+import {NotificationListener} from "../NotificationListener.tsx";
 
 interface LayoutProps {
     children: ReactNode
@@ -14,6 +16,7 @@ interface LayoutProps {
 export default function DefaultLayout({children}: LayoutProps) {
     const navigate = useNavigate()
     const {user, setUser} = use(LoggedUserContext)
+    const [userId, setUserId] = useState('')
     const {addToast} = useToast()
 
     async function logOut() {
@@ -27,8 +30,24 @@ export default function DefaultLayout({children}: LayoutProps) {
             .finally(() => setUser(emptyUser))
     }
 
+    async function fetchId() {
+        if (user.isAuthenticated() && user.login) {
+            await userApi.getByLogin(user.login)
+                .then((r) => setUserId(r.data.id))
+                .catch((e) =>
+                    addToast('Fetch error',
+                        `Error with userId for user: ${user.login}. Error: ${e}`,
+                        'danger'))
+        }
+    }
+
+    useEffect(() => {
+        fetchId()
+    })
+
     return (
         <div>
+            {user.isAuthenticated() && userId && <NotificationListener token={user.token} userId={userId}/>}
             <Navbar bg={"primary"} fixed={"top"} expand="lg" data-bs-theme={"dark"}>
                 <Container>
                     <Navbar.Brand onClick={() => navigate(Paths.default.home)}>polVirt</Navbar.Brand>

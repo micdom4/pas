@@ -11,6 +11,7 @@ import team.four.pas.exceptions.user.UserNotFoundException;
 import team.four.pas.exceptions.user.UserTypeException;
 import team.four.pas.repositories.AllocationRepository;
 import team.four.pas.services.AllocationService;
+import team.four.pas.services.NotificationService;
 import team.four.pas.services.ResourceService;
 import team.four.pas.services.UserService;
 import team.four.pas.services.data.allocations.VMAllocation;
@@ -27,6 +28,7 @@ public class AllocationServiceImpl implements AllocationService {
     private final AllocationRepository allocationRepository;
     private final UserService userService;
     private final ResourceService resourceService;
+    private final NotificationService notificationService;
 
     @Override
     public List<VMAllocation> getAll() {
@@ -95,6 +97,9 @@ public class AllocationServiceImpl implements AllocationService {
     @Override
     public void finishAllocation(String id) throws AllocationIdException, AllocationNotFoundException {
         allocationRepository.finishAllocation(id);
+        String userId = findById(id).getClient().getId();
+        String vmId = findById(id).getVm().getId();
+        notificationService.sendNotification(userId, "Your allocation for resource #" + vmId + " has been finished");
     }
 
     @Override
