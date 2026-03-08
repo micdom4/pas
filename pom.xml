@@ -41,6 +41,7 @@
         <lombok.version>1.18.32</lombok.version>
         <mapstruct.version>1.6.3</mapstruct.version>
         <assertj.version>3.26.0</assertj.version>
+        <jjwt.version>0.13.0</jjwt.version>
         <junit.version>5.14.3</junit.version>
 
         <maven-surefire.version>3.5.4</maven-surefire.version>
@@ -54,6 +55,13 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.mongodb</groupId>
+                <artifactId>mongodb-driver-bom</artifactId>
+                <version>5.6.4</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson</groupId>
                 <artifactId>jackson-bom</artifactId>
@@ -97,16 +105,23 @@
             <dependency>
                 <groupId>io.jsonwebtoken</groupId>
                 <artifactId>jjwt-api</artifactId>
-                <version>0.13.0</version>
+                <version>${jjwt.version}</version>
                 <scope>compile</scope>
             </dependency>
             <dependency>
-                <groupId>org.testcontainers</groupId>
-                <artifactId>junit-jupiter</artifactId>
-                <version>1.21.3</version>
-                <scope>test</scope>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-impl</artifactId>
+                <version>${jjwt.version}</version>
+                <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-jackson</artifactId>
+                <version>${jjwt.version}</version>
+                <scope>runtime</scope>
             </dependency>
         </dependencies>
+
     </dependencyManagement>
 
 

@@ -19,6 +19,8 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.mongodb.MongoDBContainer;
+import org.testcontainers.utility.DockerImageName;
 import team.four.pas.controllers.AuthController;
 import team.four.pas.controllers.DTOs.*;
 import team.four.pas.exceptions.resource.ResourceDataException;
@@ -45,9 +47,7 @@ import static org.hamcrest.Matchers.*;
 class SecurityConfigTest {
 
     @Container
-    public static DockerComposeContainer<?> compose =
-            new DockerComposeContainer<>(new File("src/test/resources/docker-compose.yml"))
-                    .withExposedService("mongo", 27017);
+    public static MongoDBContainer mongoDBContainer = new MongoDBContainer(DockerImageName.parse("mongo:7.0.0"));
 
     @LocalServerPort
     private int port;
@@ -75,10 +75,7 @@ class SecurityConfigTest {
 
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
-        String host = compose.getServiceHost("mongo", 27017);
-        Integer port = compose.getServicePort("mongo", 27017);
-        String dynamicUri = "mongodb://" + host + ":" + port + "/pas";
-        System.setProperty("pas.data.mongodb.uri", dynamicUri);
+        registry.add("pas.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
     }
 
     @BeforeEach
