@@ -1,22 +1,27 @@
 package team.four.pas.services.data.users;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.userdetails.UserDetails;
-import team.four.pas.services.data.resources.VirtualMachine;
 
-
-@Getter @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@ToString
+@Document(collection = "users")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @ToString
 public abstract class User implements UserDetails {
+
+    @Id
     private String id;
+
+    @Indexed
     private String login;
 
     @JsonIgnore
     private String password;
+
     private String name;
     private String surname;
     private boolean active;
@@ -50,9 +55,7 @@ public abstract class User implements UserDetails {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         User that = (User) o;
-
         return new EqualsBuilder().append(id, that.getId()).isEquals();
     }
 

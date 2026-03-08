@@ -13,7 +13,6 @@ import team.four.pas.services.ResourceService;
 
 import java.util.List;
 
-@RestController
 @CrossOrigin(
         originPatterns = {"http://localhost:[*]"}
 )

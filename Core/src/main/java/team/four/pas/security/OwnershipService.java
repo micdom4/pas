@@ -12,17 +12,18 @@ import team.four.pas.services.AuthService;
 @RequiredArgsConstructor
 public class OwnershipService {
     private final UserRepository userRepository;
-    private final AllocationRepository allocationRepository;
+    // private final AllocationRepository allocationRepository;
     private final AuthService authService;
 
     public boolean isOwner(Authentication authentication, String userId) {
         String currentUsername = authentication.getName();
-        return userRepository.findById(userId).getLogin().equals(currentUsername);
+        return userRepository.findById(userId).orElseThrow(() -> new RuntimeException("w")).equals(currentUsername);
     }
 
     public boolean isOwnerOfAllocation(Authentication authentication, String allocationId) {
         String currentUsername = authentication.getName();
-        return allocationRepository.findById(allocationId).getClient().getLogin().equals(currentUsername);
+        //return allocationRepository.findById(allocationId).getClient().getLogin().equals(currentUsername);
+        return true;
     }
 
     public boolean isValidJws(String clientId, String jws) {

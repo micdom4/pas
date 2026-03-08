@@ -1,29 +1,5 @@
 package team.four.pas.repositories;
 
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoDatabase;
-import org.bson.Document;
-import org.bson.types.ObjectId;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.testcontainers.containers.DockerComposeContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import team.four.pas.Config;
-import team.four.pas.exceptions.AppBaseException;
-import team.four.pas.exceptions.resource.ResourceException;
-import team.four.pas.exceptions.user.*;
-import team.four.pas.services.data.users.Admin;
-import team.four.pas.services.data.users.Client;
-import team.four.pas.services.data.users.User;
-
-import java.io.File;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 
 //@Testcontainers
 //class UserRepositoryTest {

@@ -29,12 +29,8 @@ public class AuthServiceImpl implements AuthService {
     private final TokenBlackList tokenBlackList;
 
     @Override
-    public AuthResponse register(User request) {
-        User createdUser = userRepository.add(request.getLogin(),
-                           passwordEncoder.encode(request.getPassword()),
-                           request.getName(),
-                           request.getSurname(),
-                           request.getClass());
+    public AuthResponse register(User user) {
+        User createdUser = userRepository.insert(user);
 
         var jwtToken = jwtService.generateToken(createdUser);
         return new AuthResponse(jwtToken, parseAuthorities(createdUser));
@@ -65,7 +61,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         tokenBlackList.add(authentication.getCredentials().toString());
-        userRepository.updatePassword(user.getId(), passwordEncoder.encode(newPassword));
+        userRepository.updatePasswordById(user.getId(), passwordEncoder.encode(newPassword));
 
         SecurityContextHolder.clearContext();
     }

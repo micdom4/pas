@@ -1,26 +1,27 @@
 package team.four.pas.repositories;
 
-import team.four.pas.exceptions.user.*;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
+import org.springframework.data.mongodb.repository.Update;
 import team.four.pas.services.data.users.User;
 
 import java.util.List;
 
-public interface UserRepository  extends Repository<User> {
+public interface UserRepository extends MongoRepository<User, String> {
 
-    @Override
-    User findById(String id) throws UserNotFoundException, UserIdException;
+    User findByLogin(String login);
 
-    User findByLogin(String login) throws UserLoginException, UserNotFoundException;
+    @Query("{ '_id' : ?0 }")
+    @Update("{ '$set' : { 'password' : ?1 } }")
+    void updatePasswordById(String id, String newEncodedPassword);
 
-    List<User> findByMatchingLogin(String loginStart);
+    List<User> findByLoginStartingWith(String login);
 
-    <T extends User> User add(String login, String password, String name, String surname, Class<T> userClass) throws UserTypeException, UserLoginException, UserAlreadyExistsException;
+    @Query("{ '_id' : ?0 }")
+    @Update("{ '$set' : { 'surname' : ?1 } }")
+    void updateSurnameById(String id, String surname);
 
-    User update(String id, String Surname) throws UserNotFoundException, UserIdException;
-
-    User updatePassword(String id, String encodedPassword) throws UserNotFoundException, UserIdException;
-
-    void activate(String id) throws UserNotFoundException, UserIdException;
-
-    void deactivate(String id) throws UserNotFoundException, UserIdException;
+    @Query("{ '_id' : ?0 }")
+    @Update("{ '$set' : { 'active' : ?1 } }")
+    void updateActiveById(String id, boolean active);
 }

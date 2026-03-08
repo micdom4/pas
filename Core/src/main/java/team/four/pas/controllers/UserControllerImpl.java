@@ -120,9 +120,8 @@ public class UserControllerImpl {
             "T(team.four.pas.security.SecurityRoles).CLIENT) && @ownershipChecker.isOwner(authentication, #id))"
     )
     public ResponseEntity<?> editUser(@PathVariable String id, @Valid @RequestBody UserModDTO modDTO) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(userService.update(id, modDTO.surname()));
+        userService.update(id, modDTO.surname());
+        return ResponseEntity.ok().build();
     }
 
 

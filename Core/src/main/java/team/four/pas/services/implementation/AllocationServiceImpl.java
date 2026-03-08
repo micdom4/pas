@@ -21,7 +21,6 @@ import team.four.pas.services.data.users.User;
 import java.time.Instant;
 import java.util.List;
 
-@Service
 @RequiredArgsConstructor
 public class AllocationServiceImpl implements AllocationService {
     private final AllocationRepository allocationRepository;

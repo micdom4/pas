@@ -8,7 +8,6 @@ import team.four.pas.services.UserService;
 import team.four.pas.services.data.users.User;
 
 import java.util.List;
-import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -17,12 +16,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> getAll() {
-        return userRepository.getAll();
+        return userRepository.findAll();
     }
 
     @Override
     public User findById(String id) throws UserNotFoundException, UserIdException {
-        return userRepository.findById(id);
+        return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("not found"));
     }
 
     @Override
@@ -32,7 +31,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> findByMatchingLogin(String login) {
-        return userRepository.findByMatchingLogin(login);
+        return userRepository.findByLoginStartingWith(login);
     }
 
     @Override
@@ -46,21 +45,21 @@ public class UserServiceImpl implements UserService {
 //                    userRepository.add(user.getlogin(), user.getname(), user.getsurname(), Admin.class);
 //        };
 
-        return userRepository.add(user.getLogin(), user.getPassword(), user.getName(), user.getSurname(), user.getClass());
+        return userRepository.insert(user);
     }
 
     @Override
-    public User update(String id, String surname) throws UserDataException, UserNotFoundException, UserIdException {
-        return userRepository.update(id, surname);
+    public void update(String id, String surname) throws UserDataException, UserNotFoundException, UserIdException {
+        userRepository.updateSurnameById(id, surname);
     }
 
     @Override
     public void activate(String id) throws UserNotFoundException, UserIdException {
-        userRepository.activate(id);
+        userRepository.updateActiveById(id, true);
     }
 
     @Override
     public void deactivate(String id) throws UserNotFoundException, UserIdException {
-        userRepository.deactivate(id);
+        userRepository.updateActiveById(id, false);
     }
 }

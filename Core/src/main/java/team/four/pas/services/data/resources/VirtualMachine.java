@@ -1,13 +1,18 @@
 package team.four.pas.services.data.resources;
+
 import lombok.*;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Getter @Setter @NoArgsConstructor
-@AllArgsConstructor
-@ToString
+@Document(collection = "virtual_machines")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @ToString
 public class VirtualMachine {
+
+    @Id
     private String id;
+
     private int cpuNumber;
     private int ramGiB;
     private int storageGiB;
@@ -16,9 +21,7 @@ public class VirtualMachine {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         VirtualMachine that = (VirtualMachine) o;
-
         return new EqualsBuilder().append(id, that.getId()).isEquals();
     }
 

@@ -18,7 +18,7 @@ public interface UserService {
 
     User add(User user) throws UserDataException, UserTypeException, UserAlreadyExistsException, UserLoginException;
 
-    User update(String id, String surname) throws UserDataException, UserNotFoundException, UserIdException;
+    void update(String id, String surname) throws UserDataException, UserNotFoundException, UserIdException;
 
     void activate(String id) throws UserNotFoundException, UserIdException;
 
