@@ -4,15 +4,19 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import team.four.pas.repositories.AllocationRepository;
 import team.four.pas.repositories.UserRepository;
 import team.four.pas.services.AuthService;
+import team.four.pas.services.data.allocations.VMAllocation;
+
+import java.util.NoSuchElementException;
 
 @Component("ownershipChecker")
 @RequiredArgsConstructor
 public class OwnershipService {
     private final UserRepository userRepository;
-    // private final AllocationRepository allocationRepository;
+     private final AllocationRepository allocationRepository;
     private final AuthService authService;
 
     public boolean isOwner(Authentication authentication, String userId) {
@@ -22,8 +26,7 @@ public class OwnershipService {
 
     public boolean isOwnerOfAllocation(Authentication authentication, String allocationId) {
         String currentUsername = authentication.getName();
-        //return allocationRepository.findById(allocationId).getClient().getLogin().equals(currentUsername);
-        return true;
+        return allocationRepository.findById(allocationId).orElseThrow(NoSuchElementException::new).getClient().getLogin().equals(currentUsername);
     }
 
     public boolean isValidJws(String clientId, String jws) {
