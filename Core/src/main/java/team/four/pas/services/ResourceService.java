@@ -15,7 +15,7 @@ public interface ResourceService {
 
     VirtualMachine addVM(VirtualMachine vm) throws ResourceDataException;
 
-    VirtualMachine updateVM(String id, int cpuNumber, int ramGiB, int storageGiB) throws ResourceIdException, ResourceNotFoundException, ResourceDataException;
+    void updateVM(String id, int cpuNumber, int ramGiB, int storageGiB) throws ResourceIdException, ResourceNotFoundException, ResourceDataException;
 
     void deleteVM(String id) throws ResourceIdException, ResourceNotFoundException, ResourceStillAllocatedException;
 }

@@ -8,7 +8,7 @@ import team.four.pas.services.data.resources.VirtualMachine;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface ResourceToDTO {
 
     ResourceDTO dtoFromVM(VirtualMachine vm);

@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import team.four.pas.controllers.DTOs.ResourceAddDTO;
 import team.four.pas.controllers.DTOs.ResourceDTO;
@@ -13,6 +14,7 @@ import team.four.pas.services.ResourceService;
 
 import java.util.List;
 
+@RestController
 @CrossOrigin(
         originPatterns = {"http://localhost:[*]"}
 )
@@ -65,9 +67,8 @@ public class ResourceControllerImpl {
     @PreAuthorize("hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN, " +
                   "T(team.four.pas.security.SecurityRoles).MANAGER)")
     public ResponseEntity<ResourceDTO> updateVM(@PathVariable String id, @Valid @RequestBody ResourceAddDTO vmDto) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(resourceToDTO.toDTO(resourceService.updateVM(id, vmDto.cpuNumber(), vmDto.ramGiB(), vmDto.storageGiB())));
+        resourceService.updateVM(id, vmDto.cpuNumber(), vmDto.ramGiB(), vmDto.storageGiB());
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping(
