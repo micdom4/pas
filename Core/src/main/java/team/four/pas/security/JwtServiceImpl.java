@@ -14,6 +14,7 @@ import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 
 @Service
@@ -31,17 +32,19 @@ public class JwtServiceImpl implements JwtService {
     public String generateToken(Map<String, Object> extraClaims,
                                 UserDetails userDetails) {
         return Jwts.builder()
-                   .setClaims(extraClaims)
-                   .subject(userDetails.getUsername())
-                   .setIssuedAt(new Date(System.currentTimeMillis()))
-                   .setExpiration(new Date(System.currentTimeMillis() + timeout))
-                   .signWith(getSignInKey(), SignatureAlgorithm.HS256)
-                   .compact();
+                .setClaims(extraClaims)
+                .subject(userDetails.getUsername())
+                .setId(UUID.randomUUID().toString())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + timeout))
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .compact();
     }
 
     public String generateIntegrityToken(String objectId) {
         return Jwts.builder()
                 .setSubject(objectId)
+                .setId(UUID.randomUUID().toString())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 600000))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
@@ -51,6 +54,7 @@ public class JwtServiceImpl implements JwtService {
     public String generateIntegrityToken(String objectId, String vmId) {
         return Jwts.builder()
                 .setSubject(objectId + ":" + vmId)
+                .setId(UUID.randomUUID().toString())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 600000))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
@@ -92,20 +96,20 @@ public class JwtServiceImpl implements JwtService {
 
     public String generateToken(UserDetails userDetails) {
         return generateToken(new HashMap<>(), userDetails);
-   }
+    }
 
-   public boolean isTokenValid(String token, UserDetails userDetails) {
+    public boolean isTokenValid(String token, UserDetails userDetails) {
         final String UserName = extractUsername(token);
         return userDetails.getUsername().equals(UserName) && !isTokenExpired(token) && !blacklist.contains(token);
-   }
+    }
 
-   public boolean isTokenExpired(String token) {
+    public boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
-   }
+    }
 
-   public Date extractExpiration(String token) {
+    public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
-   }
+    }
 
 
     public String extractUsername(String token) {
@@ -120,10 +124,10 @@ public class JwtServiceImpl implements JwtService {
 
     public Claims extractAllClaims(String token) {
         return Jwts.parser()
-                   .setSigningKey(getSignInKey())
-                   .build()
-                   .parseClaimsJws(token)
-                   .getBody();
+                .setSigningKey(getSignInKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 
     public Key getSignInKey() {

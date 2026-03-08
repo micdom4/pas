@@ -22,12 +22,15 @@ import org.testcontainers.mongodb.MongoDBContainer;
 import org.testcontainers.utility.DockerImageName;
 import team.four.pas.controllers.AuthController;
 import team.four.pas.controllers.DTOs.*;
+import team.four.pas.repositories.AllocationRepository;
+import team.four.pas.repositories.ResourceRepository;
 import team.four.pas.repositories.UserRepository;
 import team.four.pas.services.ResourceService;
 import team.four.pas.services.data.resources.VirtualMachine;
 import team.four.pas.services.data.users.Admin;
 import team.four.pas.services.data.users.Client;
 import team.four.pas.services.data.users.Manager;
+import team.four.pas.services.data.users.User;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -43,19 +46,21 @@ class SecurityConfigTest {
     @LocalServerPort
     private int port;
 
-    private final static Client clientOk = new Client(null, "MCorleone", "abc123","Michael", "Corleone", true);
-    private final static Manager managerOk = new Manager(null, "MSmolinski", "abc123","Michael", "Corleone", true);
-    private final static Admin adminOk = new Admin(null, "BLis", "abc123","Michael", "Corleone", true);
+    private final static Client clientOk = new Client(null, "MCorleone", "abc123", "Michael", "Corleone", true);
+    private final static Manager managerOk = new Manager(null, "MSmolinski", "abc123", "Matthew", "Smolinski", true);
+    private final static Admin adminOk = new Admin(null, "BLis", "abc123", "Bart", "Fox", true);
 
     @Autowired
     private ResourceService resourceService;
 
     @Autowired
-    private MongoClient mongoClient;
-
-    private MongoDatabase database;
-    @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private ResourceRepository resourceRepository;
+
+    @Autowired
+    private AllocationRepository allocationRepository;
 
     @Autowired
     private AuthController authController;
@@ -69,22 +74,45 @@ class SecurityConfigTest {
     void beforeEach() {
         RestAssured.reset();
         RestAssured.port = port;
-
-        SecurityContextHolder.clearContext();
-
-        this.database = mongoClient.getDatabase("pas");
     }
 
     @AfterEach
     void afterEach() {
-        database.getCollection("users").deleteMany(new Document());
-        database.getCollection("virtualMachines").deleteMany(new Document());
-        database.getCollection("vmAllocations").deleteMany(new Document());
+        userRepository.deleteAll();
+        resourceRepository.deleteAll();
+        allocationRepository.deleteAll();
+
+        SecurityContextHolder.clearContext();
+    }
+
+    private void registerUser(UserAddDTO userAddDTO) {
+        RestAssured.given()
+                .contentType(ContentType.JSON)
+                .body(userAddDTO)
+                .when()
+                .post("/auth/register")
+                .then()
+                .statusCode(HttpStatus.CREATED.value());
+    }
+
+    private Header loginUser(User user) {
+        UserLoginDTO loginDTO = new UserLoginDTO(user.getLogin(), user.getPassword());
+
+        String token = RestAssured.given()
+                .contentType(ContentType.JSON)
+                .body(loginDTO)
+                .when()
+                .post("/auth/login")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .path("token");
+
+        return new Header("Authorization", "Bearer " + token);
     }
 
     @Test
     void RejectWithoutCredentials() {
-
         RestAssured.given()
                 .log().parameters()
                 .when()
@@ -96,12 +124,9 @@ class SecurityConfigTest {
 
     @Test
     void AllowClientWithCredentials() {
-        authController.register(new UserAddDTO(clientOk.getLogin(), clientOk.getName(), clientOk.getPassword(), clientOk.getSurname(), UserType.CLIENT));
-        authController.register(new UserAddDTO(managerOk.getLogin(), managerOk.getName(), managerOk.getPassword(), managerOk.getSurname(), UserType.CLIENT));
+        registerUser(new UserAddDTO(clientOk.getLogin(), clientOk.getName(), clientOk.getPassword(), clientOk.getSurname(), UserType.CLIENT));
 
-        String jwt = authController.login(new UserLoginDTO(clientOk.getLogin(), clientOk.getPassword())).getBody().getToken();
-
-        Header auth = new Header("Authorization","Bearer " + jwt);
+        Header auth = loginUser(clientOk);
 
         resourceService.addVM(new VirtualMachine(null, 8, 16, 256));
         VirtualMachine virtualMachine = resourceService.getAll().getLast();
@@ -113,22 +138,21 @@ class SecurityConfigTest {
                 .contentType(ContentType.JSON)
                 .header(auth)
                 .body(requestBody)
+                .log().everything()
                 .when()
                 .post("/allocations")
                 .then()
-                .statusCode(HttpStatus.CREATED.value())
                 .log().body()
-                .body("client.login", equalTo("MCorleone"));
+                .statusCode(HttpStatus.CREATED.value())
+                .body("client.login", equalTo(clientOk.getLogin()));
     }
 
     @Test
     void ClientCantCreateAllocationForOtherUsers() {
-        authController.register(new UserAddDTO(clientOk.getLogin(), clientOk.getName(), clientOk.getPassword(), clientOk.getSurname(), UserType.CLIENT));
-        authController.register(new UserAddDTO(managerOk.getLogin(), managerOk.getName(), managerOk.getPassword(), managerOk.getSurname(), UserType.CLIENT));
+        registerUser(new UserAddDTO(clientOk.getLogin(), clientOk.getName(), clientOk.getPassword(), clientOk.getSurname(), UserType.CLIENT));
+        registerUser(new UserAddDTO(managerOk.getLogin(), managerOk.getName(), managerOk.getPassword(), managerOk.getSurname(), UserType.CLIENT));
 
-        String jwt = authController.login(new UserLoginDTO(clientOk.getLogin(), clientOk.getPassword())).getBody().getToken();
-
-        Header auth = new Header("Authorization","Bearer " + jwt);
+        Header auth = loginUser(clientOk);
 
         resourceService.addVM(new VirtualMachine(null, 8, 16, 256));
         VirtualMachine virtualMachine = resourceService.getAll().getLast();
@@ -148,25 +172,25 @@ class SecurityConfigTest {
 
     @Test
     void returnClaimsReturnsCorrectRoles() {
-        authController.register(new UserAddDTO(clientOk.getLogin(), clientOk.getName(), clientOk.getPassword(), clientOk.getSurname(), UserType.CLIENT));
-        authController.register(new UserAddDTO(managerOk.getLogin(), managerOk.getName(), managerOk.getPassword(), managerOk.getSurname(), UserType.MANAGER));
-        authController.register(new UserAddDTO(adminOk.getLogin(), adminOk.getName(), adminOk.getPassword(), adminOk.getSurname(), UserType.ADMIN));
+        registerUser(new UserAddDTO(clientOk.getLogin(), clientOk.getName(), clientOk.getPassword(), clientOk.getSurname(), UserType.CLIENT));
+        registerUser(new UserAddDTO(managerOk.getLogin(), managerOk.getName(), managerOk.getPassword(), managerOk.getSurname(), UserType.MANAGER));
+        registerUser(new UserAddDTO(adminOk.getLogin(), adminOk.getName(), adminOk.getPassword(), adminOk.getSurname(), UserType.ADMIN));
 
         AuthResponse auth0 = authController.login(new UserLoginDTO(clientOk.getLogin(), clientOk.getPassword())).getBody();
         AuthResponse auth1 = authController.login(new UserLoginDTO(managerOk.getLogin(), managerOk.getPassword())).getBody();
         AuthResponse auth2 = authController.login(new UserLoginDTO(adminOk.getLogin(), adminOk.getPassword())).getBody();
 
         assertThat(auth0.getRoles())
-                        .extracting(Object::toString)
-                        .contains(SecurityRoles.CLIENT);
+                .extracting(Object::toString)
+                .contains(SecurityRoles.CLIENT);
 
         assertThat(auth1.getRoles())
-                        .extracting(Object::toString)
-                        .contains(SecurityRoles.MANAGER);
+                .extracting(Object::toString)
+                .contains(SecurityRoles.MANAGER);
 
         assertThat(auth2.getRoles())
-                        .extracting(Object::toString)
-                        .contains(SecurityRoles.ADMIN);
+                .extracting(Object::toString)
+                .contains(SecurityRoles.ADMIN);
     }
 
     @Test
@@ -186,7 +210,7 @@ class SecurityConfigTest {
     @Test
     void LoginShouldReturnCorrectJwtAndRoles() {
         UserAddDTO newUser = new UserAddDTO(clientOk.getLogin(), clientOk.getName(), clientOk.getPassword(), clientOk.getSurname(), UserType.CLIENT);
-        authController.register(newUser);
+        registerUser(newUser);
 
         UserLoginDTO userLoginDTO = new UserLoginDTO(clientOk.getLogin(), clientOk.getPassword());
 
@@ -203,10 +227,9 @@ class SecurityConfigTest {
 
     @Test
     void LogoutShouldRevokeJwtToken() {
-        authController.register(new UserAddDTO(adminOk.getLogin(), adminOk.getName(), adminOk.getPassword(), adminOk.getSurname(), UserType.ADMIN));
-        AuthResponse response = authController.login(new UserLoginDTO(adminOk.getLogin(), adminOk.getPassword())).getBody();
+        registerUser(new UserAddDTO(adminOk.getLogin(), adminOk.getName(), adminOk.getPassword(), adminOk.getSurname(), UserType.ADMIN));
 
-        Header auth = new Header("Authorization","Bearer " + response.getToken());
+        Header auth = loginUser(adminOk);
 
         RestAssured.given()
                 .log().parameters()
@@ -236,22 +259,20 @@ class SecurityConfigTest {
     @Test
     void ChangingPasswordShouldntAllowUnregistered() {
         RestAssured.given()
-                   .log().parameters()
-                   .contentType(ContentType.JSON)
-                   .body(new ChangePasswordDTO("abc123", "Iceman"))
-                   .when()
-                   .post("/auth/reset")
-                   .then()
-                   .statusCode(HttpStatus.FORBIDDEN.value());
+                .log().parameters()
+                .contentType(ContentType.JSON)
+                .body(new ChangePasswordDTO("abc123", "Iceman"))
+                .when()
+                .post("/auth/reset")
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN.value());
     }
 
     @Test
     void ChangingPasswordShouldRevokeJwtToken() {
-        authController.register(new UserAddDTO(adminOk.getLogin(), adminOk.getName(), adminOk.getPassword(), adminOk.getSurname(), UserType.ADMIN));
-        System.out.println(userRepository.findAll());
-        AuthResponse response = authController.login(new UserLoginDTO(adminOk.getLogin(), adminOk.getPassword())).getBody();
+        registerUser(new UserAddDTO(adminOk.getLogin(), adminOk.getName(), adminOk.getPassword(), adminOk.getSurname(), UserType.ADMIN));
 
-        Header auth = new Header("Authorization","Bearer " + response.getToken());
+        Header auth = loginUser(adminOk);
 
         RestAssured.given()
                 .log().parameters()
@@ -284,16 +305,15 @@ class SecurityConfigTest {
 
     @Test
     void ChangingPasswordShouldFailWhenLoggingWithOld() {
-        authController.register(new UserAddDTO(adminOk.getLogin(), adminOk.getName(), adminOk.getPassword(), adminOk.getSurname(), UserType.ADMIN));
-        AuthResponse response = authController.login(new UserLoginDTO(adminOk.getLogin(), adminOk.getPassword())).getBody();
-        System.out.println(response);
-        Header auth = new Header("Authorization","Bearer " + response.getToken());
+        registerUser(new UserAddDTO(adminOk.getLogin(), adminOk.getName(), adminOk.getPassword(), adminOk.getSurname(), UserType.ADMIN));
+        Header auth = loginUser(adminOk);
 
         RestAssured.given()
                 .log().parameters()
                 .contentType(ContentType.JSON)
                 .header(auth)
                 .body(new ChangePasswordDTO(adminOk.getPassword(), "ICEMAN"))
+                .log().everything()
                 .when()
                 .post("/auth/reset")
                 .then()
@@ -323,10 +343,9 @@ class SecurityConfigTest {
 
     @Test
     void ChangingPasswordShouldWorkWhenLoggingWithNew() {
-        authController.register(new UserAddDTO(adminOk.getLogin(), adminOk.getName(), adminOk.getPassword(), adminOk.getSurname(), UserType.ADMIN));
-        AuthResponse response = authController.login(new UserLoginDTO(adminOk.getLogin(), adminOk.getPassword())).getBody();
+        registerUser(new UserAddDTO(adminOk.getLogin(), adminOk.getName(), adminOk.getPassword(), adminOk.getSurname(), UserType.ADMIN));
 
-        Header auth = new Header("Authorization","Bearer " + response.getToken());
+        Header auth = loginUser(adminOk);
 
         RestAssured.given()
                 .log().parameters()
@@ -349,8 +368,6 @@ class SecurityConfigTest {
                 .then()
                 .statusCode(HttpStatus.OK.value());
     }
-
-
 
 
 }

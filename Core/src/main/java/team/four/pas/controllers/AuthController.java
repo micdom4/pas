@@ -24,21 +24,21 @@ public class AuthController {
     private final TokenBlackList tokenBlackList;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@RequestBody UserAddDTO request){
+    public ResponseEntity<AuthResponse> register(@RequestBody UserAddDTO request) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                             .body(authService.register(userToDTO.toData(request)));
+                .body(authService.register(userToDTO.toData(request)));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody UserLoginDTO request){
+    public ResponseEntity<AuthResponse> login(@RequestBody UserLoginDTO request) {
         return ResponseEntity.ok(authService.login(request.login(), request.password()));
     }
 
     @PostMapping("/logout")
     @PreAuthorize("hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN, " +
-                  "T(team.four.pas.security.SecurityRoles).MANAGER, " +
-                  "T(team.four.pas.security.SecurityRoles).CLIENT)")
-    public ResponseEntity<Void> logout(){
+            "T(team.four.pas.security.SecurityRoles).MANAGER, " +
+            "T(team.four.pas.security.SecurityRoles).CLIENT)")
+    public ResponseEntity<Void> logout() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth != null && auth.getCredentials() != null) {
@@ -53,8 +53,8 @@ public class AuthController {
 
     @PostMapping("/reset")
     @PreAuthorize("hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN, " +
-                  "T(team.four.pas.security.SecurityRoles).MANAGER, " +
-                  "T(team.four.pas.security.SecurityRoles).CLIENT)")
+            "T(team.four.pas.security.SecurityRoles).MANAGER, " +
+            "T(team.four.pas.security.SecurityRoles).CLIENT)")
     public ResponseEntity<Void> changePassword(@Valid @RequestBody ChangePasswordDTO changePasswordDTO) {
         authService.changePassword(changePasswordDTO.oldPassword(), changePasswordDTO.newPassword());
         return ResponseEntity.ok().build();
@@ -62,23 +62,23 @@ public class AuthController {
 
     @GetMapping("/change/{clientId}")
     @PreAuthorize("hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN, " +
-                  "T(team.four.pas.security.SecurityRoles).MANAGER)")
+            "T(team.four.pas.security.SecurityRoles).MANAGER)")
     public ResponseEntity<Void> prepareIntToken(@PathVariable String clientId) {
         String jws = authService.generateIntegrityToken(clientId);
 
         return ResponseEntity.ok()
-                             .header("ETag", jws)
-                             .build();
+                .header("ETag", jws)
+                .build();
     }
 
     @GetMapping("/change/{clientId}/{vmId}")
     @PreAuthorize("hasAnyRole(T(team.four.pas.security.SecurityRoles).ADMIN, " +
-                  "T(team.four.pas.security.SecurityRoles).MANAGER)")
+            "T(team.four.pas.security.SecurityRoles).MANAGER)")
     public ResponseEntity<Void> prepareIntToken(@PathVariable String clientId, @PathVariable String vmId) {
         String jws = authService.generateIntegrityToken(clientId, vmId);
 
         return ResponseEntity.ok()
-                             .header("ETag", jws)
-                             .build();
+                .header("ETag", jws)
+                .build();
     }
 }

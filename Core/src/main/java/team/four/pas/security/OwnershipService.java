@@ -21,7 +21,7 @@ public class OwnershipService {
 
     public boolean isOwner(Authentication authentication, String userId) {
         String currentUsername = authentication.getName();
-        return userRepository.findById(userId).orElseThrow(() -> new RuntimeException("w")).equals(currentUsername);
+        return userRepository.findById(userId).orElseThrow(() -> new RuntimeException("w")).getLogin().equals(currentUsername);
     }
 
     public boolean isOwnerOfAllocation(Authentication authentication, String allocationId) {
