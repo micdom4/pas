@@ -13,6 +13,7 @@ import team.four.pas.services.data.allocations.VMAllocation;
 import java.time.Instant;
 import java.util.List;
 
+@RestController
 @CrossOrigin(originPatterns = {"http://localhost:[*]"})
 @RequestMapping(value = {"/allocations"}, produces = {"application/json"})
 @RequiredArgsConstructor

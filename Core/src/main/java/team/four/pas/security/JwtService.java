@@ -15,7 +15,6 @@ public interface JwtService {
 
     boolean isTokenValid(String token, UserDetails userDetails);
 
-
     String generateIntegrityToken(String objectId);
     String generateIntegrityToken(String objectId, String vmId);
 

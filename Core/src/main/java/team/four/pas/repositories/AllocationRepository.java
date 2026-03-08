@@ -1,5 +1,8 @@
 package team.four.pas.repositories;
 
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
+import org.springframework.data.mongodb.repository.Update;
 import team.four.pas.exceptions.allocation.AllocationIdException;
 import team.four.pas.exceptions.allocation.AllocationNotFoundException;
 import team.four.pas.exceptions.resource.ResourceIdException;
@@ -11,22 +14,15 @@ import team.four.pas.services.data.users.Client;
 import java.time.Instant;
 import java.util.List;
 
-public interface AllocationRepository extends Repository<VMAllocation> {
+public interface AllocationRepository extends MongoRepository<VMAllocation, String> {
 
-    @Override
-    VMAllocation findById(String id) throws AllocationIdException, AllocationNotFoundException;
+    List<VMAllocation> findByVmIdAndEndTimeIsNull(String vmId);
+    List<VMAllocation> findByVmIdAndEndTimeIsNotNull(String vmId);
 
-    VMAllocation add(Client client, VirtualMachine resource, Instant startTime);
+    List<VMAllocation> findByClientIdAndEndTimeIsNull(String clientId);
+    List<VMAllocation> findByClientIdAndEndTimeIsNotNull(String clientId);
 
-    List<VMAllocation> getPast(VirtualMachine resource) throws ResourceIdException;
-
-    List<VMAllocation> getActive(VirtualMachine resource) throws ResourceIdException;
-
-    List<VMAllocation> getActive(Client client) throws UserIdException;
-
-    List<VMAllocation> getPast(Client client) throws UserIdException;
-
-    void finishAllocation(String allocationId) throws AllocationIdException, AllocationNotFoundException;
-
-    void delete(String allocationId) throws AllocationIdException, AllocationNotFoundException;
+    @Query("{ '_id' : ?0 }")
+    @Update("{ '$set' : { 'endTime' : ?1 } }")
+    void finishAllocation(String allocationId, Instant endTime);
 }

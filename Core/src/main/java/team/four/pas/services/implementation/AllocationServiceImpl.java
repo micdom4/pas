@@ -2,7 +2,6 @@ package team.four.pas.services.implementation;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import team.four.pas.controllers.DTOs.ResourceAddDTO;
 import team.four.pas.exceptions.allocation.*;
 import team.four.pas.exceptions.resource.ResourceIdException;
 import team.four.pas.exceptions.resource.ResourceNotFoundException;
@@ -21,6 +20,7 @@ import team.four.pas.services.data.users.User;
 import java.time.Instant;
 import java.util.List;
 
+@Service
 @RequiredArgsConstructor
 public class AllocationServiceImpl implements AllocationService {
     private final AllocationRepository allocationRepository;
@@ -29,12 +29,12 @@ public class AllocationServiceImpl implements AllocationService {
 
     @Override
     public List<VMAllocation> getAll() {
-        return allocationRepository.getAll();
+        return allocationRepository.findAll();
     }
 
     @Override
     public VMAllocation findById(String id) throws AllocationIdException, AllocationNotFoundException {
-        return allocationRepository.findById(id);
+        return allocationRepository.findById(id).orElseThrow(() -> new AllocationNotFoundException("Not found"));
     }
 
     @Override
@@ -50,8 +50,8 @@ public class AllocationServiceImpl implements AllocationService {
             throw new InactiveClientException("Client must be active in order to allocate a vm");
         }
 
-        if (allocationRepository.getActive(resource).isEmpty()) {
-            return allocationRepository.add((Client) client, resource, startTime);
+        if (allocationRepository.findByVmIdAndEndTimeIsNull(resourceId).isEmpty()) {
+            return allocationRepository.insert(new VMAllocation(null, (Client) client, resource, startTime, null));
         } else {
             throw new ResourceAlreadyAllocatedException("Resource is already allocated");
         }
@@ -59,14 +59,12 @@ public class AllocationServiceImpl implements AllocationService {
 
     @Override
     public List<VMAllocation> getPastVm(String id) throws ResourceIdException, ResourceNotFoundException {
-        VirtualMachine resource = resourceService.findById(id);
-        return allocationRepository.getPast(resource);
+        return allocationRepository.findByVmIdAndEndTimeIsNotNull(id);
     }
 
     @Override
     public List<VMAllocation> getActiveVm(String id) throws ResourceIdException, ResourceNotFoundException {
-        VirtualMachine resource = resourceService.findById(id);
-        return allocationRepository.getActive(resource);
+        return allocationRepository.findByVmIdAndEndTimeIsNull(id);
     }
 
     @Override
@@ -76,8 +74,7 @@ public class AllocationServiceImpl implements AllocationService {
             throw new UserTypeException("Client must be of Type CLIENT");
         }
 
-        Client client = (Client) user;
-        return allocationRepository.getActive(client);
+        return allocationRepository.findByClientIdAndEndTimeIsNull(id);
     }
 
     @Override
@@ -87,19 +84,18 @@ public class AllocationServiceImpl implements AllocationService {
             throw new UserTypeException("Client must be of Type CLIENT");
         }
 
-        Client client = (Client) user;
-        return allocationRepository.getPast(client);
+        return allocationRepository.findByClientIdAndEndTimeIsNotNull(id);
     }
 
     @Override
     public void finishAllocation(String id) throws AllocationIdException, AllocationNotFoundException {
-        allocationRepository.finishAllocation(id);
+        allocationRepository.finishAllocation(id, Instant.now());
     }
 
     @Override
     public void delete(String id) throws AllocationIdException, AllocationNotFoundException, AllocationNotActiveException {
         if (findById(id).getEndTime() == null) {
-            allocationRepository.delete(id);
+            allocationRepository.deleteById(id);
         } else {
             throw new AllocationNotActiveException("Allocation is not active");
         }

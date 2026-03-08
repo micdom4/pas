@@ -30,9 +30,12 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse register(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
         User createdUser = userRepository.insert(user);
 
         var jwtToken = jwtService.generateToken(createdUser);
+
         return new AuthResponse(jwtToken, parseAuthorities(createdUser));
     }
 

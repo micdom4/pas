@@ -30,10 +30,13 @@ public interface UserToDTO {
 
     Admin adminFromUserDTO(UserDTO userDto);
 
+    @Mapping(target = "active", constant = "true")
     Client clientFromClientDTO(UserAddDTO clientDto);
 
+    @Mapping(target = "active", constant = "true")
     Manager managerFromUserDTO(UserAddDTO userDto);
 
+    @Mapping(target = "active", constant = "true")
     Admin adminFromUserDTO(UserAddDTO userDto);
 
     default List<UserDTO> toDataList(List<User> users) {
