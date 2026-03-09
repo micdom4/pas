@@ -10,7 +10,7 @@ console.log("Existing collections dropped.");
 const userSchema = {
     $jsonSchema: {
         bsonType: "object",
-        required: ["login", "password", "name", "surname", "type", "active"],
+        required: ["login", "password", "name", "surname", "_class", "active"],
         properties: {
             _id: { bsonType: "objectId" },
             login: {
@@ -29,7 +29,7 @@ const userSchema = {
                 bsonType: "string",
                 description: "must be a string and is required"
             },
-            type: {
+            _class: {
                 bsonType: "string",
                 enum: ["CLIENT", "MANAGER", "ADMIN"],
                 description: "must be one of 'CLIENT', 'MANAGER', or 'ADMIN' and is required"
@@ -76,13 +76,13 @@ const vmAllocationSchema = {
             client: {
                 bsonType: "object",
                 description: "Embedded UserEntity document",
-                required: ["_id", "login", "name", "surname", "type", "active"],
+                required: ["_id", "login", "name", "surname", "_class", "active"],
                 properties: {
                     _id: { bsonType: "objectId" },
                     login: { bsonType: "string" },
                     name: { bsonType: "string" },
                     surname: { bsonType: "string" },
-                    type: { bsonType: "string", enum: ["CLIENT", "MANAGER", "ADMIN"] },
+                    _class: { bsonType: "string", enum: ["CLIENT", "MANAGER", "ADMIN"] },
                     active: { bsonType: "bool" }
                 }
             },

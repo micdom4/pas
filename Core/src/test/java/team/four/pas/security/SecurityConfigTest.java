@@ -1,11 +1,8 @@
 package team.four.pas.security;
 
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoDatabase;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.http.Header;
-import org.bson.Document;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
