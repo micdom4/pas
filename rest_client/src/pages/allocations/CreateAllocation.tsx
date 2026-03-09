@@ -38,12 +38,14 @@ export default function CreateAllocation() {
                 resourceApi.getAll(),
                 (user.isAdmin() || user.isManager()) ? userApi.getAll() : userApi.getByLogin(user.login || '')
             ]);
+            console.log("fetched this shit")
 
             setResources(resourcesResponse.data);
             if (user.isAdmin() || user.isManager()) {
                 setClients(clientResponse.data as UserType[])
             } else {
                 setClient(clientResponse.data as UserType)
+                console.log("set client")
             }
         } catch (error) {
             addToast('Fetch data error', `Error while fetching resources. Error: ${error}`, 'danger');

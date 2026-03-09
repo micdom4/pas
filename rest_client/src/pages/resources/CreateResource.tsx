@@ -56,10 +56,10 @@ export default function CreateResource () {
                   isSubmitting,
               }) => (
                 <Form noValidate onSubmit={handleSubmit} className="p-4 border rounded shadow-sm bg-white">
-                    <h4 className="mb-3">Nowy Zasób (VM)</h4>
+                    <h4 className="mb-3">New resource (VM)</h4>
 
                     <Form.Group className="mb-3" controlId="formCpu">
-                        <Form.Label>Liczba CPU (rdzenie)</Form.Label>
+                        <Form.Label>CPU number (cores)</Form.Label>
                         <Form.Control
                             type="number"
                             name="cpuNumber"
