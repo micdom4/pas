@@ -3,7 +3,7 @@ package team.four.pas.repositories;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.mongodb.repository.Update;
-import team.four.pas.services.data.users.User;
+import team.four.pas.model.users.User;
 
 import java.util.List;
 

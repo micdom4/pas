@@ -3,9 +3,7 @@ package team.four.pas.repositories;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.mongodb.repository.Update;
-import team.four.pas.exceptions.resource.ResourceIdException;
-import team.four.pas.exceptions.resource.ResourceNotFoundException;
-import team.four.pas.services.data.resources.VirtualMachine;
+import team.four.pas.model.resources.VirtualMachine;
 
 public interface ResourceRepository extends MongoRepository<VirtualMachine, String> {
 
