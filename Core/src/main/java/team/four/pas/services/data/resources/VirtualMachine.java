@@ -3,14 +3,10 @@ package team.four.pas.services.data.resources;
 import lombok.*;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "virtual_machines")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @ToString
 public class VirtualMachine {
 
-    @Id
     private String id;
 
     private int cpuNumber;

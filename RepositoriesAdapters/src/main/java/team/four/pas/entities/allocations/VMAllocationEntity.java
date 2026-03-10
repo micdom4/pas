@@ -7,7 +7,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 import team.four.pas.entities.resources.VirtualMachineEntity;
-import team.four.pas.entities.users.Client;
+import team.four.pas.entities.users.ClientEntity;
 
 import java.time.Instant;
 
@@ -23,7 +23,7 @@ public class VMAllocationEntity {
     private String id;
 
     @DocumentReference
-    private Client client;
+    private ClientEntity client;
 
     @DocumentReference
     private VirtualMachineEntity vm;

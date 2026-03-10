@@ -1,7 +1,6 @@
 package team.four.pas.services.data.users;
 
 
-import org.springframework.data.annotation.TypeAlias;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import team.four.pas.security.SecurityRoles;
@@ -9,7 +8,6 @@ import team.four.pas.security.SecurityRoles;
 import java.util.Collection;
 import java.util.List;
 
-@TypeAlias("MANAGER")
 public class Manager extends User {
 
     public Manager(String id, String login,
