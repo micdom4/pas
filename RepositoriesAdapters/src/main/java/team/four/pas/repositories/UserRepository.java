@@ -3,19 +3,19 @@ package team.four.pas.repositories;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.mongodb.repository.Update;
-import team.four.pas.model.users.User;
+import team.four.pas.entities.users.UserEntity;
 
 import java.util.List;
 
-public interface UserRepository extends MongoRepository<User, String> {
+public interface UserRepository extends MongoRepository<UserEntity, String> {
 
-    User findByLogin(String login);
+    UserEntity findByLogin(String login);
 
     @Query("{ '_id' : ?0 }")
     @Update("{ '$set' : { 'password' : ?1 } }")
     void updatePasswordById(String id, String newEncodedPassword);
 
-    List<User> findByLoginStartingWith(String login);
+    List<UserEntity> findByLoginStartingWith(String login);
 
     @Query("{ '_id' : ?0 }")
     @Update("{ '$set' : { 'surname' : ?1 } }")

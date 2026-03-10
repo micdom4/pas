@@ -1,4 +1,4 @@
-package team.four.pas.model.resources;
+package team.four.pas.entities.resources;
 
 import lombok.*;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -12,7 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class VirtualMachine {
+public class VirtualMachineEntity {
 
     @Id
     private String id;
@@ -25,7 +25,7 @@ public class VirtualMachine {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        VirtualMachine that = (VirtualMachine) o;
+        VirtualMachineEntity that = (VirtualMachineEntity) o;
         return new EqualsBuilder().append(id, that.getId()).isEquals();
     }
 

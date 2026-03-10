@@ -1,4 +1,4 @@
-package team.four.pas.model.users;
+package team.four.pas.entities.users;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
@@ -15,7 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public abstract class User implements UserDetails {
+public abstract class UserEntity {
 
     @Id
     private String id;
@@ -23,7 +23,6 @@ public abstract class User implements UserDetails {
     @Indexed
     private String login;
 
-    @JsonIgnore
     private String password;
 
     private String name;
@@ -31,35 +30,10 @@ public abstract class User implements UserDetails {
     private boolean active;
 
     @Override
-    public String getUsername() {
-        return login;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return active;
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        User that = (User) o;
+        UserEntity that = (UserEntity) o;
         return new EqualsBuilder().append(id, that.getId()).isEquals();
     }
 

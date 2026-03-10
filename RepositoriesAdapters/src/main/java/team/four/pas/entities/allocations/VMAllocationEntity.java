@@ -1,4 +1,4 @@
-package team.four.pas.model.allocations;
+package team.four.pas.entities.allocations;
 
 import lombok.*;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -6,8 +6,8 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
-import team.four.pas.model.resources.VirtualMachine;
-import team.four.pas.model.users.Client;
+import team.four.pas.entities.resources.VirtualMachineEntity;
+import team.four.pas.entities.users.Client;
 
 import java.time.Instant;
 
@@ -17,7 +17,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class VMAllocation {
+public class VMAllocationEntity {
 
     @Id
     private String id;
@@ -26,7 +26,7 @@ public class VMAllocation {
     private Client client;
 
     @DocumentReference
-    private VirtualMachine vm;
+    private VirtualMachineEntity vm;
 
     private Instant startTime;
     private Instant endTime;
@@ -35,7 +35,7 @@ public class VMAllocation {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        VMAllocation that = (VMAllocation) o;
+        VMAllocationEntity that = (VMAllocationEntity) o;
         return new EqualsBuilder().append(id, that.id).isEquals();
     }
 
