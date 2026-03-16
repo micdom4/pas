@@ -26,8 +26,8 @@ public class AllocationAdapter implements AllocationPort {
     }
 
     @Override
-    public List<VMAllocation> deleteById(String id) {
-        return List.of();
+    public void deleteById(String id) {
+        repository.deleteById(id);
     }
 
     @Override

@@ -9,7 +9,7 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>Core</artifactId>
+    <artifactId>Domain</artifactId>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -111,7 +111,7 @@
         </dependency>
         <dependency>
             <groupId>team.four</groupId>
-            <artifactId>RepositoriesAdapters</artifactId>
+            <artifactId>ApplicationPorts</artifactId>
             <version>0.0.1-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>

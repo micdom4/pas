@@ -24,9 +24,10 @@
 		<developer/>
 	</developers>
     <modules>
-        <module>Core</module>
+        <module>Domain</module>
         <module>RepositoriesAdapters</module>
         <module>ApplicationPorts</module>
+        <module>ApplicationServices</module>
     </modules>
     <scm>
 		<connection/>

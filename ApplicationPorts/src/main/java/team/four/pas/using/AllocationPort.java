@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface AllocationPort {
     VMAllocation insert(VMAllocation vmAllocation);
-    List<VMAllocation> deleteById(String id);
+    void deleteById(String id);
     Optional<VMAllocation> findById(String id);
     List<VMAllocation> findAll();
     List<VMAllocation> findByVmIdAndEndTimeIsNull(String vmId);
