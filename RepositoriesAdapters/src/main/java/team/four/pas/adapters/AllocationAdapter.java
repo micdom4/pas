@@ -42,7 +42,7 @@ public class AllocationAdapter implements AllocationPort {
 
     @Override
     public List<VMAllocation> findByVmIdAndEndTimeIsNull(String vmId) {
-        return mapper.entityToDomain(repository.findByVmIdAndEndTimeIsNotNull(vmId));
+        return mapper.entityToDomain(repository.findByVmIdAndEndTimeIsNull(vmId));
     }
 
     @Override
