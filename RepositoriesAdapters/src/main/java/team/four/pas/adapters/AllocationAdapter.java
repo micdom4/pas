@@ -37,7 +37,7 @@ public class AllocationAdapter implements AllocationPort {
 
     @Override
     public List<VMAllocation> findAll() {
-        return List.of();
+        return mapper.entityToDomain(repository.findAll());
     }
 
     @Override
