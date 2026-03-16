@@ -32,7 +32,7 @@ public class AllocationAdapter implements AllocationPort {
 
     @Override
     public Optional<VMAllocation> findById(String id) {
-        return mapper.entityToDomain(repository.findById(id));
+        return Optional.ofNullable(mapper.entityToDomain(repository.findById(id).orElse(null)));
     }
 
     @Override
