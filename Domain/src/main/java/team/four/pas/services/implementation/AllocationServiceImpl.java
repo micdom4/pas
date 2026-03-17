@@ -8,7 +8,9 @@ import team.four.pas.exceptions.resource.ResourceNotFoundException;
 import team.four.pas.exceptions.user.UserIdException;
 import team.four.pas.exceptions.user.UserNotFoundException;
 import team.four.pas.exceptions.user.UserTypeException;
-import team.four.pas.services.AllocationService;
+import team.four.pas.outside.AllocationWebPort;
+import team.four.pas.outside.ResourceWebPort;
+import team.four.pas.outside.UserWebPort;
 import team.four.pas.services.ResourceService;
 import team.four.pas.services.UserService;
 import team.four.pas.services.data.allocations.VMAllocation;
@@ -22,10 +24,10 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class AllocationServiceImpl implements AllocationService {
+public class AllocationServiceImpl implements AllocationWebPort {
     private final AllocationPersistencePort allocationPort;
-    private final UserService userService;
-    private final ResourceService resourceService;
+    private final UserWebPort userService;
+    private final ResourceWebPort resourceService;
 
     @Override
     public List<VMAllocation> getAll() {

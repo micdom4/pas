@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class AllocationPersistanceAdapter implements AllocationPersistencePort {
+public class AllocationPersistenceAdapter implements AllocationPersistencePort {
     private final AllocationRepository repository;
     private final AllocationMapper mapper;
 

@@ -1,14 +1,12 @@
-package team.four.pas.services;
+package team.four.pas.outside;
 
-import team.four.pas.controllers.DTOs.UserAddDTO;
-import team.four.pas.controllers.DTOs.UserDTO;
 import team.four.pas.exceptions.user.*;
 import team.four.pas.services.data.users.User;
 
 import java.util.List;
 
-public interface UserService {
-   List<User> getAll();
+public interface UserWebPort {
+    List<User> getAll();
 
     User findById(String id) throws UserNotFoundException, UserIdException;
 

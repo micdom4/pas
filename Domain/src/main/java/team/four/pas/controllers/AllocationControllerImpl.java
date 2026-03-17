@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import team.four.pas.controllers.DTOs.AllocationAddDTO;
-import team.four.pas.services.AllocationService;
+import team.four.pas.outside.AllocationWebPort;
 import team.four.pas.services.data.allocations.VMAllocation;
 
 import java.time.Instant;
@@ -18,7 +18,7 @@ import java.util.List;
 @RequestMapping(value = {"/allocations"}, produces = {"application/json"})
 @RequiredArgsConstructor
 public class AllocationControllerImpl {
-    private final AllocationService allocationService;
+    private final AllocationWebPort allocationService;
 
     @GetMapping(
             {""}

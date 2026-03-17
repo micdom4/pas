@@ -5,13 +5,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Service;
-import team.four.pas.repositories.UserRepository;
+import team.four.pas.inside.UserPersistencePort;
 
 @Service
 @RequiredArgsConstructor
 public class MongoUserManager implements UserDetailsManager {
 
-    private final UserRepository mongoUserRepository;
+    private final UserPersistencePort mongoUserRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
