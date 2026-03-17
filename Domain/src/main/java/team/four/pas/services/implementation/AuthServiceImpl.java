@@ -1,7 +1,6 @@
 package team.four.pas.services.implementation;
 
 
-import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -11,18 +10,18 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import team.four.pas.controllers.DTOs.AuthResponse;
-import team.four.pas.repositories.UserRepository;
 import team.four.pas.security.JwtService;
 import team.four.pas.security.TokenBlackList;
 import team.four.pas.services.AuthService;
 import team.four.pas.services.data.users.User;
+import team.four.pas.using.UserPort;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
-    private final UserRepository userRepository;
+    private final UserPort userPort;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
@@ -32,7 +31,7 @@ public class AuthServiceImpl implements AuthService {
     public AuthResponse register(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        User createdUser = userRepository.insert(user);
+        User createdUser = userPort.insert(user);
 
         var jwtToken = jwtService.generateToken(createdUser);
 
@@ -48,7 +47,7 @@ public class AuthServiceImpl implements AuthService {
                 )
         );
 
-        var user = userRepository.findByLogin(username);
+        var user = userPort.findByLogin(username);
         var jwtToken = jwtService.generateToken(user);
 
         return new AuthResponse(jwtToken, parseAuthorities(user));
@@ -64,7 +63,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         tokenBlackList.add(authentication.getCredentials().toString());
-        userRepository.updatePasswordById(user.getId(), passwordEncoder.encode(newPassword));
+        userPort.updatePasswordById(user.getId(), passwordEncoder.encode(newPassword));
 
         SecurityContextHolder.clearContext();
     }

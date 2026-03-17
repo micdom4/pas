@@ -10,13 +10,14 @@ import team.four.pas.repositories.AllocationRepository;
 import team.four.pas.repositories.ResourceRepository;
 import team.four.pas.services.ResourceService;
 import team.four.pas.services.data.resources.VirtualMachine;
+import team.four.pas.using.ResourcePort;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class ResourceServiceImpl implements ResourceService {
-    private final ResourceRepository resourceRepository;
+    private final ResourcePort resourceRepository;
     // private final AllocationRepository allocationRepository;
 
     @Override

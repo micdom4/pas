@@ -1,0 +1,28 @@
+graph TD
+%% Definicja stylów dla poszczególnych warstw
+    classDef root fill:#f9f9f9,stroke:#666,stroke-width:2px,stroke-dasharray: 5 5;
+    classDef core fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px;
+    classDef domain fill:#bbdefb,stroke:#1565c0,stroke-width:2px;
+    classDef ports fill:#fff3e0,stroke:#f57c00,stroke-width:2px;
+    classDef adapters fill:#e8f5e9,stroke:#43a047,stroke-width:2px;
+
+%% Hierarchia projektów
+    subgraph RootProject ["Główny Projekt Nadrzędny"]
+
+        subgraph AppCore ["ApplicationCore (Projekt Nadrzędny)"]
+            DM[DomainModel]:::domain
+            AS[ApplicationServices]:::core
+        end
+
+        AP[ApplicationPorts]:::ports
+        RA[RepositoriesAdapters]:::adapters
+    end
+
+%% Zależności architektoniczne
+    AS -->|zależy od interfejsów portów| AP
+    AS -->|zarządza/używa| DM
+
+    RA -->|implementuje porty sterowane| AP
+    RA -->|mapuje do/z| DM
+
+    AP -.->|używa w sygnaturach metod| DM
