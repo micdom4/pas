@@ -15,7 +15,7 @@ import team.four.pas.services.data.allocations.VMAllocation;
 import team.four.pas.services.data.resources.VirtualMachine;
 import team.four.pas.services.data.users.Client;
 import team.four.pas.services.data.users.User;
-import team.four.pas.using.AllocationPort;
+import team.four.pas.inside.AllocationPersistencePort;
 
 import java.time.Instant;
 import java.util.List;
@@ -23,7 +23,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class AllocationServiceImpl implements AllocationService {
-    private final AllocationPort allocationPort;
+    private final AllocationPersistencePort allocationPort;
     private final UserService userService;
     private final ResourceService resourceService;
 

@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import team.four.pas.mappers.AllocationMapper;
 import team.four.pas.repositories.AllocationRepository;
 import team.four.pas.services.data.allocations.VMAllocation;
-import team.four.pas.using.AllocationPort;
+import team.four.pas.inside.AllocationPersistencePort;
 
 import java.time.Instant;
 import java.util.List;
@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class AllocationAdapter implements AllocationPort {
+public class AllocationPersistanceAdapter implements AllocationPersistencePort {
     private final AllocationRepository repository;
     private final AllocationMapper mapper;
 

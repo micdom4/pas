@@ -1,11 +1,11 @@
-package team.four.pas.using;
+package team.four.pas.inside;
 
 import team.four.pas.services.data.resources.VirtualMachine;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface ResourcePort {
+public interface ResourcePersistencePort {
     List<VirtualMachine> findAll();
 
     Optional<VirtualMachine> findById(String id);

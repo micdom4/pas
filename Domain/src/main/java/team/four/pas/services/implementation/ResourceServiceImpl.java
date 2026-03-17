@@ -6,18 +6,16 @@ import team.four.pas.exceptions.resource.ResourceDataException;
 import team.four.pas.exceptions.resource.ResourceIdException;
 import team.four.pas.exceptions.resource.ResourceNotFoundException;
 import team.four.pas.exceptions.resource.ResourceStillAllocatedException;
-import team.four.pas.repositories.AllocationRepository;
-import team.four.pas.repositories.ResourceRepository;
 import team.four.pas.services.ResourceService;
 import team.four.pas.services.data.resources.VirtualMachine;
-import team.four.pas.using.ResourcePort;
+import team.four.pas.inside.ResourcePersistencePort;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class ResourceServiceImpl implements ResourceService {
-    private final ResourcePort resourceRepository;
+    private final ResourcePersistencePort resourceRepository;
     // private final AllocationRepository allocationRepository;
 
     @Override

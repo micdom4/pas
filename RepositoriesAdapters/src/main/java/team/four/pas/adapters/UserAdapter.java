@@ -5,14 +5,14 @@ import org.springframework.stereotype.Component;
 import team.four.pas.mappers.UserMapper;
 import team.four.pas.repositories.UserRepository;
 import team.four.pas.services.data.users.User;
-import team.four.pas.using.UserPort;
+import team.four.pas.inside.UserPersistencePort;
 
 import java.util.List;
 import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class UserAdapter implements UserPort {
+public class UserAdapter implements UserPersistencePort {
    private final UserRepository repository;
    private final UserMapper mapper;
 

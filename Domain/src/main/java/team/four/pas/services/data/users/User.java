@@ -1,6 +1,7 @@
 package team.four.pas.services.data.users;
 
 import lombok.*;
+import net.minidev.json.annotate.JsonIgnore;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,6 +11,7 @@ public abstract class User implements UserDetails {
 
     private String id;
     private String login;
+    @JsonIgnore
     private String password;
     private String name;
     private String surname;

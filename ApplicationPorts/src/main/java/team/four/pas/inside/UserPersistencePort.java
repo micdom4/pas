@@ -1,11 +1,11 @@
-package team.four.pas.using;
+package team.four.pas.inside;
 
 import team.four.pas.services.data.users.User;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface UserPort {
+public interface UserPersistencePort {
     List<User> findAll();
 
     Optional<User> findById(String id);

@@ -14,14 +14,14 @@ import team.four.pas.security.JwtService;
 import team.four.pas.security.TokenBlackList;
 import team.four.pas.services.AuthService;
 import team.four.pas.services.data.users.User;
-import team.four.pas.using.UserPort;
+import team.four.pas.inside.UserPersistencePort;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
-    private final UserPort userPort;
+    private final UserPersistencePort userPort;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;

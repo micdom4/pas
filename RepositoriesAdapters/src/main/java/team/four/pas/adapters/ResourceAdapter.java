@@ -5,14 +5,14 @@ import org.springframework.stereotype.Component;
 import team.four.pas.mappers.ResourceMapper;
 import team.four.pas.repositories.ResourceRepository;
 import team.four.pas.services.data.resources.VirtualMachine;
-import team.four.pas.using.ResourcePort;
+import team.four.pas.inside.ResourcePersistencePort;
 
 import java.util.List;
 import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class ResourceAdapter implements ResourcePort {
+public class ResourceAdapter implements ResourcePersistencePort {
     private final ResourceRepository repository;
     private final ResourceMapper mapper;
 

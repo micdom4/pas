@@ -5,14 +5,14 @@ import org.springframework.stereotype.Service;
 import team.four.pas.exceptions.user.*;
 import team.four.pas.services.UserService;
 import team.four.pas.services.data.users.User;
-import team.four.pas.using.UserPort;
+import team.four.pas.inside.UserPersistencePort;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-    private final UserPort userPort;
+    private final UserPersistencePort userPort;
 
     @Override
     public List<User> getAll() {

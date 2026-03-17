@@ -1,4 +1,4 @@
-package team.four.pas.using;
+package team.four.pas.inside;
 
 import team.four.pas.services.data.allocations.VMAllocation;
 
@@ -6,7 +6,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-public interface AllocationPort {
+public interface AllocationPersistencePort {
     VMAllocation insert(VMAllocation vmAllocation);
     void deleteById(String id);
     Optional<VMAllocation> findById(String id);
