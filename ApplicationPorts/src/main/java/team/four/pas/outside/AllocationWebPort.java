@@ -6,7 +6,7 @@ import team.four.pas.exceptions.resource.ResourceNotFoundException;
 import team.four.pas.exceptions.user.UserIdException;
 import team.four.pas.exceptions.user.UserNotFoundException;
 import team.four.pas.exceptions.user.UserTypeException;
-import team.four.pas.services.data.allocations.VMAllocation;
+import team.four.pas.data.allocations.VMAllocation;
 
 import java.time.Instant;
 import java.util.List;

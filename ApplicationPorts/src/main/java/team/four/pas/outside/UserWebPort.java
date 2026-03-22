@@ -1,7 +1,7 @@
 package team.four.pas.outside;
 
 import team.four.pas.exceptions.user.*;
-import team.four.pas.services.data.users.User;
+import team.four.pas.data.users.User;
 
 import java.util.List;
 

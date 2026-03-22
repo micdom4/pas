@@ -3,13 +3,10 @@ package team.four.pas;
 import lombok.AllArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
-import team.four.pas.services.AuthService;
-import team.four.pas.services.ResourceService;
-import team.four.pas.services.UserService;
-import team.four.pas.services.data.resources.VirtualMachine;
-import team.four.pas.services.data.users.Admin;
-import team.four.pas.services.data.users.Client;
-import team.four.pas.services.data.users.Manager;
+import team.four.pas.data.resources.VirtualMachine;
+import team.four.pas.data.users.Admin;
+import team.four.pas.data.users.Client;
+import team.four.pas.data.users.Manager;
 
 @AllArgsConstructor
 @Component

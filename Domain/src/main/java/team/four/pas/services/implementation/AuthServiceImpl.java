@@ -9,12 +9,11 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import team.four.pas.controllers.DTOs.AuthResponse;
 import team.four.pas.outside.AuthWebPort;
+import team.four.pas.security.AuthResponse;
 import team.four.pas.security.JwtService;
 import team.four.pas.security.TokenBlackList;
-import team.four.pas.services.AuthService;
-import team.four.pas.services.data.users.User;
+import team.four.pas.data.users.User;
 import team.four.pas.inside.UserPersistencePort;
 
 import java.util.List;

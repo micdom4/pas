@@ -7,8 +7,7 @@ import team.four.pas.exceptions.resource.ResourceIdException;
 import team.four.pas.exceptions.resource.ResourceNotFoundException;
 import team.four.pas.exceptions.resource.ResourceStillAllocatedException;
 import team.four.pas.outside.ResourceWebPort;
-import team.four.pas.services.ResourceService;
-import team.four.pas.services.data.resources.VirtualMachine;
+import team.four.pas.data.resources.VirtualMachine;
 import team.four.pas.inside.ResourcePersistencePort;
 
 import java.util.List;

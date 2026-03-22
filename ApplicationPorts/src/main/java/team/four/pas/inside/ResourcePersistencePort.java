@@ -1,6 +1,6 @@
 package team.four.pas.inside;
 
-import team.four.pas.services.data.resources.VirtualMachine;
+import team.four.pas.data.resources.VirtualMachine;
 
 import java.util.List;
 import java.util.Optional;

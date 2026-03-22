@@ -5,10 +5,10 @@ import team.four.pas.entities.users.AdminEntity;
 import team.four.pas.entities.users.ClientEntity;
 import team.four.pas.entities.users.ManagerEntity;
 import team.four.pas.entities.users.UserEntity;
-import team.four.pas.services.data.users.Admin;
-import team.four.pas.services.data.users.Client;
-import team.four.pas.services.data.users.Manager;
-import team.four.pas.services.data.users.User;
+import team.four.pas.data.users.Admin;
+import team.four.pas.data.users.Client;
+import team.four.pas.data.users.Manager;
+import team.four.pas.data.users.User;
 
 import java.util.List;
 

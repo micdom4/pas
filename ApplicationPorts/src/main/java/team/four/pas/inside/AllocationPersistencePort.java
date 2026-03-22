@@ -1,6 +1,6 @@
 package team.four.pas.inside;
 
-import team.four.pas.services.data.allocations.VMAllocation;
+import team.four.pas.data.allocations.VMAllocation;
 
 import java.time.Instant;
 import java.util.List;

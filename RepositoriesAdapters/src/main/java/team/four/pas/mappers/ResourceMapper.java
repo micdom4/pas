@@ -2,7 +2,7 @@ package team.four.pas.mappers;
 
 import org.mapstruct.Mapper;
 import team.four.pas.entities.resources.VirtualMachineEntity;
-import team.four.pas.services.data.resources.VirtualMachine;
+import team.four.pas.data.resources.VirtualMachine;
 
 import java.util.List;
 

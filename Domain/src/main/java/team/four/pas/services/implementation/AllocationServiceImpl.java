@@ -11,12 +11,10 @@ import team.four.pas.exceptions.user.UserTypeException;
 import team.four.pas.outside.AllocationWebPort;
 import team.four.pas.outside.ResourceWebPort;
 import team.four.pas.outside.UserWebPort;
-import team.four.pas.services.ResourceService;
-import team.four.pas.services.UserService;
-import team.four.pas.services.data.allocations.VMAllocation;
-import team.four.pas.services.data.resources.VirtualMachine;
-import team.four.pas.services.data.users.Client;
-import team.four.pas.services.data.users.User;
+import team.four.pas.data.allocations.VMAllocation;
+import team.four.pas.data.resources.VirtualMachine;
+import team.four.pas.data.users.Client;
+import team.four.pas.data.users.User;
 import team.four.pas.inside.AllocationPersistencePort;
 
 import java.time.Instant;

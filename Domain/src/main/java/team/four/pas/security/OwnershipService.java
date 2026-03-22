@@ -2,14 +2,10 @@ package team.four.pas.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
 import team.four.pas.inside.AllocationPersistencePort;
 import team.four.pas.inside.UserPersistencePort;
 import team.four.pas.outside.AuthWebPort;
-import team.four.pas.services.AuthService;
-import team.four.pas.services.data.allocations.VMAllocation;
 
 import java.util.NoSuchElementException;
 

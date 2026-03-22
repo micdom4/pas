@@ -18,16 +18,15 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.mongodb.MongoDBContainer;
 import org.testcontainers.utility.DockerImageName;
 import team.four.pas.controllers.AuthController;
-import team.four.pas.controllers.DTOs.*;
 import team.four.pas.repositories.AllocationRepository;
 import team.four.pas.repositories.ResourceRepository;
 import team.four.pas.repositories.UserRepository;
-import team.four.pas.services.ResourceService;
-import team.four.pas.services.data.resources.VirtualMachine;
-import team.four.pas.services.data.users.Admin;
-import team.four.pas.services.data.users.Client;
-import team.four.pas.services.data.users.Manager;
-import team.four.pas.services.data.users.User;
+import team.four.pas.data.UserRoles;
+import team.four.pas.data.resources.VirtualMachine;
+import team.four.pas.data.users.Admin;
+import team.four.pas.data.users.Client;
+import team.four.pas.data.users.Manager;
+import team.four.pas.data.users.User;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -179,15 +178,15 @@ class SecurityConfigTest {
 
         assertThat(auth0.getRoles())
                 .extracting(Object::toString)
-                .contains(SecurityRoles.CLIENT);
+                .contains(UserRoles.CLIENT);
 
         assertThat(auth1.getRoles())
                 .extracting(Object::toString)
-                .contains(SecurityRoles.MANAGER);
+                .contains(UserRoles.MANAGER);
 
         assertThat(auth2.getRoles())
                 .extracting(Object::toString)
-                .contains(SecurityRoles.ADMIN);
+                .contains(UserRoles.ADMIN);
     }
 
     @Test
