@@ -6,9 +6,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import team.four.pas.controllers.DTOs.AllocationAddDTO;
+import team.four.pas.DTO.AllocationAddDTO;
+import team.four.pas.data.allocations.VMAllocation;
 import team.four.pas.outside.AllocationWebPort;
-import team.four.pas.services.data.allocations.VMAllocation;
 
 import java.time.Instant;
 import java.util.List;

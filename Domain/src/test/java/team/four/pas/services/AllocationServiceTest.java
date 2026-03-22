@@ -24,9 +24,9 @@
 //import team.four.pas.services.data.resources.VirtualMachine;
 //import team.four.pas.services.data.users.Client;
 //import team.four.pas.services.data.users.Manager;
-//import team.four.pas.services.implementation.AllocationServiceImpl;
-//import team.four.pas.services.implementation.ResourceServiceImpl;
-//import team.four.pas.services.implementation.UserServiceImpl;
+//import team.four.pas.services.AllocationServiceImpl;
+//import team.four.pas.services.ResourceServiceImpl;
+//import team.four.pas.services.UserServiceImpl;
 //
 //import java.io.File;
 //import java.time.Instant;

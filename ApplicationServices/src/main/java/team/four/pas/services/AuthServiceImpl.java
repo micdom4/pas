@@ -1,4 +1,4 @@
-package team.four.pas.services.implementation;
+package team.four.pas.services;
 
 
 import lombok.RequiredArgsConstructor;
@@ -10,7 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import team.four.pas.outside.AuthWebPort;
-import team.four.pas.security.AuthResponse;
+import team.four.pas.data.AuthResponse;
 import team.four.pas.security.JwtService;
 import team.four.pas.security.TokenBlackList;
 import team.four.pas.data.users.User;

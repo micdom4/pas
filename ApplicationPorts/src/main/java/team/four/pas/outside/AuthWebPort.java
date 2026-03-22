@@ -1,11 +1,12 @@
 package team.four.pas.outside;
 
+import team.four.pas.data.AuthResponse;
 import team.four.pas.data.users.User;
 
 public interface AuthWebPort {
-    team.four.pas.security.AuthResponse register(User request);
+    AuthResponse register(User request);
 
-    team.four.pas.security.AuthResponse login(String username, String password);
+    AuthResponse login(String username, String password);
 
     void changePassword(String oldPassword, String newPassword);
 

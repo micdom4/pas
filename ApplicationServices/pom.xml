@@ -111,12 +111,6 @@
         </dependency>
         <dependency>
             <groupId>team.four</groupId>
-            <artifactId>ApplicationPorts</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>team.four</groupId>
             <artifactId>RepositoriesAdapters</artifactId>
             <version>0.0.1-SNAPSHOT</version>
             <scope>compile</scope>

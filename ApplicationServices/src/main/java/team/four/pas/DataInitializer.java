@@ -6,15 +6,15 @@ import org.springframework.stereotype.Component;
 import team.four.pas.data.resources.VirtualMachine;
 import team.four.pas.data.users.Admin;
 import team.four.pas.data.users.Client;
-import team.four.pas.data.users.Manager;
+import team.four.pas.data.users.Manager;import team.four.pas.outside.AuthWebPort;import team.four.pas.outside.ResourceWebPort;import team.four.pas.outside.UserWebPort;
 
 @AllArgsConstructor
 @Component
 public class DataInitializer implements CommandLineRunner {
 
-    private final AuthService authService;
-    private final ResourceService resourceService;
-    private final UserService userService;
+    private final AuthWebPort authService;
+    private final ResourceWebPort resourceService;
+    private final UserWebPort userService;
 
     @Override
     public void run(String... args) {

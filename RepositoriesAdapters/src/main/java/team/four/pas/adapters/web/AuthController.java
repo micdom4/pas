@@ -8,9 +8,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import team.four.pas.controllers.DTOs.*;
+import team.four.pas.DTO.UserAddDTO;
+import team.four.pas.DTO.UserLoginDTO;
+import team.four.pas.DTO.ChangePasswordDTO;
 import team.four.pas.DTO.mappers.UserToDTO;
 import team.four.pas.outside.AuthWebPort;
+import team.four.pas.data.AuthResponse;
 import team.four.pas.security.TokenBlackList;
 
 @RestController
