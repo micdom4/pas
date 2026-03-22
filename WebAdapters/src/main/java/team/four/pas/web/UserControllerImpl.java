@@ -1,4 +1,4 @@
-package team.four.pas.adapters.web;
+package team.four.pas.web;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -8,13 +8,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import team.four.pas.controllers.DTOs.UserAddDTO;
-import team.four.pas.controllers.DTOs.UserDTO;
-import team.four.pas.controllers.DTOs.UserModDTO;
-import team.four.pas.DTO.mappers.UserToDTO;
+import team.four.pas.data.users.User;
 import team.four.pas.outside.AuthWebPort;
 import team.four.pas.outside.UserWebPort;
-import team.four.pas.services.data.users.User;
+import team.four.pas.web.DTO.UserAddDTO;
+import team.four.pas.web.DTO.UserDTO;
+import team.four.pas.web.DTO.UserModDTO;
+import team.four.pas.web.DTO.mappers.UserToDTO;
 
 import java.util.List;
 

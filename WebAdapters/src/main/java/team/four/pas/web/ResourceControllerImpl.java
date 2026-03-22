@@ -1,4 +1,4 @@
-package team.four.pas.adapters.web;
+package team.four.pas.web;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -6,10 +6,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import team.four.pas.controllers.DTOs.ResourceAddDTO;
-import team.four.pas.controllers.DTOs.ResourceDTO;
-import team.four.pas.DTO.mappers.ResourceToDTO;
 import team.four.pas.outside.ResourceWebPort;
+import team.four.pas.web.DTO.ResourceAddDTO;
+import team.four.pas.web.DTO.ResourceDTO;
+import team.four.pas.web.DTO.mappers.ResourceToDTO;
 
 import java.util.List;
 

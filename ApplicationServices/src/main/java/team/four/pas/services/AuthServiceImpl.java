@@ -89,6 +89,11 @@ public class AuthServiceImpl implements AuthWebPort {
         return jwtService.verifyIntegrity(IntegrityToken, clientId, vmId);
     }
 
+    @Override
+    public void blacklist(String jwt) {
+        tokenBlackList.add(jwt);
+    }
+
     private List<SimpleGrantedAuthority> parseAuthorities(User user) {
        return (List<SimpleGrantedAuthority>) user.getAuthorities().stream().toList();
     }

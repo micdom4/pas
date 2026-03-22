@@ -28,6 +28,7 @@
         <module>RepositoriesAdapters</module>
         <module>ApplicationPorts</module>
         <module>ApplicationServices</module>
+        <module>WebAdapters</module>
     </modules>
     <scm>
 		<connection/>

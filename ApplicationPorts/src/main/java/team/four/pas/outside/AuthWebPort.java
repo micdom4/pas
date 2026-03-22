@@ -17,4 +17,6 @@ public interface AuthWebPort {
     boolean verifyIntegrity(String IntegrityToken, String expectedId);
 
     boolean verifyIntegrity(String IntegrityToken, String clientId, String vmId);
+
+    void blacklist(String jwt);
 }

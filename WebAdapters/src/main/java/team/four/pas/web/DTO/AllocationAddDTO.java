@@ -1,4 +1,4 @@
-package team.four.pas.DTO;
+package team.four.pas.web.DTO;
 
 import jakarta.validation.constraints.NotNull;
 

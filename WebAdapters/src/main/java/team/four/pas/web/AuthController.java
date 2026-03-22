@@ -1,4 +1,4 @@
-package team.four.pas.adapters.web;
+package team.four.pas.web;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -8,13 +8,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import team.four.pas.DTO.UserAddDTO;
-import team.four.pas.DTO.UserLoginDTO;
-import team.four.pas.DTO.ChangePasswordDTO;
-import team.four.pas.DTO.mappers.UserToDTO;
 import team.four.pas.outside.AuthWebPort;
 import team.four.pas.data.AuthResponse;
-import team.four.pas.security.TokenBlackList;
+import team.four.pas.web.DTO.ChangePasswordDTO;
+import team.four.pas.web.DTO.UserAddDTO;
+import team.four.pas.web.DTO.UserLoginDTO;
+import team.four.pas.web.DTO.mappers.UserToDTO;
 
 @RestController
 @CrossOrigin(originPatterns = {"http://localhost:[*]"})
@@ -24,7 +23,6 @@ public class AuthController {
 
     private final UserToDTO userToDTO;
     private final AuthWebPort authService;
-    private final TokenBlackList tokenBlackList;
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@RequestBody UserAddDTO request) {
@@ -46,7 +44,7 @@ public class AuthController {
 
         if (auth != null && auth.getCredentials() != null) {
             String jwt = auth.getCredentials().toString();
-            tokenBlackList.add(jwt);
+            authService.blacklist(jwt);
         }
 
         SecurityContextHolder.clearContext();

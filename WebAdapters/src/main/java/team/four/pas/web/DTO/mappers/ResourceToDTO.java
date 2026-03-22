@@ -1,9 +1,9 @@
-package team.four.pas.DTO.mappers;
+package team.four.pas.web.DTO.mappers;
 
 import org.mapstruct.Mapper;
-import team.four.pas.DTO.ResourceAddDTO;
-import team.four.pas.DTO.ResourceDTO;
-import team.four.pas.services.data.resources.VirtualMachine;
+import team.four.pas.data.resources.VirtualMachine;
+import team.four.pas.web.DTO.ResourceAddDTO;
+import team.four.pas.web.DTO.ResourceDTO;
 
 import java.util.List;
 import java.util.stream.Collectors;
