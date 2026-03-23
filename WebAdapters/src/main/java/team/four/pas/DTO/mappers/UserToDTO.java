@@ -1,4 +1,4 @@
-package team.four.pas.web.DTO.mappers;
+package team.four.pas.DTO.mappers;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -6,8 +6,8 @@ import team.four.pas.data.users.Admin;
 import team.four.pas.data.users.Client;
 import team.four.pas.data.users.Manager;
 import team.four.pas.data.users.User;
-import team.four.pas.web.DTO.UserAddDTO;
-import team.four.pas.web.DTO.UserDTO;
+import team.four.pas.DTO.UserAddDTO;
+import team.four.pas.DTO.UserDTO;
 
 import java.util.List;
 import java.util.stream.Collectors;

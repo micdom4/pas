@@ -1,4 +1,4 @@
-package team.four.pas.web.DTO;
+package team.four.pas.DTO;
 
 public record ResourceDTO(
         String id,

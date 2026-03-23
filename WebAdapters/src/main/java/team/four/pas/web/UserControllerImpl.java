@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.*;
 import team.four.pas.data.users.User;
 import team.four.pas.outside.AuthWebPort;
 import team.four.pas.outside.UserWebPort;
-import team.four.pas.web.DTO.UserAddDTO;
-import team.four.pas.web.DTO.UserDTO;
-import team.four.pas.web.DTO.UserModDTO;
-import team.four.pas.web.DTO.mappers.UserToDTO;
+import team.four.pas.DTO.UserAddDTO;
+import team.four.pas.DTO.UserDTO;
+import team.four.pas.DTO.UserModDTO;
+import team.four.pas.DTO.mappers.UserToDTO;
 
 import java.util.List;
 
@@ -33,8 +33,8 @@ public class UserControllerImpl {
     private final AuthWebPort authService;
 
     @GetMapping({""})
-    @PreAuthorize("hasAnyRole(T(team.four.pas.services.data.UserRoles).ADMIN, " +
-            "T(team.four.pas.services.data.UserRoles).MANAGER)")
+    @PreAuthorize("hasAnyRole(T(team.four.pas.data.UserRoles).ADMIN, " +
+            "T(team.four.pas.data.UserRoles).MANAGER)")
     public ResponseEntity<List<UserDTO>> getAll() {
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -42,8 +42,8 @@ public class UserControllerImpl {
     }
 
     @GetMapping({"/{id}"})
-    @PreAuthorize("hasAnyRole(T(team.four.pas.services.data.UserRoles).ADMIN, " +
-            "T(team.four.pas.services.data.UserRoles).MANAGER)")
+    @PreAuthorize("hasAnyRole(T(team.four.pas.data.UserRoles).ADMIN, " +
+            "T(team.four.pas.data.UserRoles).MANAGER)")
     public ResponseEntity<UserDTO> getUser(@PathVariable String id) {
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -51,9 +51,9 @@ public class UserControllerImpl {
     }
 
     @GetMapping({"/login/{login}"})
-    @PreAuthorize("hasAnyRole(T(team.four.pas.services.data.UserRoles).ADMIN, " +
-            "T(team.four.pas.services.data.UserRoles).MANAGER, " +
-            "T(team.four.pas.services.data.UserRoles).CLIENT)")
+    @PreAuthorize("hasAnyRole(T(team.four.pas.data.UserRoles).ADMIN, " +
+            "T(team.four.pas.data.UserRoles).MANAGER, " +
+            "T(team.four.pas.data.UserRoles).CLIENT)")
     public ResponseEntity<UserDTO> findPersonByLogin(@PathVariable
                                                       @NotNull(message = "login can't be null")
                                                       @Pattern(regexp = "^[A-Z][A-Z][a-z]{1,18}[0-9]{0,5}$",
@@ -65,8 +65,8 @@ public class UserControllerImpl {
     }
 
     @GetMapping({"/search/{login}"})
-    @PreAuthorize("hasAnyRole(T(team.four.pas.services.data.UserRoles).ADMIN, " +
-            "T(team.four.pas.services.data.UserRoles).MANAGER)")
+    @PreAuthorize("hasAnyRole(T(team.four.pas.data.UserRoles).ADMIN, " +
+            "T(team.four.pas.data.UserRoles).MANAGER)")
     public ResponseEntity<List<UserDTO>> searchByLogin(@PathVariable
                                                                String login) {
         return ResponseEntity
@@ -75,8 +75,8 @@ public class UserControllerImpl {
     }
 
     @PutMapping("/{id}/activate")
-    @PreAuthorize("hasAnyRole(T(team.four.pas.services.data.UserRoles).ADMIN, " +
-            "T(team.four.pas.services.data.UserRoles).MANAGER) " +
+    @PreAuthorize("hasAnyRole(T(team.four.pas.data.UserRoles).ADMIN, " +
+            "T(team.four.pas.data.UserRoles).MANAGER) " +
             "&& @ownershipChecker.isValidJws(#id, #jws)")
     public ResponseEntity<Void> activateUser(
             @PathVariable String id,
@@ -87,8 +87,8 @@ public class UserControllerImpl {
     }
 
     @PutMapping({"/{id}/deactivate"})
-    @PreAuthorize("hasAnyRole(T(team.four.pas.services.data.UserRoles).ADMIN, " +
-            "T(team.four.pas.services.data.UserRoles).MANAGER) " +
+    @PreAuthorize("hasAnyRole(T(team.four.pas.data.UserRoles).ADMIN, " +
+            "T(team.four.pas.data.UserRoles).MANAGER) " +
             "&& @ownershipChecker.isValidJws(#id, #jws)")
     public ResponseEntity<?> deactivateUser(@PathVariable String id,
                                             @RequestHeader(value = "If-Match") String jws) {
@@ -116,8 +116,8 @@ public class UserControllerImpl {
             consumes = {"application/json"}
     )
     @PreAuthorize(
-            "(hasAnyRole(T(team.four.pas.services.data.UserRoles).ADMIN, T(team.four.pas.services.data.UserRoles).MANAGER, " +
-            "T(team.four.pas.services.data.UserRoles).CLIENT) && @ownershipChecker.isOwner(authentication, #id))"
+            "(hasAnyRole(T(team.four.pas.data.UserRoles).ADMIN, T(team.four.pas.data.UserRoles).MANAGER, " +
+            "T(team.four.pas.data.UserRoles).CLIENT) && @ownershipChecker.isOwner(authentication, #id))"
     )
     public ResponseEntity<?> editUser(@PathVariable String id, @Valid @RequestBody UserModDTO modDTO) {
         userService.update(id, modDTO.surname());

@@ -7,9 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import team.four.pas.outside.ResourceWebPort;
-import team.four.pas.web.DTO.ResourceAddDTO;
-import team.four.pas.web.DTO.ResourceDTO;
-import team.four.pas.web.DTO.mappers.ResourceToDTO;
+import team.four.pas.DTO.ResourceAddDTO;
+import team.four.pas.DTO.ResourceDTO;
+import team.four.pas.DTO.mappers.ResourceToDTO;
 
 import java.util.List;
 
@@ -27,9 +27,9 @@ public class ResourceControllerImpl {
     private final ResourceToDTO resourceToDTO;
 
     @GetMapping({""})
-    @PreAuthorize("hasAnyRole(T(team.four.pas.services.data.UserRoles).ADMIN, " +
-            "T(team.four.pas.services.data.UserRoles).MANAGER, " +
-            "T(team.four.pas.services.data.UserRoles).CLIENT)")
+    @PreAuthorize("hasAnyRole(T(team.four.pas.data.UserRoles).ADMIN, " +
+            "T(team.four.pas.data.UserRoles).MANAGER, " +
+            "T(team.four.pas.data.UserRoles).CLIENT)")
     public ResponseEntity<List<ResourceDTO>> getAll() {
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -38,9 +38,9 @@ public class ResourceControllerImpl {
     }
 
     @GetMapping({"/{id}"})
-    @PreAuthorize("hasAnyRole(T(team.four.pas.services.data.UserRoles).ADMIN, " +
-            "T(team.four.pas.services.data.UserRoles).MANAGER, " +
-            "T(team.four.pas.services.data.UserRoles).CLIENT)")
+    @PreAuthorize("hasAnyRole(T(team.four.pas.data.UserRoles).ADMIN, " +
+            "T(team.four.pas.data.UserRoles).MANAGER, " +
+            "T(team.four.pas.data.UserRoles).CLIENT)")
     public ResponseEntity<ResourceDTO> getResource(@PathVariable String id) {
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -51,8 +51,8 @@ public class ResourceControllerImpl {
             value = {""},
             consumes = {"application/json"}
     )
-    @PreAuthorize("hasAnyRole(T(team.four.pas.services.data.UserRoles).ADMIN, " +
-                  "T(team.four.pas.services.data.UserRoles).MANAGER)")
+    @PreAuthorize("hasAnyRole(T(team.four.pas.data.UserRoles).ADMIN, " +
+                  "T(team.four.pas.data.UserRoles).MANAGER)")
     public ResponseEntity<ResourceDTO> createVM(@Valid @RequestBody ResourceAddDTO vmDto) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -63,8 +63,8 @@ public class ResourceControllerImpl {
             value = {"/{id}"},
             consumes = {"application/json"}
     )
-    @PreAuthorize("hasAnyRole(T(team.four.pas.services.data.UserRoles).ADMIN, " +
-                  "T(team.four.pas.services.data.UserRoles).MANAGER)")
+    @PreAuthorize("hasAnyRole(T(team.four.pas.data.UserRoles).ADMIN, " +
+                  "T(team.four.pas.data.UserRoles).MANAGER)")
     public ResponseEntity<ResourceDTO> updateVM(@PathVariable String id, @Valid @RequestBody ResourceAddDTO vmDto) {
         resourceService.updateVM(id, vmDto.cpuNumber(), vmDto.ramGiB(), vmDto.storageGiB());
         return ResponseEntity.ok().build();
@@ -73,8 +73,8 @@ public class ResourceControllerImpl {
     @DeleteMapping(
             value = {"/{id}"}
     )
-    @PreAuthorize("hasAnyRole(T(team.four.pas.services.data.UserRoles).ADMIN, " +
-                  "T(team.four.pas.services.data.UserRoles).MANAGER)")
+    @PreAuthorize("hasAnyRole(T(team.four.pas.data.UserRoles).ADMIN, " +
+                  "T(team.four.pas.data.UserRoles).MANAGER)")
     public ResponseEntity<?> deleteVM(@PathVariable String id) {
         resourceService.deleteVM(id);
 

@@ -1,4 +1,4 @@
-package team.four.pas.web.DTO;
+package team.four.pas.DTO;
 
 import jakarta.validation.constraints.Pattern;
 import org.springframework.lang.NonNull;
