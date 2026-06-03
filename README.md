@@ -38,19 +38,19 @@ Funkcjonalność aplikacji powinna obejmować:
 
     [x] zestaw operacji CRU (tworzenie, odczyt (lista), modyfikacja) dla hierarchii Użytkowników, dodatkowo jako odrębne operacje należy uwzględnić aktywowanie i deaktywowanie Użytkownika
 
-    [ ] utworzenie alokacji dla wskazanego Klienta oraz Zasobu (wskazanie poprzez wartość klucza), obwarowane co najmniej aktywnością Klienta oraz dostępnością (brakiem nie zakończonych alokacji) Zasobu
+    [x] utworzenie alokacji dla wskazanego Klienta oraz Zasobu (wskazanie poprzez wartość klucza), obwarowane co najmniej aktywnością Klienta oraz dostępnością (brakiem nie zakończonych alokacji) Zasobu
 
     [x] pobranie (odrębnie) listy alokacji minionych oraz bieżących dla wskazanego Klienta lub Zasobu
 
-    [ ] zakończenie alokacji i usuwanie alokacji
+    [x] zakończenie alokacji i usuwanie alokacji
 
-    [ ] czas rozpoczęcia tworzonej alokacji może być ustawiany jako przyszły
+    [x] czas rozpoczęcia tworzonej alokacji może być ustawiany jako przyszły
 
     [x] zakończenie alokacji polega na ustawieniu atrybutu czasu zakończenia alokacji
 
-    [ ] usuwanie alokacji dotyczy tylko alokacji nie zakończonych
+    [x] usuwanie alokacji dotyczy tylko alokacji nie zakończonych
 
-    [ ] operacje na alokacjach są prowadzone z perspektywy osoby trzeciej (operatora aplikacji)
+    [x] operacje na alokacjach są prowadzone z perspektywy osoby trzeciej (operatora aplikacji)
 
     UWAGA: Nie ma potrzeby i nie jest zalecane rozbudowywanie funkcjonalności ponad wyżej wymienione wymagania WSKAZÓWKA: Dobrą bazą do budowy modelu aplikacji powinien być projekt realizowany w ramach przedmiotu Programowanie Obiektowe UWAGA: Model aplikacji nie może powielać modelu "Wypożyczalnia pojazdów" używanego jako referencyjny
 
@@ -58,68 +58,68 @@ WARUNKI POPRAWNOŚCI
 
 W implementacji aplikacji należy uwzględnić sprawdzanie poprawności danych wejściowych, a w szczególności:
 
-    [ ] walidację składniową danych przesyłanych w żądaniu, przy czym niespełnianie warunków poprawności powinno powodować uznanie żądania za niepoprawne
+    [x] walidację składniową danych przesyłanych w żądaniu, przy czym niespełnianie warunków poprawności powinno powodować uznanie żądania za niepoprawne
 
-    [ ] weryfikację możliwości realizacji operacji ze względu na stan danych aplikacji (zgodnie z opisem funkcjonalności)
+    [x] weryfikację możliwości realizacji operacji ze względu na stan danych aplikacji (zgodnie z opisem funkcjonalności)
 
 SZCZEGÓŁY ARCHITEKTONICZNE
 
 Aplikacja powinna być zrealizowana w modelu warstwowym, a w szczególności powinny być wyodrębnione dwie warstwy:
 
-    [ ] warstwa tzw. menedżerów - obiektów wykonawczych udostępniających realizację wszystkich funkcji warstwy logiki; funkcjonalność menedżerów jest dostępna jako Rest API
+    [x] warstwa tzw. menedżerów - obiektów wykonawczych udostępniających realizację wszystkich funkcji warstwy logiki; funkcjonalność menedżerów jest dostępna jako Rest API
 
-    [ ] warstwa tzw. źródeł danych (DAO, repozytoria) - obiektów wykonawczych realizujących funkcjonalność składowania danych (z uwzględnieniem unikatowości identyfikatorów biznesowych)
+    [x] warstwa tzw. źródeł danych (DAO, repozytoria) - obiektów wykonawczych realizujących funkcjonalność składowania danych (z uwzględnieniem unikatowości identyfikatorów biznesowych)
 
-    [ ] składowanie danych powinno być realizowane w pamięci aplikacji, przy czym konstrukcja aplikacji powinna uwzględniać możliwość łatwej (nie wymagającej zmiany kodu klas menedżerów) zmiany implementacji źródeł danych
+    [x] składowanie danych powinno być realizowane w pamięci aplikacji, przy czym konstrukcja aplikacji powinna uwzględniać możliwość łatwej (nie wymagającej zmiany kodu klas menedżerów) zmiany implementacji źródeł danych
 
-    [ ] uruchamianie aplikacji powinno wiązać się z wczytaniem zestawu danych inicjujących
+    [x] uruchamianie aplikacji powinno wiązać się z wczytaniem zestawu danych inicjujących
 
-    [ ] źródło danych jest odpowiedzialne za spełnianie warunku unikalności i niepustości kluczy oraz identyfikatora tekstowego (optymalność wykonania nie podlega ocenie)
+    [x] źródło danych jest odpowiedzialne za spełnianie warunku unikalności i niepustości kluczy oraz identyfikatora tekstowego (optymalność wykonania nie podlega ocenie)
 
-    [ ] źródło danych jest odpowiedzialne za nadawanie wartości kluczy nowo tworzonym obiektom
+    [x] źródło danych jest odpowiedzialne za nadawanie wartości kluczy nowo tworzonym obiektom
 
-    [ ] poszczególne hierarchie obiektów aplikacji powinny być obsługiwane przez odrębne klasy menedżerów / źródeł danych (zasada pojedynczej odpowiedzialności)
+    [x] poszczególne hierarchie obiektów aplikacji powinny być obsługiwane przez odrębne klasy menedżerów / źródeł danych (zasada pojedynczej odpowiedzialności)
 
-    [ ] operacje zawężania zbioru danych (filtrowanie, wyszukiwanie) powinny być realizowane przez źródła danych (zasada minimalizacji transferu danych)
+    [x] operacje zawężania zbioru danych (filtrowanie, wyszukiwanie) powinny być realizowane przez źródła danych (zasada minimalizacji transferu danych)
 
 OBSŁUGA WIELOWĄTKOWOŚCI
 
 Należy pamiętać, że aplikacja będzie wykonywana wielowątkowo na poziomie obsługi żądań.
 
-    [ ] obiekty źródeł danych muszą być współdzielone pomiędzy poszczególne żądania aplikacji Rest
+    [x] obiekty źródeł danych muszą być współdzielone pomiędzy poszczególne żądania aplikacji Rest
 
-    [ ] w przypadku pozostałych klas wykonawczych należy unikać współdzielenia tych obiektów pomiędzy wątkami (stosować odpowiednie mechanizmy kontenera / frameworku aplikacyjnego)
+    [x] w przypadku pozostałych klas wykonawczych należy unikać współdzielenia tych obiektów pomiędzy wątkami (stosować odpowiednie mechanizmy kontenera / frameworku aplikacyjnego)
 
 CECHY SPECYFICZNE APLIKACJI REST
 
 Należy uwzględnić cechy specyficzne dla aplikacji Rest, wynikające z komunikacji w modelu żądanie - odpowiedź, w szczególności:
 
-    [ ] ryzyko hazardu związanego z przeplotem żądań prowadzących do modyfikacji stanu źródeł danych
+    [x] ryzyko hazardu związanego z przeplotem żądań prowadzących do modyfikacji stanu źródeł danych
 
-    [ ] możliwość ponownego przesłania identycznego żądania
+    [x] możliwość ponownego przesłania identycznego żądania
 
 TESTY INTEGRACYJNE
 
-    [ ] Zaimplementować zestaw automatycznych testów usługi REST. Wymagane jest użycie frameworku / narzędzia dedykowanego do tego celu. Narzędzie powinno integrować się z IDE i umożliwiać generowanie raportów z pokrycia kodu testami. Wymagania te spełnia na pewno użycie JUnit i użycie biblioteki klienta REST (JaxRS, RestAssured,...).
+    [x] Zaimplementować zestaw automatycznych testów usługi REST. Wymagane jest użycie frameworku / narzędzia dedykowanego do tego celu. Narzędzie powinno integrować się z IDE i umożliwiać generowanie raportów z pokrycia kodu testami. Wymagania te spełnia na pewno użycie JUnit i użycie biblioteki klienta REST (JaxRS, RestAssured,...).
 
-    [ ] Procedura uruchamiania testów zakłada, że usługa jest wdrożona i dostępna a jej URL jest znany.
+    [x] Procedura uruchamiania testów zakłada, że usługa jest wdrożona i dostępna a jej URL jest znany.
 
-    [ ] Implementując testy można założyć, że usługa jest uruchomiona z zerowym stanem danych. Nie ma obowiązku "czyszczenia" danych będących wynikiem przeprowadzania testów.
+    [x] Implementując testy można założyć, że usługa jest uruchomiona z zerowym stanem danych. Nie ma obowiązku "czyszczenia" danych będących wynikiem przeprowadzania testów.
 
-    [ ] Należy unikać uzależniania testów od siebie (np. wykonanie kolejnego testu wymaga wprowadzenia odpowiednich danych przez poprzedni test). Każdy test powinien sam przygotowywać dane potrzebne do jego przeprowadzenia.
+    [x] Należy unikać uzależniania testów od siebie (np. wykonanie kolejnego testu wymaga wprowadzenia odpowiednich danych przez poprzedni test). Każdy test powinien sam przygotowywać dane potrzebne do jego przeprowadzenia.
 
 Następujące funkcjonalności powinny być pokryte testami:
 
 Testy pozytywne - weryfikacja na podstawie oczekiwanego stanu danych usługi:
 
-    [ ] CRU[D] na obiektach Użytkowników i Zasobów
+    [x] CRU[D] na obiektach Użytkowników i Zasobów
 
-    [ ] alokacja Zasobu na rzecz Klienta
+    [x] alokacja Zasobu na rzecz Klienta
 
 Testy negatywne - weryfikacja na podstawie zwróconego kodu statusu żądania HTTP
 
-    [ ] naruszenie ograniczeń składniowych dla tworzonych lub modyfikowanych obiektów - po jednym przykładzie dla obu hierarchii (Użytkowników i Zasobów)
+    [x] naruszenie ograniczeń składniowych dla tworzonych lub modyfikowanych obiektów - po jednym przykładzie dla obu hierarchii (Użytkowników i Zasobów)
 
-    [ ] naruszenie ograniczenia unikalności identyfikatora Użytkownika
+    [x] naruszenie ograniczenia unikalności identyfikatora Użytkownika
 
-    [ ] niepowodzenie alokacji Zasobu na rzecz Klienta ze względu na to, że Zasób został już zaalokowany
+    [x] niepowodzenie alokacji Zasobu na rzecz Klienta ze względu na to, że Zasób został już zaalokowany
